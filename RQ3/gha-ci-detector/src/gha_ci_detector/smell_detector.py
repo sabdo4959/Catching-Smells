@@ -51,7 +51,7 @@ def external_actions_must_have_permissions_workflow(workflow: Workflow) -> None:
         for job in jobs_using_secrets:
             if not job.has_permissions():
                 line_nr = workflow.get_line_number(job.name + ":", use_whitespace=False)
-                workflow.smells.add("15. Use permissions whenever using Github Token (job at line "
+                workflow.smells.add("3. Use permissions whenever using Github Token (job at line "
                                     f"{line_nr})")
 
     for job in workflow.get_jobs():
@@ -60,7 +60,7 @@ def external_actions_must_have_permissions_workflow(workflow: Workflow) -> None:
         for step in job.get_steps():
             if "uses" in step.yaml.keys():
                 line_nr = workflow.get_line_number(job.name + ":", use_whitespace=False)
-                workflow.smells.add("6. Define permissions for workflows with external actions ("
+                workflow.smells.add("1. Define permissions for workflows with external actions ("
                                     "job "
                                     f"at line: {line_nr})")
 
@@ -94,7 +94,7 @@ def pull_based_actions_on_fork(workflow: Workflow) -> None:
                                                use_whitespace=False)
             # We expect an if statement on the job
             if not job_has_if:
-                workflow.smells.add(f"2. Prevent running issue/PR actions on forks (job line"
+                workflow.smells.add(f"4. Prevent running issue/PR actions on forks (job line"
                                     f": {line_nr})")
         # Otherwise we need to check
         elif not job_has_if:
@@ -106,7 +106,7 @@ def pull_based_actions_on_fork(workflow: Workflow) -> None:
                 if ((is_pull_based_name(str(step.get_execution())) or is_pull_based_name(str(
                         step.get_name()))) and not step_has_if):
                     (start, end) = step.get_line_numbers(workflow.get_line_number)
-                    workflow.smells.add(f"2. Prevent running issue/PR actions on forks line "
+                    workflow.smells.add(f"4. Prevent running issue/PR actions on forks line "
                                         f"{start}:{end}")
 
             # TODO: Maybe we can extend this further?
@@ -137,10 +137,10 @@ def running_ci_when_nothing_changed(workflow: Workflow) -> None:
         if ("on" in workflow.get_keys() and isinstance(workflow.yaml["on"], dict)
                 and independent_on_code_change(workflow.yaml["on"])):
             if not contains_path(workflow.get_on()["push"]):
-                workflow.smells.add("16. Avoid running CI related actions when no source code has "
+                workflow.smells.add("8. Avoid running CI related actions when no source code has "
                                     "changed")
         elif "on" not in workflow.get_keys():
-            workflow.smells.add("16. Avoid running CI related actions when no source code has "
+            workflow.smells.add("8. Avoid running CI related actions when no source code has "
                                 "changed")
 
 
@@ -154,7 +154,7 @@ def use_fixed_version_runs_on(workflow: Workflow) -> None:
     runs_on_lines = list(filter(lambda x: "runs-on" in x and "latest" in x, lines))
     for line in runs_on_lines:
         line_nr = lines.index(line)
-        workflow.smells.add(f"3. Use fixed version for runs-on argument (line {line_nr})")
+        workflow.smells.add(f"15. Use fixed version for runs-on argument (line {line_nr})")
 
 
 def use_specific_version_instead_of_dynamic(workflow: Workflow) -> None:
@@ -176,11 +176,11 @@ def use_specific_version_instead_of_dynamic(workflow: Workflow) -> None:
         if versions == ['']:
             continue
         if len(versions) == 1:
-            workflow.smells.add(f"8. Use commit hash instead of tags for action versions (line "
+            workflow.smells.add(f"2. Use commit hash instead of tags for action versions (line "
                                 f"{line_nr})")
             continue
         if len(versions) >= 2 and ("v" in versions[1] or "." in versions[1]):
-            workflow.smells.add(f"8. Use commit hash instead of tags for action versions (line "
+            workflow.smells.add(f"2. Use commit hash instead of tags for action versions (line "
                                 f"{line_nr})")
 
 
@@ -199,7 +199,7 @@ def action_should_have_timeout(workflow: Workflow) -> None:
             continue
         if "timeout-minutes" not in job.yaml.keys():
             line_nr = workflow.get_line_number(job.name + ":", use_whitespace=False)
-            workflow.smells.add(f"10. Avoid jobs without timeouts (line: {line_nr})")
+            workflow.smells.add(f"5. Avoid jobs without timeouts (line: {line_nr})")
 
 
 def use_cache_from_setup(workflow: Workflow) -> None:
@@ -225,7 +225,7 @@ def use_cache_from_setup(workflow: Workflow) -> None:
                                or is_cache_action)
 
         if is_cache_action and is_cachable_action:
-            workflow.smells.add("21. Use cache parameter instead of cache option")
+            workflow.smells.add("17. Use cache parameter instead of cache option")
 
 
 def scheduled_workflows_on_forks(workflow: Workflow) -> None:
@@ -235,10 +235,10 @@ def scheduled_workflows_on_forks(workflow: Workflow) -> None:
         for job in workflow.get_jobs():
             if_statements = ["github.repository", "github.repository_owner", "repo.full_name "]
             if job.get_if() is None:
-                workflow.smells.add("1. Avoid executing scheduled workflows on forks")
+                workflow.smells.add("9. Avoid executing scheduled workflows on forks")
                 continue
             if not any(word in job.get_if() for word in if_statements):
-                workflow.smells.add("1. Avoid executing scheduled workflows on forks")
+                workflow.smells.add("9. Avoid executing scheduled workflows on forks")
 
 
 def use_name_for_step(workflow: Workflow) -> None:
@@ -246,7 +246,7 @@ def use_name_for_step(workflow: Workflow) -> None:
         for step in job.get_steps():
             if "name" not in step.yaml.keys() and not step.is_inherited:
                 (start, end) = step.get_line_numbers(workflow.get_line_number)
-                workflow.smells.add(f"13. Use names for run steps (lines {start}:{end})")
+                workflow.smells.add(f"16. Use names for run steps (lines {start}:{end})")
 
 
 def upload_artifact_must_have_if(workflow: Workflow) -> None:
@@ -261,7 +261,7 @@ def upload_artifact_must_have_if(workflow: Workflow) -> None:
                     stripped = step.yaml["uses"].strip()
                     line_nr = workflow.get_line_number(f"uses: {stripped}".replace(" ", ""),
                                                        use_whitespace=False)
-                    workflow.smells.add(f"7. Use 'if' for upload-artifact action (line {line_nr})")
+                    workflow.smells.add(f"11. Use 'if' for upload-artifact action (line {line_nr})")
                 else:
                     if not (("github.repository" in step.get_if() or "github.repository_owner"
                              in step.get_if()) or (
@@ -271,7 +271,7 @@ def upload_artifact_must_have_if(workflow: Workflow) -> None:
                         stripped = step.yaml["uses"].strip()
                         line_nr = workflow.get_line_number(f"uses: {stripped}".replace(" ", ""),
                                                        use_whitespace=False)
-                        workflow.smells.add(f"11. Avoid uploading artifacts on forks (line"
+                        workflow.smells.add(f"10. Avoid uploading artifacts on forks (line"
                                             f" {line_nr})")
             elif step.get_name() is not None and "upload" in step.get_name().lower():
                 if (step.get_if() is not None and not ("github.repository" in step.get_if() or
@@ -282,7 +282,7 @@ def upload_artifact_must_have_if(workflow: Workflow) -> None:
                     #                                     in step.get_if()))):
                     (start, end) = step.get_line_numbers(workflow.get_line_number)
                     workflow.smells.add(
-                        f"11. Avoid uploading artifacts on forks (line {start}:{end}) for job"
+                        f"10. Avoid uploading artifacts on forks (line {start}:{end}) for job"
                         f" {job.name}")
 
 
@@ -300,33 +300,33 @@ def multi_line_steps(workflow: Workflow) -> None:
                 if "\n" in unformatted_run[:-1] or "&&" in run:
                     line_nr = workflow.get_line_number(("-run: " + run.split("\n")[0]).strip(),
                                                        use_whitespace=False)
-                    workflow.smells.add(f"9. Steps should only perform a single command (line "
+                    workflow.smells.add(f"18. Steps should only perform a single command (line "
                                         f"{line_nr})")
 
 
 def comment_in_workflow(workflow: Workflow) -> None:
     source_code = workflow.file_content
     if "#" not in source_code:
-        workflow.smells.add("12. Avoid workflows without comments")
+        workflow.smells.add("21. Avoid workflows without comments")
 
 
 def deploy_from_fork(workflow: Workflow) -> None:
     if "deploy" in workflow.name:
         for job in workflow.get_jobs():
             if job.get_if() is None:
-                workflow.smells.add("22. Avoid deploying jobs on forks")
+                workflow.smells.add("12. Avoid deploying jobs on forks")
                 continue
             if ("github.repository" not in job.get_if() and
                                         "github.repository_owner" not in job.get_if()):
-                workflow.smells.add("22. Avoid deploying from forks")
+                workflow.smells.add("12. Avoid deploying from forks")
 
     for job in workflow.get_jobs():
         if job.get_if() is None:
-            workflow.smells.add("22. Avoid deploying jobs on forks")
+            workflow.smells.add("12. Avoid deploying jobs on forks")
             continue
         if ("github.repository" not in job.get_if() and
                 "github.repository_owner" not in job.get_if()):
-            workflow.smells.add("22. Avoid deploying jobs on forks")
+            workflow.smells.add("12. Avoid deploying jobs on forks")
 
 
 def run_multiple_versions(workflow: Workflow) -> None:
@@ -369,7 +369,7 @@ def run_multiple_versions(workflow: Workflow) -> None:
                     not in str(job.yaml["runs-on"])):
                 workflow.smells.add(f"19. Run tests on multiple OS's (job: {job.name})")
             if not job_has_setup_action_with_version(job):
-                workflow.smells.add(f"20. Run CI on multiple language versions (job: {job.name})")
+                workflow.smells.add(f"22. Run CI on multiple language versions (job: {job.name})")
 
 
 def installing_packages_without_version(workflow: Workflow) -> None:
@@ -395,7 +395,7 @@ def installing_packages_without_version(workflow: Workflow) -> None:
                         if version is None and "--channel" not in l and "latest" not in l:
                             line_nr = workflow.get_line_number("-run:" + l.strip(),
                                                                use_whitespace=False)
-                            workflow.smells.add("18. Avoid installing packages without version ("
+                            workflow.smells.add("20. Avoid installing packages without version ("
                                                 "line "
                                                 f"{line_nr})")
 
@@ -405,11 +405,11 @@ def stop_workflows_for_old_commit(workflow: Workflow) -> None:
         if ((isinstance(workflow.yaml["on"], dict) and "schedule" in workflow.get_on().keys()) or
                 "release" in workflow.name.lower()):
             workflow.smells.add(
-                "17. Avoid starting new workflow whilst the previous one is still running")
+                "13. Avoid starting new workflow whilst the previous one is still running")
         if (workflow.get_on() is not None
                 and isinstance(workflow.get_on(), dict) and "push" in workflow.get_on().keys()):
-            workflow.smells.add("4. Stop running workflows when there is a newer commit in branch")
+            workflow.smells.add("7. Stop running workflows when there is a newer commit in branch")
         if workflow.get_on() is not None and isinstance(workflow.get_on(), dict) and (
                 "pull_request" in workflow.get_on().keys() or "pull_request_target" in
                 workflow.get_on().keys()):
-            workflow.smells.add("5. Stop running workflows when there is a newer commit in PR")
+            workflow.smells.add("6. Stop running workflows when there is a newer commit in PR")
