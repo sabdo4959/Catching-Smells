@@ -20,7 +20,8 @@ def files_should_be_indented_correctly(workflow: Workflow) -> None:
             check-keys: false
 
     """
-    yaml_config = config.YamlLintConfig(content=rules)
+    yaml_config = config.YamlLintConfig(file="/workspaces/Catching-Smells/RQ3/gha-ci-detector/src/gha_ci_detector/yamllintconf.yaml")
+    #yaml_config = config.YamlLintConfig(content=rules)
     problems = list(linter.run(workflow.file_content, yaml_config))
     if len(problems) > 0:
         workflow.smells.add("14. Avoid incorrectly formatted workflows")
