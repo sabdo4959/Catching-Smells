@@ -1,3 +1,4 @@
+# This workflow runs build, test, and lint checks for Angular packages on pull requests.
 name: 'Angular'
 on:
   pull_request:
@@ -18,16 +19,26 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # TODO: Consider using a strategy matrix to run tests on multiple OS's (windows, macos).
   build-test-lint:
-    if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }} && github.repository == 'owner/repo' # TODO: Replace with your repository (e.g., 'your-org/your-repo')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v2
+      # TODO: For security, pin this action to a specific commit SHA instead of a tag.
+      - name: Checkout repository
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - uses: actions/cache@v4
+      # TODO: For security, pin this action to a specific commit SHA instead of a tag.
+      - name: Cache npm/ng-packs node_modules
+        uses: actions/cache@v4
         with:
           path: 'npm/ng-packs/node_modules'
           key: ${{ runner.os }}-${{ hashFiles('npm/ng-packs/yarn.lock') }}
