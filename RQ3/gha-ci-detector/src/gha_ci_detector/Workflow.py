@@ -18,6 +18,8 @@ class Workflow:
         return cls(data, filepath)
 
     def get_jobs(self) -> list[Job]:
+        if self.yaml is None or 'jobs' not in self.yaml:
+            return []
         jobs = self.yaml['jobs']
         return list(map(lambda x: Job(x, self.yaml['jobs'][x]), jobs))
 

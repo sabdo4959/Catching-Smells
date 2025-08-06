@@ -36,7 +36,7 @@ def external_actions_must_have_permissions_workflow(workflow: Workflow) -> None:
     :param workflow:
     :return:
     """
-    if "permissions" in workflow.yaml.keys():
+    if workflow.yaml is not None and "permissions" in workflow.yaml.keys():
         return
 
     # Are we using secrets?
