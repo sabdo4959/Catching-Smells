@@ -82,9 +82,10 @@ def pull_based_actions_on_fork(workflow: Workflow) -> None:
                 "review" in name or "branch" in name or "pull request" in name
                 or "pull_request" in name or "pull-request" in name or "label" in name)
 
-    pull_based_workflow = ("name" in workflow.yaml.keys()
-                           and is_pull_based_name(workflow.yaml["name"])) or is_pull_based_name(
-        workflow.name)
+    pull_based_workflow = False
+    if workflow.yaml is not None and "name" in workflow.yaml.keys():
+        pull_based_workflow = is_pull_based_name(workflow.yaml["name"])
+    pull_based_workflow = pull_based_workflow or is_pull_based_name(workflow.name)
 
     for job in workflow.get_jobs():
         job_has_if = job.get_if() is not None and ("github.repository" in job.get_if() or
@@ -402,7 +403,7 @@ def installing_packages_without_version(workflow: Workflow) -> None:
 
 
 def stop_workflows_for_old_commit(workflow: Workflow) -> None:
-    if "concurrency" not in workflow.yaml.keys():
+    if workflow.yaml is not None and "concurrency" not in workflow.yaml.keys():
         if ((isinstance(workflow.yaml["on"], dict) and "schedule" in workflow.get_on().keys()) or
                 "release" in workflow.name.lower()):
             workflow.smells.add(

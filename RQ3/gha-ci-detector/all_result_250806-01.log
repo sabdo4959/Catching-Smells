@@ -2,15 +2,15 @@ Welcome to GHA CI Detector
 Detecting smells for ./.github/workflows/keycloak_keycloak__guides.yml
 We have found 11 smells
 	- 5. Avoid jobs without timeouts (line: 29)
-	- 5. Avoid jobs without timeouts (line: 46)
 	- 5. Avoid jobs without timeouts (line: 58)
+	- 5. Avoid jobs without timeouts (line: 46)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 30)
 	- 16. Use names for run steps (lines -1:42)
-	- 16. Use names for run steps (lines -1:67)
 	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines -1:67)
 	- 19. Run tests on multiple OS's (job: build)
 The following styling errors were found: 
 39:73: too few spaces before comment: expected 2 (comments)
@@ -18,29 +18,29 @@ The following styling errors were found:
 66:73: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/parcel-bundler_parcel__release.yml
 We have found 24 smells
-	- 2. Use commit hash instead of tags for action versions (line 150)
-	- 2. Use commit hash instead of tags for action versions (line 53)
-	- 2. Use commit hash instead of tags for action versions (line 175)
 	- 2. Use commit hash instead of tags for action versions (line 65)
-	- 2. Use commit hash instead of tags for action versions (line 46)
-	- 2. Use commit hash instead of tags for action versions (line 125)
-	- 2. Use commit hash instead of tags for action versions (line 157)
+	- 2. Use commit hash instead of tags for action versions (line 175)
 	- 2. Use commit hash instead of tags for action versions (line 121)
 	- 2. Use commit hash instead of tags for action versions (line 52)
+	- 2. Use commit hash instead of tags for action versions (line 150)
+	- 2. Use commit hash instead of tags for action versions (line 46)
+	- 2. Use commit hash instead of tags for action versions (line 157)
+	- 2. Use commit hash instead of tags for action versions (line 125)
+	- 2. Use commit hash instead of tags for action versions (line 53)
 	- 5. Avoid jobs without timeouts (line: 77)
-	- 5. Avoid jobs without timeouts (line: 164)
 	- 5. Avoid jobs without timeouts (line: 29)
+	- 5. Avoid jobs without timeouts (line: 164)
 	- 11. Use 'if' for upload-artifact action (line 66)
 	- 12. Avoid deploying jobs on forks
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 112)
+	- 16. Use names for run steps (lines 53:53)
 	- 16. Use names for run steps (lines 47:47)
 	- 16. Use names for run steps (lines -1:55)
 	- 16. Use names for run steps (lines -1:47)
-	- 16. Use names for run steps (lines 187:187)
 	- 16. Use names for run steps (lines -1:184)
-	- 16. Use names for run steps (lines 53:53)
+	- 16. Use names for run steps (lines 187:187)
 	- 19. Run tests on multiple OS's (job: build-and-release)
 The following styling errors were found: 
 26:18: too few spaces before comment: expected 2 (comments)
@@ -61,9 +61,9 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/alibaba_sentinel__ci.yml
 We have found 14 smells
 	- 1. Define permissions for workflows with external actions (job at line: 14)
+	- 2. Use commit hash instead of tags for action versions (line 25)
 	- 2. Use commit hash instead of tags for action versions (line 49)
 	- 2. Use commit hash instead of tags for action versions (line 20)
-	- 2. Use commit hash instead of tags for action versions (line 25)
 	- 5. Avoid jobs without timeouts (line: 14)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -78,11 +78,11 @@ The following styling errors were found:
 52:46: no new line character at the end of file (new-line-at-end-of-file)
 Detecting smells for ./.github/workflows/oracle_graal__quarkus.yml
 We have found 19 smells
-	- 2. Use commit hash instead of tags for action versions (line 94)
-	- 2. Use commit hash instead of tags for action versions (line 84)
 	- 2. Use commit hash instead of tags for action versions (line 72)
+	- 2. Use commit hash instead of tags for action versions (line 94)
 	- 2. Use commit hash instead of tags for action versions (line 178)
 	- 2. Use commit hash instead of tags for action versions (line 161)
+	- 2. Use commit hash instead of tags for action versions (line 84)
 	- 5. Avoid jobs without timeouts (line: 62)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 9. Avoid executing scheduled workflows on forks
@@ -107,11 +107,11 @@ The following styling errors were found:
 154:82: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/spacedriveapp_spacedrive__ci.yml
 We have found 11 smells
-	- 2. Use commit hash instead of tags for action versions (line 123)
 	- 2. Use commit hash instead of tags for action versions (line 171)
-	- 2. Use commit hash instead of tags for action versions (line 29)
-	- 2. Use commit hash instead of tags for action versions (line 272)
 	- 2. Use commit hash instead of tags for action versions (line 106)
+	- 2. Use commit hash instead of tags for action versions (line 29)
+	- 2. Use commit hash instead of tags for action versions (line 123)
+	- 2. Use commit hash instead of tags for action versions (line 272)
 	- 4. Prevent running issue/PR actions on forks line -1:30
 	- 4. Prevent running issue/PR actions on forks line -1:27
 	- 10. Avoid uploading artifacts on forks (line 124)
@@ -122,27 +122,27 @@ The following styling errors were found:
 282:7: comment not indented like content (comments-indentation)
 Detecting smells for ./.github/workflows/keycloak_keycloak__js-ci.yml
 We have found 24 smells
+	- 5. Avoid jobs without timeouts (line: 141)
 	- 5. Avoid jobs without timeouts (line: 120)
+	- 5. Avoid jobs without timeouts (line: 29)
+	- 5. Avoid jobs without timeouts (line: 66)
 	- 5. Avoid jobs without timeouts (line: 102)
 	- 5. Avoid jobs without timeouts (line: 201)
-	- 5. Avoid jobs without timeouts (line: 141)
-	- 5. Avoid jobs without timeouts (line: 45)
-	- 5. Avoid jobs without timeouts (line: 66)
-	- 5. Avoid jobs without timeouts (line: 263)
 	- 5. Avoid jobs without timeouts (line: 84)
-	- 5. Avoid jobs without timeouts (line: 29)
+	- 5. Avoid jobs without timeouts (line: 45)
+	- 5. Avoid jobs without timeouts (line: 263)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 11. Use 'if' for upload-artifact action (line -1)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 30)
+	- 16. Use names for run steps (lines -1:-1)
 	- 16. Use names for run steps (lines 79:81)
+	- 16. Use names for run steps (lines 78:79)
 	- 16. Use names for run steps (lines -1:278)
 	- 16. Use names for run steps (lines 79:135)
-	- 16. Use names for run steps (lines 78:79)
 	- 16. Use names for run steps (lines -1:41)
 	- 16. Use names for run steps (lines 76:76)
-	- 16. Use names for run steps (lines -1:-1)
 	- 18. Steps should only perform a single command (line -1)
 	- 19. Run tests on multiple OS's (job: build-keycloak)
 	- 20. Avoid installing packages without version (line -1)
@@ -191,8 +191,8 @@ Detecting smells for ./.github/workflows/google_gson__build.yml
 We have found 17 smells
 	- 4. Prevent running issue/PR actions on forks line -1:67
 	- 4. Prevent running issue/PR actions on forks line -1:-1
-	- 5. Avoid jobs without timeouts (line: 34)
 	- 5. Avoid jobs without timeouts (line: 15)
+	- 5. Avoid jobs without timeouts (line: 34)
 	- 5. Avoid jobs without timeouts (line: 53)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -212,24 +212,24 @@ The following styling errors were found:
 19:27: too many spaces inside brackets (brackets)
 Detecting smells for ./.github/workflows/netty_netty__ci-pr.yml
 We have found 20 smells
-	- 2. Use commit hash instead of tags for action versions (line 106)
-	- 2. Use commit hash instead of tags for action versions (line 136)
 	- 2. Use commit hash instead of tags for action versions (line 49)
-	- 2. Use commit hash instead of tags for action versions (line 42)
 	- 2. Use commit hash instead of tags for action versions (line 40)
+	- 2. Use commit hash instead of tags for action versions (line 136)
+	- 2. Use commit hash instead of tags for action versions (line 106)
+	- 2. Use commit hash instead of tags for action versions (line 42)
 	- 2. Use commit hash instead of tags for action versions (line 101)
-	- 5. Avoid jobs without timeouts (line: 115)
 	- 5. Avoid jobs without timeouts (line: 69)
-	- 5. Avoid jobs without timeouts (line: 169)
 	- 5. Avoid jobs without timeouts (line: 38)
+	- 5. Avoid jobs without timeouts (line: 169)
+	- 5. Avoid jobs without timeouts (line: 115)
 	- 10. Avoid uploading artifacts on forks (line 102)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 38)
-	- 16. Use names for run steps (lines -1:225)
+	- 16. Use names for run steps (lines -1:108)
 	- 16. Use names for run steps (lines 41:41)
 	- 16. Use names for run steps (lines -1:41)
-	- 16. Use names for run steps (lines -1:108)
+	- 16. Use names for run steps (lines -1:225)
 	- 17. Use cache parameter instead of cache option
 	- 19. Run tests on multiple OS's (job: build-pr)
 The following styling errors were found: 
@@ -250,10 +250,10 @@ The following styling errors were found:
 18:5: wrong indentation: expected 6 but found 4 (indentation)
 Detecting smells for ./.github/workflows/hpcaitech_ColossalAI__compatiblity_test_on_schedule.yml
 We have found 16 smells
-	- 1. Define permissions for workflows with external actions (job at line: 10)
 	- 1. Define permissions for workflows with external actions (job at line: 31)
-	- 2. Use commit hash instead of tags for action versions (line 15)
+	- 1. Define permissions for workflows with external actions (job at line: 10)
 	- 2. Use commit hash instead of tags for action versions (line 48)
+	- 2. Use commit hash instead of tags for action versions (line 15)
 	- 4. Prevent running issue/PR actions on forks (job line: 10)
 	- 5. Avoid jobs without timeouts (line: 10)
 	- 9. Avoid executing scheduled workflows on forks
@@ -261,9 +261,9 @@ We have found 16 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 11)
+	- 16. Use names for run steps (lines -1:17)
 	- 16. Use names for run steps (lines -1:49)
 	- 16. Use names for run steps (lines 16:16)
-	- 16. Use names for run steps (lines -1:17)
 	- 18. Steps should only perform a single command (line -1)
 	- 20. Avoid installing packages without version (line -1)
 The following styling errors were found: 
@@ -283,10 +283,10 @@ The following styling errors were found:
 7:1: trailing spaces (trailing-spaces)
 Detecting smells for ./.github/workflows/microsoft_semantic-kernel__generate-pr-description.yml
 We have found 9 smells
-	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 2. Use commit hash instead of tags for action versions (line 19)
 	- 2. Use commit hash instead of tags for action versions (line 46)
 	- 2. Use commit hash instead of tags for action versions (line 15)
+	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 4. Prevent running issue/PR actions on forks line 15:17
 	- 5. Avoid jobs without timeouts (line: 8)
 	- 12. Avoid deploying jobs on forks
@@ -306,12 +306,12 @@ The following styling errors were found:
 19:88: no new line character at the end of file (new-line-at-end-of-file)
 Detecting smells for ./.github/workflows/redisson_redisson__codeql-analysis.yml
 We have found 16 smells
-	- 2. Use commit hash instead of tags for action versions (line 56)
-	- 2. Use commit hash instead of tags for action versions (line 42)
-	- 2. Use commit hash instead of tags for action versions (line 82)
-	- 2. Use commit hash instead of tags for action versions (line 70)
 	- 2. Use commit hash instead of tags for action versions (line 45)
+	- 2. Use commit hash instead of tags for action versions (line 56)
 	- 2. Use commit hash instead of tags for action versions (line 96)
+	- 2. Use commit hash instead of tags for action versions (line 42)
+	- 2. Use commit hash instead of tags for action versions (line 70)
+	- 2. Use commit hash instead of tags for action versions (line 82)
 	- 5. Avoid jobs without timeouts (line: 24)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -338,8 +338,8 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/doocs_Leetcode__clang-format-lint.yml
 We have found 11 smells
 	- 1. Define permissions for workflows with external actions (job at line: 28)
-	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 2. Use commit hash instead of tags for action versions (line 31)
+	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 5. Avoid jobs without timeouts (line: 28)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
@@ -354,10 +354,10 @@ The following styling errors were found:
 37:31: no new line character at the end of file (new-line-at-end-of-file)
 Detecting smells for ./.github/workflows/app-vnext_polly__build.yml
 We have found 24 smells
-	- 5. Avoid jobs without timeouts (line: 196)
 	- 5. Avoid jobs without timeouts (line: 161)
-	- 5. Avoid jobs without timeouts (line: 396)
 	- 5. Avoid jobs without timeouts (line: 270)
+	- 5. Avoid jobs without timeouts (line: 196)
+	- 5. Avoid jobs without timeouts (line: 396)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
 	- 8. Avoid running CI related actions when no source code has changed
@@ -369,15 +369,15 @@ We have found 24 smells
 	- 15. Use fixed version for runs-on argument (line 197)
 	- 15. Use fixed version for runs-on argument (line 162)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: sign)
-	- 19. Run tests on multiple OS's (job: publish-nuget)
-	- 19. Run tests on multiple OS's (job: validate-packages)
 	- 19. Run tests on multiple OS's (job: validate-signed-packages)
+	- 19. Run tests on multiple OS's (job: sign)
+	- 19. Run tests on multiple OS's (job: validate-packages)
+	- 19. Run tests on multiple OS's (job: publish-nuget)
+	- 22. Run CI on multiple language versions (job: validate-signed-packages)
 	- 22. Run CI on multiple language versions (job: validate-packages)
+	- 22. Run CI on multiple language versions (job: publish-nuget)
 	- 22. Run CI on multiple language versions (job: build)
 	- 22. Run CI on multiple language versions (job: sign)
-	- 22. Run CI on multiple language versions (job: validate-signed-packages)
-	- 22. Run CI on multiple language versions (job: publish-nuget)
 The following styling errors were found: 
 8:12: too many spaces inside brackets (brackets)
 8:16: too many spaces inside brackets (brackets)
@@ -441,8 +441,8 @@ The following styling errors were found:
 18:5: wrong indentation: expected 6 but found 4 (indentation)
 Detecting smells for ./.github/workflows/commaai_openpilot__repo-maintenance.yaml
 We have found 14 smells
-	- 1. Define permissions for workflows with external actions (job at line: 14)
 	- 1. Define permissions for workflows with external actions (job at line: 35)
+	- 1. Define permissions for workflows with external actions (job at line: 14)
 	- 2. Use commit hash instead of tags for action versions (line 41)
 	- 2. Use commit hash instead of tags for action versions (line 17)
 	- 5. Avoid jobs without timeouts (line: 35)
@@ -450,9 +450,9 @@ We have found 14 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 14)
-	- 16. Use names for run steps (lines 18:18)
 	- 16. Use names for run steps (lines 19:19)
 	- 16. Use names for run steps (lines -1:18)
+	- 16. Use names for run steps (lines 18:18)
 	- 18. Steps should only perform a single command (line -1)
 	- 20. Avoid installing packages without version (line -1)
 The following styling errors were found: 
@@ -463,8 +463,8 @@ Detecting smells for ./.github/workflows/keycloak_keycloak__documentation.yml
 We have found 13 smells
 	- 5. Avoid jobs without timeouts (line: 29)
 	- 5. Avoid jobs without timeouts (line: 45)
-	- 5. Avoid jobs without timeouts (line: 97)
 	- 5. Avoid jobs without timeouts (line: 75)
+	- 5. Avoid jobs without timeouts (line: 97)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 11. Use 'if' for upload-artifact action (line -1)
 	- 12. Avoid deploying jobs on forks
@@ -484,48 +484,48 @@ The following styling errors were found:
 105:73: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/trpc_trpc__main.yml
 We have found 45 smells
-	- 1. Define permissions for workflows with external actions (job at line: 188)
-	- 1. Define permissions for workflows with external actions (job at line: 241)
 	- 1. Define permissions for workflows with external actions (job at line: 258)
-	- 1. Define permissions for workflows with external actions (job at line: 118)
-	- 1. Define permissions for workflows with external actions (job at line: 153)
+	- 1. Define permissions for workflows with external actions (job at line: 241)
+	- 1. Define permissions for workflows with external actions (job at line: 52)
 	- 1. Define permissions for workflows with external actions (job at line: 30)
 	- 1. Define permissions for workflows with external actions (job at line: 13)
-	- 1. Define permissions for workflows with external actions (job at line: 52)
-	- 2. Use commit hash instead of tags for action versions (line 23)
-	- 2. Use commit hash instead of tags for action versions (line 45)
-	- 2. Use commit hash instead of tags for action versions (line 142)
+	- 1. Define permissions for workflows with external actions (job at line: 188)
+	- 1. Define permissions for workflows with external actions (job at line: 153)
+	- 1. Define permissions for workflows with external actions (job at line: 118)
 	- 2. Use commit hash instead of tags for action versions (line 224)
+	- 2. Use commit hash instead of tags for action versions (line 23)
 	- 2. Use commit hash instead of tags for action versions (line 177)
-	- 5. Avoid jobs without timeouts (line: 258)
+	- 2. Use commit hash instead of tags for action versions (line 142)
+	- 2. Use commit hash instead of tags for action versions (line 45)
 	- 5. Avoid jobs without timeouts (line: 241)
+	- 5. Avoid jobs without timeouts (line: 258)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 11. Use 'if' for upload-artifact action (line 46)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 20)
+	- 16. Use names for run steps (lines 147:147)
+	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines -1:46)
+	- 16. Use names for run steps (lines 182:182)
 	- 16. Use names for run steps (lines 113:113)
 	- 16. Use names for run steps (lines -1:178)
 	- 16. Use names for run steps (lines 115:115)
-	- 16. Use names for run steps (lines 116:116)
-	- 16. Use names for run steps (lines 114:114)
-	- 16. Use names for run steps (lines -1:225)
-	- 16. Use names for run steps (lines -1:46)
-	- 16. Use names for run steps (lines 44:44)
-	- 16. Use names for run steps (lines 267:267)
-	- 16. Use names for run steps (lines 27:27)
-	- 16. Use names for run steps (lines 256:256)
-	- 16. Use names for run steps (lines 182:182)
-	- 16. Use names for run steps (lines 29:29)
 	- 16. Use names for run steps (lines -1:143)
-	- 16. Use names for run steps (lines 147:147)
-	- 16. Use names for run steps (lines -1:24)
-	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines 29:29)
 	- 16. Use names for run steps (lines 229:229)
+	- 16. Use names for run steps (lines 116:116)
+	- 16. Use names for run steps (lines 27:27)
+	- 16. Use names for run steps (lines -1:225)
+	- 16. Use names for run steps (lines -1:24)
+	- 16. Use names for run steps (lines 44:44)
+	- 16. Use names for run steps (lines 256:256)
+	- 16. Use names for run steps (lines 114:114)
+	- 16. Use names for run steps (lines 267:267)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: e2e-deno)
 	- 19. Run tests on multiple OS's (job: monotest-build)
 	- 19. Run tests on multiple OS's (job: e2e)
+	- 19. Run tests on multiple OS's (job: e2e-deno)
 	- 19. Run tests on multiple OS's (job: build)
 	- 19. Run tests on multiple OS's (job: test)
 	- 20. Avoid installing packages without version (line -1)
@@ -565,21 +565,21 @@ We have found 18 smells
 	- 5. Avoid jobs without timeouts (line: 31)
 	- 5. Avoid jobs without timeouts (line: 129)
 	- 5. Avoid jobs without timeouts (line: 61)
-	- 5. Avoid jobs without timeouts (line: 214)
-	- 5. Avoid jobs without timeouts (line: 75)
 	- 5. Avoid jobs without timeouts (line: 47)
+	- 5. Avoid jobs without timeouts (line: 75)
+	- 5. Avoid jobs without timeouts (line: 214)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 32)
-	- 16. Use names for run steps (lines -1:-1)
 	- 16. Use names for run steps (lines -1:43)
+	- 16. Use names for run steps (lines -1:-1)
 	- 16. Use names for run steps (lines -1:226)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: test-remote)
-	- 19. Run tests on multiple OS's (job: test-olm)
 	- 19. Run tests on multiple OS's (job: build)
+	- 19. Run tests on multiple OS's (job: test-remote)
 	- 19. Run tests on multiple OS's (job: test-local-apiserver)
+	- 19. Run tests on multiple OS's (job: test-olm)
 The following styling errors were found: 
 14:32: too few spaces before comment: expected 2 (comments)
 15:25: too few spaces before comment: expected 2 (comments)
@@ -602,8 +602,8 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/abpframework_abp__angular.yml
 We have found 6 smells
 	- 2. Use commit hash instead of tags for action versions (line 34)
-	- 2. Use commit hash instead of tags for action versions (line 40)
 	- 2. Use commit hash instead of tags for action versions (line 45)
+	- 2. Use commit hash instead of tags for action versions (line 40)
 	- 14. Avoid incorrectly formatted workflows
 	- 16. Use names for run steps (lines -1:41)
 	- 19. Run tests on multiple OS's (job: build-test-lint)
@@ -613,12 +613,12 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml
 We have found 13 smells
 	- 1. Define permissions for workflows with external actions (job at line: 9)
+	- 2. Use commit hash instead of tags for action versions (line 34)
+	- 2. Use commit hash instead of tags for action versions (line 25)
+	- 2. Use commit hash instead of tags for action versions (line 14)
+	- 2. Use commit hash instead of tags for action versions (line 38)
 	- 2. Use commit hash instead of tags for action versions (line 42)
 	- 2. Use commit hash instead of tags for action versions (line 17)
-	- 2. Use commit hash instead of tags for action versions (line 34)
-	- 2. Use commit hash instead of tags for action versions (line 38)
-	- 2. Use commit hash instead of tags for action versions (line 14)
-	- 2. Use commit hash instead of tags for action versions (line 25)
 	- 4. Prevent running issue/PR actions on forks line -1:26
 	- 5. Avoid jobs without timeouts (line: 9)
 	- 12. Avoid deploying jobs on forks
@@ -655,9 +655,9 @@ The following styling errors were found:
 14:79: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/n8n-io_n8n__e2e-tests.yml
 We have found 13 smells
-	- 1. Define permissions for workflows with external actions (job at line: 53)
 	- 1. Define permissions for workflows with external actions (job at line: 58)
 	- 1. Define permissions for workflows with external actions (job at line: 44)
+	- 1. Define permissions for workflows with external actions (job at line: 53)
 	- 5. Avoid jobs without timeouts (line: 32)
 	- 5. Avoid jobs without timeouts (line: 58)
 	- 9. Avoid executing scheduled workflows on forks
@@ -666,15 +666,15 @@ We have found 13 smells
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 33)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: calls-start-url)
 	- 19. Run tests on multiple OS's (job: calls-success-url-notify)
+	- 19. Run tests on multiple OS's (job: calls-start-url)
 The following styling errors were found: 
 65:70: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/doocs_Leetcode__black-lint.yml
 We have found 11 smells
 	- 1. Define permissions for workflows with external actions (job at line: 28)
-	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 2. Use commit hash instead of tags for action versions (line 31)
+	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 5. Avoid jobs without timeouts (line: 28)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
@@ -702,18 +702,18 @@ The following styling errors were found:
 13:13: trailing spaces (trailing-spaces)
 Detecting smells for ./.github/workflows/keycloak_keycloak__codeql-analysis.yml
 We have found 12 smells
+	- 5. Avoid jobs without timeouts (line: 102)
 	- 5. Avoid jobs without timeouts (line: 29)
 	- 5. Avoid jobs without timeouts (line: 129)
-	- 5. Avoid jobs without timeouts (line: 102)
-	- 5. Avoid jobs without timeouts (line: 75)
 	- 5. Avoid jobs without timeouts (line: 47)
+	- 5. Avoid jobs without timeouts (line: 75)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 30)
-	- 16. Use names for run steps (lines -1:140)
-	- 16. Use names for run steps (lines -1:-1)
 	- 16. Use names for run steps (lines -1:43)
+	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines -1:140)
 The following styling errors were found: 
 10:6: wrong indentation: expected 4 but found 5 (indentation)
 40:73: too few spaces before comment: expected 2 (comments)
@@ -744,8 +744,8 @@ The following styling errors were found:
 28:5: wrong indentation: expected 6 but found 4 (indentation)
 Detecting smells for ./.github/workflows/scikit-learn_scikit-learn__check-changelog.yml
 We have found 8 smells
-	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 2. Use commit hash instead of tags for action versions (line 16)
+	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 5. Avoid jobs without timeouts (line: 13)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 12. Avoid deploying jobs on forks
@@ -864,11 +864,11 @@ Detecting smells for ./.github/workflows/appwrite_appwrite__release.yml
 We have found 13 smells
 	- 1. Define permissions for workflows with external actions (job at line: 8)
 	- 2. Use commit hash instead of tags for action versions (line 13)
-	- 2. Use commit hash instead of tags for action versions (line 22)
-	- 2. Use commit hash instead of tags for action versions (line 28)
+	- 2. Use commit hash instead of tags for action versions (line 25)
 	- 2. Use commit hash instead of tags for action versions (line 35)
 	- 2. Use commit hash instead of tags for action versions (line 44)
-	- 2. Use commit hash instead of tags for action versions (line 25)
+	- 2. Use commit hash instead of tags for action versions (line 28)
+	- 2. Use commit hash instead of tags for action versions (line 22)
 	- 4. Prevent running issue/PR actions on forks line -1:36
 	- 5. Avoid jobs without timeouts (line: 8)
 	- 12. Avoid deploying jobs on forks
@@ -913,8 +913,8 @@ We have found 13 smells
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 16)
-	- 16. Use names for run steps (lines 68:68)
 	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines 68:68)
 	- 18. Steps should only perform a single command (line -1)
 	- 20. Avoid installing packages without version (line -1)
 The following styling errors were found: 
@@ -929,16 +929,16 @@ Detecting smells for ./.github/workflows/jenkinsci_jenkins__publish-release-arti
 We have found 18 smells
 	- 2. Use commit hash instead of tags for action versions (line 19)
 	- 2. Use commit hash instead of tags for action versions (line 17)
-	- 5. Avoid jobs without timeouts (line: 11)
-	- 5. Avoid jobs without timeouts (line: 116)
 	- 5. Avoid jobs without timeouts (line: 81)
-	- 5. Avoid jobs without timeouts (line: 152)
 	- 5. Avoid jobs without timeouts (line: 188)
 	- 5. Avoid jobs without timeouts (line: 48)
+	- 5. Avoid jobs without timeouts (line: 11)
+	- 5. Avoid jobs without timeouts (line: 152)
+	- 5. Avoid jobs without timeouts (line: 116)
 	- 10. Avoid uploading artifacts on forks (line -1:109) for job debian
 	- 10. Avoid uploading artifacts on forks (line -1:145) for job redhat
-	- 10. Avoid uploading artifacts on forks (line -1:217) for job suse
 	- 10. Avoid uploading artifacts on forks (line -1:181) for job windows
+	- 10. Avoid uploading artifacts on forks (line -1:217) for job suse
 	- 12. Avoid deploying jobs on forks
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
@@ -960,16 +960,16 @@ The following styling errors were found:
 219:84: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/scikit-learn_scikit-learn__wheels.yml
 We have found 18 smells
-	- 2. Use commit hash instead of tags for action versions (line 170)
-	- 2. Use commit hash instead of tags for action versions (line 166)
-	- 2. Use commit hash instead of tags for action versions (line 203)
 	- 2. Use commit hash instead of tags for action versions (line 36)
+	- 2. Use commit hash instead of tags for action versions (line 166)
+	- 2. Use commit hash instead of tags for action versions (line 170)
+	- 2. Use commit hash instead of tags for action versions (line 203)
 	- 2. Use commit hash instead of tags for action versions (line 261)
 	- 4. Prevent running issue/PR actions on forks line 210:210
-	- 5. Avoid jobs without timeouts (line: 249)
-	- 5. Avoid jobs without timeouts (line: 46)
-	- 5. Avoid jobs without timeouts (line: 219)
 	- 5. Avoid jobs without timeouts (line: 28)
+	- 5. Avoid jobs without timeouts (line: 249)
+	- 5. Avoid jobs without timeouts (line: 219)
+	- 5. Avoid jobs without timeouts (line: 46)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 9. Avoid executing scheduled workflows on forks
 	- 11. Use 'if' for upload-artifact action (line 204)
@@ -1018,10 +1018,10 @@ The following styling errors were found:
 22:5: wrong indentation: expected 6 but found 4 (indentation)
 Detecting smells for ./.github/workflows/hpcaitech_ColossalAI__build_on_pr.yml
 We have found 16 smells
-	- 1. Define permissions for workflows with external actions (job at line: 86)
 	- 1. Define permissions for workflows with external actions (job at line: 25)
-	- 2. Use commit hash instead of tags for action versions (line 41)
+	- 1. Define permissions for workflows with external actions (job at line: 86)
 	- 2. Use commit hash instead of tags for action versions (line 56)
+	- 2. Use commit hash instead of tags for action versions (line 41)
 	- 2. Use commit hash instead of tags for action versions (line 102)
 	- 2. Use commit hash instead of tags for action versions (line 206)
 	- 4. Prevent running issue/PR actions on forks (job line: 86)
@@ -1047,26 +1047,26 @@ The following styling errors were found:
 20:20: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/mattermost_mattermost__e2e-tests-ci-template.yml
 We have found 43 smells
-	- 1. Define permissions for workflows with external actions (job at line: 188)
-	- 1. Define permissions for workflows with external actions (job at line: 120)
-	- 1. Define permissions for workflows with external actions (job at line: 529)
-	- 1. Define permissions for workflows with external actions (job at line: 151)
-	- 1. Define permissions for workflows with external actions (job at line: 275)
-	- 1. Define permissions for workflows with external actions (job at line: 107)
 	- 1. Define permissions for workflows with external actions (job at line: 206)
-	- 1. Define permissions for workflows with external actions (job at line: 378)
+	- 1. Define permissions for workflows with external actions (job at line: 275)
 	- 1. Define permissions for workflows with external actions (job at line: 552)
+	- 1. Define permissions for workflows with external actions (job at line: 120)
+	- 1. Define permissions for workflows with external actions (job at line: 378)
+	- 1. Define permissions for workflows with external actions (job at line: 151)
 	- 1. Define permissions for workflows with external actions (job at line: 232)
+	- 1. Define permissions for workflows with external actions (job at line: 529)
+	- 1. Define permissions for workflows with external actions (job at line: 188)
+	- 1. Define permissions for workflows with external actions (job at line: 107)
 	- 2. Use commit hash instead of tags for action versions (line 450)
+	- 5. Avoid jobs without timeouts (line: 552)
+	- 5. Avoid jobs without timeouts (line: 232)
 	- 5. Avoid jobs without timeouts (line: 120)
 	- 5. Avoid jobs without timeouts (line: 206)
 	- 5. Avoid jobs without timeouts (line: 107)
 	- 5. Avoid jobs without timeouts (line: 151)
-	- 5. Avoid jobs without timeouts (line: 378)
-	- 5. Avoid jobs without timeouts (line: 529)
-	- 5. Avoid jobs without timeouts (line: 552)
-	- 5. Avoid jobs without timeouts (line: 232)
 	- 5. Avoid jobs without timeouts (line: 188)
+	- 5. Avoid jobs without timeouts (line: 529)
+	- 5. Avoid jobs without timeouts (line: 378)
 	- 10. Avoid uploading artifacts on forks (line -1)
 	- 10. Avoid uploading artifacts on forks (line -1:460) for job report
 	- 11. Use 'if' for upload-artifact action (line -1)
@@ -1075,21 +1075,21 @@ We have found 43 smells
 	- 15. Use fixed version for runs-on argument (line 107)
 	- 16. Use names for run steps (lines -1:110)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: update-success-final-status)
-	- 19. Run tests on multiple OS's (job: cypress-check)
-	- 19. Run tests on multiple OS's (job: update-failure-final-status)
-	- 19. Run tests on multiple OS's (job: update-initial-status)
-	- 19. Run tests on multiple OS's (job: report)
 	- 19. Run tests on multiple OS's (job: playwright-check)
+	- 19. Run tests on multiple OS's (job: update-failure-final-status)
+	- 19. Run tests on multiple OS's (job: cypress-check)
 	- 19. Run tests on multiple OS's (job: shell-check)
+	- 19. Run tests on multiple OS's (job: update-success-final-status)
+	- 19. Run tests on multiple OS's (job: update-initial-status)
 	- 19. Run tests on multiple OS's (job: generate-build-variables)
 	- 19. Run tests on multiple OS's (job: generate-test-cycle)
+	- 19. Run tests on multiple OS's (job: report)
 	- 20. Avoid installing packages without version (line -1)
-	- 22. Run CI on multiple language versions (job: test)
 	- 22. Run CI on multiple language versions (job: playwright-check)
 	- 22. Run CI on multiple language versions (job: generate-test-cycle)
-	- 22. Run CI on multiple language versions (job: report)
 	- 22. Run CI on multiple language versions (job: cypress-check)
+	- 22. Run CI on multiple language versions (job: report)
+	- 22. Run CI on multiple language versions (job: test)
 The following styling errors were found: 
 16:22: too few spaces before comment: expected 2 (comments)
 34:22: too few spaces before comment: expected 2 (comments)
@@ -1126,12 +1126,12 @@ We have found 17 smells
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 90)
-	- 15. Use fixed version for runs-on argument (line 118)
 	- 15. Use fixed version for runs-on argument (line 12)
+	- 15. Use fixed version for runs-on argument (line 118)
 	- 17. Use cache parameter instead of cache option
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: safari)
 	- 19. Run tests on multiple OS's (job: ie)
+	- 19. Run tests on multiple OS's (job: safari)
 	- 22. Run CI on multiple language versions (job: ie)
 	- 22. Run CI on multiple language versions (job: safari)
 The following styling errors were found: 
@@ -1147,10 +1147,10 @@ The following styling errors were found:
 133:70: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/openzipkin_zipkin__test_readme.yml
 We have found 12 smells
-	- 1. Define permissions for workflows with external actions (job at line: 26)
 	- 1. Define permissions for workflows with external actions (job at line: 59)
-	- 2. Use commit hash instead of tags for action versions (line 42)
+	- 1. Define permissions for workflows with external actions (job at line: 26)
 	- 2. Use commit hash instead of tags for action versions (line 48)
+	- 2. Use commit hash instead of tags for action versions (line 42)
 	- 2. Use commit hash instead of tags for action versions (line 40)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -1162,10 +1162,10 @@ We have found 12 smells
 Detecting smells for ./.github/workflows/gui-cs_Terminal.Gui__codeql-analysis.yml
 We have found 12 smells
 	- 1. Define permissions for workflows with external actions (job at line: 27)
+	- 2. Use commit hash instead of tags for action versions (line 45)
+	- 2. Use commit hash instead of tags for action versions (line 67)
 	- 2. Use commit hash instead of tags for action versions (line 53)
 	- 2. Use commit hash instead of tags for action versions (line 32)
-	- 2. Use commit hash instead of tags for action versions (line 67)
-	- 2. Use commit hash instead of tags for action versions (line 45)
 	- 5. Avoid jobs without timeouts (line: 27)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -1199,70 +1199,70 @@ The following styling errors were found:
 45:90: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/Prisma_Prisma__test-template.yml
 We have found 64 smells
-	- 1. Define permissions for workflows with external actions (job at line: 787)
-	- 1. Define permissions for workflows with external actions (job at line: 525)
-	- 1. Define permissions for workflows with external actions (job at line: 720)
-	- 1. Define permissions for workflows with external actions (job at line: 1069)
-	- 1. Define permissions for workflows with external actions (job at line: 832)
-	- 1. Define permissions for workflows with external actions (job at line: 359)
-	- 1. Define permissions for workflows with external actions (job at line: 672)
 	- 1. Define permissions for workflows with external actions (job at line: 959)
-	- 1. Define permissions for workflows with external actions (job at line: 65)
-	- 1. Define permissions for workflows with external actions (job at line: 431)
-	- 1. Define permissions for workflows with external actions (job at line: 568)
+	- 1. Define permissions for workflows with external actions (job at line: 1069)
+	- 1. Define permissions for workflows with external actions (job at line: 720)
+	- 1. Define permissions for workflows with external actions (job at line: 832)
+	- 1. Define permissions for workflows with external actions (job at line: 672)
+	- 1. Define permissions for workflows with external actions (job at line: 1102)
+	- 1. Define permissions for workflows with external actions (job at line: 304)
+	- 1. Define permissions for workflows with external actions (job at line: 103)
 	- 1. Define permissions for workflows with external actions (job at line: 1166)
+	- 1. Define permissions for workflows with external actions (job at line: 881)
+	- 1. Define permissions for workflows with external actions (job at line: 568)
+	- 1. Define permissions for workflows with external actions (job at line: 743)
 	- 1. Define permissions for workflows with external actions (job at line: 176)
 	- 1. Define permissions for workflows with external actions (job at line: 1026)
-	- 1. Define permissions for workflows with external actions (job at line: 881)
-	- 1. Define permissions for workflows with external actions (job at line: 236)
-	- 1. Define permissions for workflows with external actions (job at line: 1102)
+	- 1. Define permissions for workflows with external actions (job at line: 65)
+	- 1. Define permissions for workflows with external actions (job at line: 525)
+	- 1. Define permissions for workflows with external actions (job at line: 359)
+	- 1. Define permissions for workflows with external actions (job at line: 431)
+	- 1. Define permissions for workflows with external actions (job at line: 787)
 	- 1. Define permissions for workflows with external actions (job at line: 926)
-	- 1. Define permissions for workflows with external actions (job at line: 304)
-	- 1. Define permissions for workflows with external actions (job at line: 743)
 	- 1. Define permissions for workflows with external actions (job at line: 644)
-	- 1. Define permissions for workflows with external actions (job at line: 103)
-	- 2. Use commit hash instead of tags for action versions (line 463)
-	- 2. Use commit hash instead of tags for action versions (line 164)
-	- 2. Use commit hash instead of tags for action versions (line 498)
-	- 2. Use commit hash instead of tags for action versions (line 70)
-	- 2. Use commit hash instead of tags for action versions (line 489)
+	- 1. Define permissions for workflows with external actions (job at line: 236)
 	- 2. Use commit hash instead of tags for action versions (line 132)
+	- 2. Use commit hash instead of tags for action versions (line 498)
+	- 2. Use commit hash instead of tags for action versions (line 164)
+	- 2. Use commit hash instead of tags for action versions (line 489)
+	- 2. Use commit hash instead of tags for action versions (line 70)
+	- 2. Use commit hash instead of tags for action versions (line 463)
 	- 4. Prevent running issue/PR actions on forks line -1:280
 	- 4. Prevent running issue/PR actions on forks line -1:153
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 67)
-	- 16. Use names for run steps (lines -1:214)
-	- 16. Use names for run steps (lines -1:153)
 	- 16. Use names for run steps (lines -1:560)
-	- 16. Use names for run steps (lines -1:336)
+	- 16. Use names for run steps (lines 153:666)
 	- 16. Use names for run steps (lines 153:461)
+	- 16. Use names for run steps (lines -1:153)
+	- 16. Use names for run steps (lines 693:827)
+	- 16. Use names for run steps (lines -1:336)
+	- 16. Use names for run steps (lines -1:874)
+	- 16. Use names for run steps (lines 738:738)
 	- 16. Use names for run steps (lines -1:155)
-	- 16. Use names for run steps (lines -1:280)
+	- 16. Use names for run steps (lines -1:214)
+	- 16. Use names for run steps (lines 921:953)
+	- 16. Use names for run steps (lines 153:413)
 	- 16. Use names for run steps (lines -1:466)
 	- 16. Use names for run steps (lines 693:921)
-	- 16. Use names for run steps (lines 921:953)
-	- 16. Use names for run steps (lines 153:666)
-	- 16. Use names for run steps (lines 71:71)
-	- 16. Use names for run steps (lines 693:827)
-	- 16. Use names for run steps (lines 738:738)
-	- 16. Use names for run steps (lines -1:874)
-	- 16. Use names for run steps (lines 153:413)
-	- 16. Use names for run steps (lines 693:782)
 	- 16. Use names for run steps (lines -1:207)
+	- 16. Use names for run steps (lines 693:782)
+	- 16. Use names for run steps (lines 71:71)
+	- 16. Use names for run steps (lines -1:280)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: client)
-	- 19. Run tests on multiple OS's (job: client-memory)
-	- 19. Run tests on multiple OS's (job: client-packages)
-	- 19. Run tests on multiple OS's (job: lint)
-	- 19. Run tests on multiple OS's (job: workspace-types)
-	- 19. Run tests on multiple OS's (job: client-ts-client)
-	- 19. Run tests on multiple OS's (job: client-miniproxy)
+	- 19. Run tests on multiple OS's (job: integration-tests)
 	- 19. Run tests on multiple OS's (job: client-driveradapters)
 	- 19. Run tests on multiple OS's (job: client-legacy-types)
-	- 19. Run tests on multiple OS's (job: integration-tests)
-	- 19. Run tests on multiple OS's (job: type-benchmark-tests)
+	- 19. Run tests on multiple OS's (job: lint)
+	- 19. Run tests on multiple OS's (job: client-packages)
+	- 19. Run tests on multiple OS's (job: client-memory)
+	- 19. Run tests on multiple OS's (job: client-ts-client)
+	- 19. Run tests on multiple OS's (job: client-miniproxy)
 	- 19. Run tests on multiple OS's (job: client-query-compiler)
+	- 19. Run tests on multiple OS's (job: type-benchmark-tests)
+	- 19. Run tests on multiple OS's (job: client)
+	- 19. Run tests on multiple OS's (job: workspace-types)
 The following styling errors were found: 
 283:50: too few spaces before comment: expected 2 (comments)
 284:31: too few spaces before comment: expected 2 (comments)
@@ -1293,24 +1293,24 @@ The following styling errors were found:
 15:5: wrong indentation: expected 6 but found 4 (indentation)
 Detecting smells for ./.github/workflows/halo-dev_halo__halo.yml
 We have found 30 smells
-	- 1. Define permissions for workflows with external actions (job at line: 34)
-	- 1. Define permissions for workflows with external actions (job at line: 19)
 	- 1. Define permissions for workflows with external actions (job at line: 108)
 	- 1. Define permissions for workflows with external actions (job at line: 64)
-	- 2. Use commit hash instead of tags for action versions (line 135)
-	- 2. Use commit hash instead of tags for action versions (line 139)
-	- 2. Use commit hash instead of tags for action versions (line 137)
-	- 2. Use commit hash instead of tags for action versions (line 150)
-	- 2. Use commit hash instead of tags for action versions (line 84)
-	- 2. Use commit hash instead of tags for action versions (line 56)
+	- 1. Define permissions for workflows with external actions (job at line: 19)
+	- 1. Define permissions for workflows with external actions (job at line: 34)
 	- 2. Use commit hash instead of tags for action versions (line 122)
+	- 2. Use commit hash instead of tags for action versions (line 150)
+	- 2. Use commit hash instead of tags for action versions (line 56)
+	- 2. Use commit hash instead of tags for action versions (line 137)
+	- 2. Use commit hash instead of tags for action versions (line 135)
 	- 2. Use commit hash instead of tags for action versions (line 22)
 	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 2. Use commit hash instead of tags for action versions (line 69)
+	- 2. Use commit hash instead of tags for action versions (line 139)
+	- 2. Use commit hash instead of tags for action versions (line 84)
 	- 3. Use permissions whenever using Github Token (job at line 64)
 	- 5. Avoid jobs without timeouts (line: 108)
-	- 5. Avoid jobs without timeouts (line: 34)
 	- 5. Avoid jobs without timeouts (line: 19)
+	- 5. Avoid jobs without timeouts (line: 34)
 	- 5. Avoid jobs without timeouts (line: 64)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -1339,9 +1339,9 @@ We have found 9 smells
 Detecting smells for ./.github/workflows/gui-cs_Terminal.Gui__api-docs.yml
 We have found 12 smells
 	- 1. Define permissions for workflows with external actions (job at line: 10)
-	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 2. Use commit hash instead of tags for action versions (line 14)
+	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 5. Avoid jobs without timeouts (line: 10)
 	- 7. Stop running workflows when there is a newer commit in branch
 	- 12. Avoid deploying jobs on forks
@@ -1360,10 +1360,10 @@ The following styling errors were found:
 38:83: no new line character at the end of file (new-line-at-end-of-file)
 Detecting smells for ./.github/workflows/gui-cs_Terminal.Gui__codeql.yml
 We have found 10 smells
-	- 2. Use commit hash instead of tags for action versions (line 52)
-	- 2. Use commit hash instead of tags for action versions (line 66)
-	- 2. Use commit hash instead of tags for action versions (line 79)
 	- 2. Use commit hash instead of tags for action versions (line 48)
+	- 2. Use commit hash instead of tags for action versions (line 52)
+	- 2. Use commit hash instead of tags for action versions (line 79)
+	- 2. Use commit hash instead of tags for action versions (line 66)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
 	- 8. Avoid running CI related actions when no source code has changed
@@ -1380,10 +1380,10 @@ The following styling errors were found:
 48:5: wrong indentation: expected 6 but found 4 (indentation)
 Detecting smells for ./.github/workflows/oracle_graal__reachability-metadata.yml
 We have found 13 smells
-	- 2. Use commit hash instead of tags for action versions (line 116)
-	- 2. Use commit hash instead of tags for action versions (line 105)
-	- 2. Use commit hash instead of tags for action versions (line 66)
 	- 2. Use commit hash instead of tags for action versions (line 77)
+	- 2. Use commit hash instead of tags for action versions (line 116)
+	- 2. Use commit hash instead of tags for action versions (line 66)
+	- 2. Use commit hash instead of tags for action versions (line 105)
 	- 5. Avoid jobs without timeouts (line: 59)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 9. Avoid executing scheduled workflows on forks
@@ -1424,9 +1424,9 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/abpframework_abp__codeql-analysis.yml
 We have found 11 smells
 	- 2. Use commit hash instead of tags for action versions (line 55)
-	- 2. Use commit hash instead of tags for action versions (line 68)
 	- 2. Use commit hash instead of tags for action versions (line 79)
 	- 2. Use commit hash instead of tags for action versions (line 93)
+	- 2. Use commit hash instead of tags for action versions (line 68)
 	- 5. Avoid jobs without timeouts (line: 36)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
@@ -1438,8 +1438,8 @@ The following styling errors were found:
 89:8: missing starting space in comment (comments)
 Detecting smells for ./.github/workflows/Jackett_Jackett__issuebot.yml
 We have found 7 smells
-	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 2. Use commit hash instead of tags for action versions (line 22)
+	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 5. Avoid jobs without timeouts (line: 16)
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
@@ -1451,14 +1451,14 @@ The following styling errors were found:
 47:1: trailing spaces (trailing-spaces)
 Detecting smells for ./.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml
 We have found 15 smells
-	- 1. Define permissions for workflows with external actions (job at line: 28)
 	- 1. Define permissions for workflows with external actions (job at line: 132)
+	- 1. Define permissions for workflows with external actions (job at line: 80)
 	- 1. Define permissions for workflows with external actions (job at line: 38)
 	- 1. Define permissions for workflows with external actions (job at line: 56)
-	- 1. Define permissions for workflows with external actions (job at line: 80)
+	- 1. Define permissions for workflows with external actions (job at line: 28)
 	- 1. Define permissions for workflows with external actions (job at line: 107)
-	- 5. Avoid jobs without timeouts (line: 132)
 	- 5. Avoid jobs without timeouts (line: 28)
+	- 5. Avoid jobs without timeouts (line: 132)
 	- 9. Avoid executing scheduled workflows on forks
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
@@ -1489,8 +1489,8 @@ We have found 9 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 14)
-	- 16. Use names for run steps (lines 23:23)
 	- 16. Use names for run steps (lines -1:20)
+	- 16. Use names for run steps (lines 23:23)
 	- 18. Steps should only perform a single command (line -1)
 	- 21. Avoid workflows without comments
 The following styling errors were found: 
@@ -1512,9 +1512,9 @@ We have found 18 smells
 	- 1. Define permissions for workflows with external actions (job at line: 67)
 	- 1. Define permissions for workflows with external actions (job at line: 95)
 	- 2. Use commit hash instead of tags for action versions (line 55)
-	- 2. Use commit hash instead of tags for action versions (line 32)
-	- 2. Use commit hash instead of tags for action versions (line 35)
 	- 2. Use commit hash instead of tags for action versions (line 27)
+	- 2. Use commit hash instead of tags for action versions (line 35)
+	- 2. Use commit hash instead of tags for action versions (line 32)
 	- 3. Use permissions whenever using Github Token (job at line 13)
 	- 5. Avoid jobs without timeouts (line: 67)
 	- 5. Avoid jobs without timeouts (line: 13)
@@ -1546,16 +1546,16 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/doocs_Leetcode__deploy.yml
 We have found 20 smells
 	- 1. Define permissions for workflows with external actions (job at line: 22)
-	- 2. Use commit hash instead of tags for action versions (line 113)
-	- 2. Use commit hash instead of tags for action versions (line 49)
-	- 2. Use commit hash instead of tags for action versions (line 25)
 	- 2. Use commit hash instead of tags for action versions (line 54)
+	- 2. Use commit hash instead of tags for action versions (line 49)
 	- 2. Use commit hash instead of tags for action versions (line 129)
+	- 2. Use commit hash instead of tags for action versions (line 113)
+	- 2. Use commit hash instead of tags for action versions (line 25)
 	- 3. Use permissions whenever using Github Token (job at line 22)
 	- 4. Prevent running issue/PR actions on forks line -1:30
-	- 4. Prevent running issue/PR actions on forks line -1:26
-	- 4. Prevent running issue/PR actions on forks line -1:90
 	- 4. Prevent running issue/PR actions on forks line -1:37
+	- 4. Prevent running issue/PR actions on forks line -1:90
+	- 4. Prevent running issue/PR actions on forks line -1:26
 	- 5. Avoid jobs without timeouts (line: 22)
 	- 5. Avoid jobs without timeouts (line: 118)
 	- 12. Avoid deploying jobs on forks
@@ -1567,8 +1567,8 @@ We have found 20 smells
 	- 21. Avoid workflows without comments
 Detecting smells for ./.github/workflows/doocs_Leetcode__prettier.yml
 We have found 10 smells
-	- 2. Use commit hash instead of tags for action versions (line 17)
 	- 2. Use commit hash instead of tags for action versions (line 39)
+	- 2. Use commit hash instead of tags for action versions (line 17)
 	- 2. Use commit hash instead of tags for action versions (line 23)
 	- 4. Prevent running issue/PR actions on forks (job line: 12)
 	- 5. Avoid jobs without timeouts (line: 12)
@@ -1607,8 +1607,8 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/google_gson__cifuzz.yml
 We have found 6 smells
 	- 5. Avoid jobs without timeouts (line: 6)
-	- 10. Avoid uploading artifacts on forks (line -1)
 	- 10. Avoid uploading artifacts on forks (line -1:34) for job Fuzzing
+	- 10. Avoid uploading artifacts on forks (line -1)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 6)
@@ -1630,8 +1630,8 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/Jackett_Jackett__codeql-analysis.yml
 We have found 6 smells
 	- 2. Use commit hash instead of tags for action versions (line 59)
-	- 2. Use commit hash instead of tags for action versions (line 89)
 	- 2. Use commit hash instead of tags for action versions (line 75)
+	- 2. Use commit hash instead of tags for action versions (line 89)
 	- 2. Use commit hash instead of tags for action versions (line 63)
 	- 5. Avoid jobs without timeouts (line: 42)
 	- 14. Avoid incorrectly formatted workflows
@@ -1648,31 +1648,31 @@ The following styling errors were found:
 85:6: missing starting space in comment (comments)
 Detecting smells for ./.github/workflows/getsentry_sentry__backend.yml
 We have found 26 smells
-	- 1. Define permissions for workflows with external actions (job at line: 140)
-	- 1. Define permissions for workflows with external actions (job at line: 42)
+	- 1. Define permissions for workflows with external actions (job at line: 21)
 	- 1. Define permissions for workflows with external actions (job at line: 177)
+	- 1. Define permissions for workflows with external actions (job at line: 42)
+	- 1. Define permissions for workflows with external actions (job at line: 315)
+	- 1. Define permissions for workflows with external actions (job at line: 140)
 	- 1. Define permissions for workflows with external actions (job at line: 203)
 	- 1. Define permissions for workflows with external actions (job at line: 236)
-	- 1. Define permissions for workflows with external actions (job at line: 21)
-	- 1. Define permissions for workflows with external actions (job at line: 315)
-	- 5. Avoid jobs without timeouts (line: 384)
-	- 5. Avoid jobs without timeouts (line: 236)
 	- 5. Avoid jobs without timeouts (line: 42)
+	- 5. Avoid jobs without timeouts (line: 236)
+	- 5. Avoid jobs without timeouts (line: 384)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
+	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines 349:349)
 	- 16. Use names for run steps (lines 346:347)
+	- 16. Use names for run steps (lines -1:211)
 	- 16. Use names for run steps (lines -1:51)
 	- 16. Use names for run steps (lines 335:336)
-	- 16. Use names for run steps (lines 349:349)
-	- 16. Use names for run steps (lines -1:211)
-	- 16. Use names for run steps (lines -1:-1)
 	- 18. Steps should only perform a single command (line -1)
 	- 19. Run tests on multiple OS's (job: monolith-dbs)
 	- 19. Run tests on multiple OS's (job: api-docs)
-	- 19. Run tests on multiple OS's (job: backend-migration-tests)
-	- 19. Run tests on multiple OS's (job: cli)
 	- 19. Run tests on multiple OS's (job: backend-test)
+	- 19. Run tests on multiple OS's (job: cli)
+	- 19. Run tests on multiple OS's (job: backend-migration-tests)
 	- 22. Run CI on multiple language versions (job: api-docs)
 The following styling errors were found: 
 33:73: too few spaces before comment: expected 2 (comments)
@@ -1702,8 +1702,8 @@ We have found 9 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 11)
-	- 16. Use names for run steps (lines 24:24)
 	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines 24:24)
 	- 20. Avoid installing packages without version (line -1)
 The following styling errors were found: 
 17:73: too few spaces before comment: expected 2 (comments)
@@ -1716,13 +1716,13 @@ We have found 19 smells
 	- 2. Use commit hash instead of tags for action versions (line 12)
 	- 2. Use commit hash instead of tags for action versions (line 26)
 	- 3. Use permissions whenever using Github Token (job at line 6)
-	- 4. Prevent running issue/PR actions on forks line 73:89
-	- 4. Prevent running issue/PR actions on forks line -1:56
-	- 4. Prevent running issue/PR actions on forks line -1:46
 	- 4. Prevent running issue/PR actions on forks line -1:22
-	- 4. Prevent running issue/PR actions on forks line -1:39
-	- 4. Prevent running issue/PR actions on forks line 51:53
+	- 4. Prevent running issue/PR actions on forks line -1:46
 	- 4. Prevent running issue/PR actions on forks line 68:70
+	- 4. Prevent running issue/PR actions on forks line -1:56
+	- 4. Prevent running issue/PR actions on forks line 73:89
+	- 4. Prevent running issue/PR actions on forks line 51:53
+	- 4. Prevent running issue/PR actions on forks line -1:39
 	- 5. Avoid jobs without timeouts (line: 6)
 	- 9. Avoid executing scheduled workflows on forks
 	- 12. Avoid deploying jobs on forks
@@ -1781,17 +1781,17 @@ We have found 4 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 Detecting smells for ./.github/workflows/scikit-learn_scikit-learn__check-sdist.yml
 We have found 13 smells
-	- 2. Use commit hash instead of tags for action versions (line 15)
 	- 2. Use commit hash instead of tags for action versions (line 16)
+	- 2. Use commit hash instead of tags for action versions (line 15)
 	- 4. Prevent running issue/PR actions on forks line 29:29
 	- 5. Avoid jobs without timeouts (line: 10)
 	- 9. Avoid executing scheduled workflows on forks
 	- 12. Avoid deploying jobs on forks
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 15. Use fixed version for runs-on argument (line 13)
-	- 16. Use names for run steps (lines 16:16)
-	- 16. Use names for run steps (lines -1:-1)
 	- 16. Use names for run steps (lines -1:17)
+	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines 16:16)
 	- 18. Steps should only perform a single command (line -1)
 	- 20. Avoid installing packages without version (line -1)
 Detecting smells for ./.github/workflows/oracle_graal__spring.yml
@@ -1819,11 +1819,11 @@ The following styling errors were found:
 7:18: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/cheeriojs_cheerio__site.yml
 We have found 12 smells
+	- 2. Use commit hash instead of tags for action versions (line 59)
+	- 2. Use commit hash instead of tags for action versions (line 34)
+	- 2. Use commit hash instead of tags for action versions (line 74)
 	- 2. Use commit hash instead of tags for action versions (line 41)
 	- 2. Use commit hash instead of tags for action versions (line 32)
-	- 2. Use commit hash instead of tags for action versions (line 59)
-	- 2. Use commit hash instead of tags for action versions (line 74)
-	- 2. Use commit hash instead of tags for action versions (line 34)
 	- 5. Avoid jobs without timeouts (line: 29)
 	- 5. Avoid jobs without timeouts (line: 65)
 	- 8. Avoid running CI related actions when no source code has changed
@@ -1855,15 +1855,15 @@ The following styling errors were found:
 136:78: too few spaces before comment: expected 2 (comments)
 Detecting smells for ./.github/workflows/abpframework_abp__build-and-test.yml
 We have found 12 smells
-	- 2. Use commit hash instead of tags for action versions (line 53)
 	- 2. Use commit hash instead of tags for action versions (line 69)
+	- 2. Use commit hash instead of tags for action versions (line 53)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
 	- 11. Use 'if' for upload-artifact action (line 70)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
-	- 16. Use names for run steps (lines -1:55)
 	- 16. Use names for run steps (lines 54:54)
+	- 16. Use names for run steps (lines -1:55)
 	- 19. Run tests on multiple OS's (job: build-test)
 	- 21. Avoid workflows without comments
 	- 22. Run CI on multiple language versions (job: build-test)
@@ -1905,47 +1905,47 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/keycloak_keycloak__ci.yml
 We have found 42 smells
 	- 4. Prevent running issue/PR actions on forks line -1:584
-	- 4. Prevent running issue/PR actions on forks line -1:62
-	- 4. Prevent running issue/PR actions on forks line -1:629
-	- 4. Prevent running issue/PR actions on forks line -1:53
 	- 4. Prevent running issue/PR actions on forks line -1:533
-	- 5. Avoid jobs without timeouts (line: 1158)
-	- 5. Avoid jobs without timeouts (line: 75)
+	- 4. Prevent running issue/PR actions on forks line -1:53
+	- 4. Prevent running issue/PR actions on forks line -1:629
+	- 4. Prevent running issue/PR actions on forks line -1:62
 	- 5. Avoid jobs without timeouts (line: 30)
+	- 5. Avoid jobs without timeouts (line: 75)
+	- 5. Avoid jobs without timeouts (line: 1158)
 	- 8. Avoid running CI related actions when no source code has changed
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job adapter-integration-tests-strict-cookies
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job jdk-integration-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job store-model-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job quarkus-integration-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job fips-integration-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job base-integration-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job adapter-integration-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job migration-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job unit-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job adapter-integration-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job quarkus-unit-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job forms-integration-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job volatile-sessions-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job store-integration-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job auroradb-integration-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job login-v1-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job store-model-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job webauthn-integration-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job volatile-sessions-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job base-integration-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job fips-unit-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job jdk-integration-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job external-infinispan-tests
-	- 10. Avoid uploading artifacts on forks (line 113:115) for job quarkus-integration-tests
 	- 10. Avoid uploading artifacts on forks (line 113:115) for job clustering-integration-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job login-v1-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job auroradb-integration-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job external-infinispan-tests
+	- 10. Avoid uploading artifacts on forks (line 113:115) for job forms-integration-tests
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 31)
-	- 16. Use names for run steps (lines -1:1188)
-	- 16. Use names for run steps (lines -1:48)
 	- 16. Use names for run steps (lines -1:-1)
+	- 16. Use names for run steps (lines -1:48)
 	- 16. Use names for run steps (lines 937:938)
+	- 16. Use names for run steps (lines -1:1188)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: mixed-cluster-compatibility-tests)
-	- 19. Run tests on multiple OS's (job: test-framework)
-	- 19. Run tests on multiple OS's (job: store-model-tests)
 	- 19. Run tests on multiple OS's (job: migration-tests)
-	- 19. Run tests on multiple OS's (job: login-v1-tests)
+	- 19. Run tests on multiple OS's (job: test-framework)
 	- 19. Run tests on multiple OS's (job: build)
+	- 19. Run tests on multiple OS's (job: login-v1-tests)
+	- 19. Run tests on multiple OS's (job: store-model-tests)
+	- 19. Run tests on multiple OS's (job: mixed-cluster-compatibility-tests)
 The following styling errors were found: 
 45:73: too few spaces before comment: expected 2 (comments)
 81:73: too few spaces before comment: expected 2 (comments)
@@ -1999,8 +1999,8 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/hpcaitech_ColossalAI__draft_github_release_post_after_merge.yml
 We have found 15 smells
 	- 1. Define permissions for workflows with external actions (job at line: 12)
-	- 2. Use commit hash instead of tags for action versions (line 19)
 	- 2. Use commit hash instead of tags for action versions (line 34)
+	- 2. Use commit hash instead of tags for action versions (line 19)
 	- 2. Use commit hash instead of tags for action versions (line 16)
 	- 3. Use permissions whenever using Github Token (job at line 12)
 	- 5. Avoid jobs without timeouts (line: 12)
@@ -2008,8 +2008,8 @@ We have found 15 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 14)
-	- 16. Use names for run steps (lines -1:20)
 	- 16. Use names for run steps (lines -1:17)
+	- 16. Use names for run steps (lines -1:20)
 	- 18. Steps should only perform a single command (line -1)
 	- 20. Avoid installing packages without version (line -1)
 	- 21. Avoid workflows without comments
@@ -2041,11 +2041,11 @@ We have found 8 smells
 	- 21. Avoid workflows without comments
 Detecting smells for ./.github/workflows/mattermost_mattermost__e2e-fulltests-ci.yml
 We have found 13 smells
-	- 1. Define permissions for workflows with external actions (job at line: 277)
 	- 1. Define permissions for workflows with external actions (job at line: 240)
+	- 1. Define permissions for workflows with external actions (job at line: 277)
+	- 4. Prevent running issue/PR actions on forks line -1:220
 	- 4. Prevent running issue/PR actions on forks line -1:334
 	- 4. Prevent running issue/PR actions on forks line -1:114
-	- 4. Prevent running issue/PR actions on forks line -1:220
 	- 5. Avoid jobs without timeouts (line: 55)
 	- 5. Avoid jobs without timeouts (line: 309)
 	- 12. Avoid deploying jobs on forks
@@ -2061,54 +2061,54 @@ The following styling errors were found:
 342:1: trailing spaces (trailing-spaces)
 Detecting smells for ./.github/workflows/parcel-bundler_parcel__ci.yml
 We have found 36 smells
-	- 2. Use commit hash instead of tags for action versions (line 17)
 	- 2. Use commit hash instead of tags for action versions (line 172)
-	- 2. Use commit hash instead of tags for action versions (line 163)
-	- 2. Use commit hash instead of tags for action versions (line 86)
 	- 2. Use commit hash instead of tags for action versions (line 18)
+	- 2. Use commit hash instead of tags for action versions (line 86)
 	- 2. Use commit hash instead of tags for action versions (line 75)
-	- 5. Avoid jobs without timeouts (line: 60)
-	- 5. Avoid jobs without timeouts (line: 51)
+	- 2. Use commit hash instead of tags for action versions (line 17)
+	- 2. Use commit hash instead of tags for action versions (line 163)
 	- 5. Avoid jobs without timeouts (line: 40)
-	- 5. Avoid jobs without timeouts (line: 95)
-	- 5. Avoid jobs without timeouts (line: 14)
 	- 5. Avoid jobs without timeouts (line: 29)
+	- 5. Avoid jobs without timeouts (line: 14)
+	- 5. Avoid jobs without timeouts (line: 51)
 	- 5. Avoid jobs without timeouts (line: 126)
+	- 5. Avoid jobs without timeouts (line: 95)
+	- 5. Avoid jobs without timeouts (line: 60)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
 	- 8. Avoid running CI related actions when no source code has changed
 	- 10. Avoid uploading artifacts on forks (line 87)
 	- 12. Avoid deploying jobs on forks
 	- 15. Use fixed version for runs-on argument (line 15)
-	- 16. Use names for run steps (lines 123:123)
-	- 16. Use names for run steps (lines -1:22)
-	- 16. Use names for run steps (lines 26:26)
-	- 16. Use names for run steps (lines 18:18)
-	- 16. Use names for run steps (lines 27:27)
-	- 16. Use names for run steps (lines -1:19)
+	- 16. Use names for run steps (lines 49:49)
 	- 16. Use names for run steps (lines 157:157)
 	- 16. Use names for run steps (lines 122:122)
-	- 16. Use names for run steps (lines 83:83)
+	- 16. Use names for run steps (lines -1:22)
+	- 16. Use names for run steps (lines 123:123)
 	- 16. Use names for run steps (lines 156:156)
-	- 16. Use names for run steps (lines 49:49)
-	- 16. Use names for run steps (lines -1:76)
+	- 16. Use names for run steps (lines 27:27)
+	- 16. Use names for run steps (lines 26:26)
 	- 16. Use names for run steps (lines 84:84)
 	- 16. Use names for run steps (lines 38:38)
+	- 16. Use names for run steps (lines 18:18)
+	- 16. Use names for run steps (lines -1:19)
+	- 16. Use names for run steps (lines -1:76)
+	- 16. Use names for run steps (lines 83:83)
 	- 18. Steps should only perform a single command (line -1)
 	- 19. Run tests on multiple OS's (job: repl_build)
 	- 22. Run CI on multiple language versions (job: repl_build)
 Detecting smells for ./.github/workflows/localstack_localstack__tests-cli.yml
 We have found 11 smells
+	- 2. Use commit hash instead of tags for action versions (line 89)
 	- 2. Use commit hash instead of tags for action versions (line 86)
 	- 2. Use commit hash instead of tags for action versions (line 112)
-	- 2. Use commit hash instead of tags for action versions (line 89)
 	- 5. Avoid jobs without timeouts (line: 105)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 74)
 	- 18. Steps should only perform a single command (line -1)
-	- 19. Run tests on multiple OS's (job: push-to-tinybird)
 	- 19. Run tests on multiple OS's (job: cli-tests)
+	- 19. Run tests on multiple OS's (job: push-to-tinybird)
 	- 20. Avoid installing packages without version (line -1)
 The following styling errors were found: 
 9:9: wrong indentation: expected 10 but found 8 (indentation)
@@ -2123,8 +2123,8 @@ We have found 7 smells
 	- 13. Avoid starting new workflow whilst the previous one is still running
 	- 14. Avoid incorrectly formatted workflows
 	- 15. Use fixed version for runs-on argument (line 21)
-	- 16. Use names for run steps (lines -1:46)
 	- 16. Use names for run steps (lines 31:31)
+	- 16. Use names for run steps (lines -1:46)
 The following styling errors were found: 
 5:37: trailing spaces (trailing-spaces)
 9:3: wrong indentation: expected 4 but found 2 (indentation)
@@ -2146,8 +2146,8 @@ We have found 11 smells
 Detecting smells for ./.github/workflows/gui-cs_Terminal.Gui__dotnet-core.yml
 We have found 9 smells
 	- 1. Define permissions for workflows with external actions (job at line: 13)
-	- 2. Use commit hash instead of tags for action versions (line 28)
 	- 2. Use commit hash instead of tags for action versions (line 25)
+	- 2. Use commit hash instead of tags for action versions (line 28)
 	- 6. Stop running workflows when there is a newer commit in PR
 	- 7. Stop running workflows when there is a newer commit in branch
 	- 12. Avoid deploying jobs on forks
@@ -2240,8 +2240,8 @@ The following styling errors were found:
 Detecting smells for ./.github/workflows/gpt-engineer-org_gpt-engineer__ci.yaml
 We have found 9 smells
 	- 1. Define permissions for workflows with external actions (job at line: 17)
-	- 2. Use commit hash instead of tags for action versions (line 24)
 	- 2. Use commit hash instead of tags for action versions (line 27)
+	- 2. Use commit hash instead of tags for action versions (line 24)
 	- 5. Avoid jobs without timeouts (line: 17)
 	- 12. Avoid deploying jobs on forks
 	- 14. Avoid incorrectly formatted workflows

@@ -27,7 +27,7 @@ class Workflow:
         return list(self.yaml.keys())
 
     def get_on(self) -> Optional[dict]:
-        if 'on' in self.yaml.keys():
+        if self.yaml is not None and 'on' in self.yaml.keys():
             return self.yaml["on"]
         else:
             return None
