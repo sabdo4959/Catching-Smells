@@ -1,0 +1,65 @@
+# This workflow runs build, test, and lint checks for Angular packages on pull requests.
+name: 'Angular'
+on:
+  pull_request:
+    paths:
+      - 'npm/ng-packs/**/*.ts'
+      - 'npm/ng-packs/**/*.html'
+      - 'npm/ng-packs/*.json'
+      - '!npm/ng-packs/scripts/**'
+      - '!npm/ng-packs/packages/schematics/**'
+    branches:
+      - 'rel-*'
+      - 'dev'
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # TODO: Consider using a strategy matrix to run tests on multiple OS's (windows, macos).
+  build-test-lint:
+    if: ${{ !github.event.pull_request.draft }} && github.repository == 'owner/repo' # TODO: Replace with your repository (e.g., 'your-org/your-repo')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      # TODO: For security, pin this action to a specific commit SHA instead of a tag.
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # TODO: For security, pin this action to a specific commit SHA instead of a tag.
+      - name: Cache npm/ng-packs node_modules
+        uses: actions/cache@v4
+        with:
+          path: 'npm/ng-packs/node_modules'
+          key: ${{ runner.os }}-${{ hashFiles('npm/ng-packs/yarn.lock') }}
+
+      - uses: actions/cache@v4
+        with:
+          path: 'templates/app/angular/node_modules'
+          key: ${{ runner.os }}-${{ hashFiles('templates/app/angular/yarn.lock') }}
+
+      - name: Install packages
+        run: yarn install
+        working-directory: npm/ng-packs
+
+      - name: Run lint
+        run: yarn affected:lint --base=remotes/origin/${{ github.base_ref }}
+        working-directory: npm/ng-packs
+
+      - name: Run build
+        run: yarn affected:build --base=remotes/origin/${{ github.base_ref }}
+        working-directory: npm/ng-packs
+
+      - name: Run test
+        run: yarn affected:test --base=remotes/origin/${{ github.base_ref }}
+        working-directory: npm/ng-packs

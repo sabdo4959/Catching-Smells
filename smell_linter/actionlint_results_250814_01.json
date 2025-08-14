@@ -1,0 +1,209 @@
+{
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/alibaba_sentinel__ci.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/abpframework_abp__update-versions.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__update-versions.yml",
+        "line": 17,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/setup-python@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__update-versions.yml",
+        "line": 20,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/setup-python@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/appwrite_appwrite__check-dependencies.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/app-vnext_polly__build.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/abpframework_abp__angular.yml": [
+    [
+      {
+        "message": "if: condition \"${{ !github.event.pull_request.draft }} && github.repository == 'owner/repo'\" is always evaluated to true because extra characters are around ${{ }}",
+        "filepath": ".github/workflows/abpframework_abp__angular.yml",
+        "line": 29,
+        "column": 9,
+        "kind": "if-cond",
+        "snippet": "    if: ${{ !github.event.pull_request.draft }} && github.repository == 'owner/repo' # TODO: Replace with your repository (e.g., 'your-org/your-repo')\n        ^~~",
+        "end_column": 11
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__angular.yml",
+        "line": 35,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/appwrite_appwrite__release.yml": [
+    [
+      {
+        "message": "the runner of \"docker/setup-qemu-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/appwrite_appwrite__release.yml",
+        "line": 23,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/setup-qemu-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 39
+      },
+      {
+        "message": "the runner of \"docker/setup-buildx-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/appwrite_appwrite__release.yml",
+        "line": 26,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/setup-buildx-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "the runner of \"docker/login-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/appwrite_appwrite__release.yml",
+        "line": 29,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/login-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 34
+      },
+      {
+        "message": "the runner of \"docker/metadata-action@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/appwrite_appwrite__release.yml",
+        "line": 36,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/metadata-action@v4\n            ^~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      },
+      {
+        "message": "the runner of \"docker/build-push-action@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/appwrite_appwrite__release.yml",
+        "line": 45,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/build-push-action@v4\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 39
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/appwrite_appwrite__stale.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/app-vnext_polly__ossf-scorecard.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/app-vnext_polly__on-push-do-docs.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/abpframework_abp__codeql-analysis.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 56,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"github/codeql-action/init@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 69,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: github/codeql-action/init@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 42
+      },
+      {
+        "message": "the runner of \"github/codeql-action/autobuild@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 80,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: github/codeql-action/autobuild@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 47
+      },
+      {
+        "message": "the runner of \"github/codeql-action/analyze@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 94,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: github/codeql-action/analyze@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 45
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/abpframework_abp__auto-pr.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__auto-pr.yml",
+        "line": 16,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"peter-evans/create-pull-request@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__auto-pr.yml",
+        "line": 24,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: peter-evans/create-pull-request@v3\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 48
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/app-vnext_polly__stale.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/appwrite_appwrite__cleanup-cache.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/app-vnext_polly__after-release.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/abpframework_abp__build-and-test.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__build-and-test.yml",
+        "line": 54,
+        "column": 13,
+        "kind": "action",
+        "snippet": "    - uses: actions/checkout@v2\n            ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 31
+      },
+      {
+        "message": "the runner of \"codecov/codecov-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": ".github/workflows/abpframework_abp__build-and-test.yml",
+        "line": 70,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: codecov/codecov-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/smell_linter/.github/workflows/alibaba_sentinel__document-lint.yml": [
+    []
+  ]
+}

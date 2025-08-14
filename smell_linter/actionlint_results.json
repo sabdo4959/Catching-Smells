@@ -1,0 +1,1156 @@
+{
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__guides.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/parcel-bundler_parcel__release.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/jquery_jquery__filestash.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/alibaba_sentinel__ci.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/oracle_graal__quarkus.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/spacedriveapp_spacedrive__ci.yml": [
+    [
+      {
+        "message": "shell name \"powershell\" is invalid on macOS or Linux. available names are \"bash\", \"pwsh\", \"python\", \"sh\"",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/spacedriveapp_spacedrive__ci.yml",
+        "line": 159,
+        "column": 16,
+        "kind": "shell-name",
+        "snippet": "        shell: powershell\n               ^~~~~~~~~~",
+        "end_column": 25
+      },
+      {
+        "message": "shell name \"powershell\" is invalid on macOS or Linux. available names are \"bash\", \"pwsh\", \"python\", \"sh\"",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/spacedriveapp_spacedrive__ci.yml",
+        "line": 164,
+        "column": 16,
+        "kind": "shell-name",
+        "snippet": "        shell: powershell\n               ^~~~~~~~~~",
+        "end_column": 25
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__js-ci.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__upload_release_asset.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__upload_release_asset.yml",
+        "line": 18,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v3\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/google_gson__build.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/netty_netty__ci-pr.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/pixijs_pixi.js__release.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__compatiblity_test_on_schedule.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__compatiblity_test_on_schedule.yml",
+        "line": 16,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v3\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__compatiblity_test_on_schedule.yml",
+        "line": 18,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__compatiblity_test_on_schedule.yml",
+        "line": 49,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/abpframework_abp__update-versions.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__update-versions.yml",
+        "line": 17,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/setup-python@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__update-versions.yml",
+        "line": 20,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/setup-python@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/microsoft_semantic-kernel__generate-pr-description.yml": [
+    [
+      {
+        "message": "the runner of \"actions/github-script@v6\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/microsoft_semantic-kernel__generate-pr-description.yml",
+        "line": 47,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v6\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__check-dependencies.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/redisson_redisson__codeql-analysis.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__clang-format-lint.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/app-vnext_polly__build.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__pr-add-label.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__labeler-title-regex.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__documentation.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/trpc_trpc__main.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/unoplatform_uno__labeler.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__operator-ci.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/abpframework_abp__angular.yml": [
+    [
+      {
+        "message": "if: condition \"${{ !github.event.pull_request.draft }} && github.repository == 'owner/repo'\" is always evaluated to true because extra characters are around ${{ }}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__angular.yml",
+        "line": 29,
+        "column": 9,
+        "kind": "if-cond",
+        "snippet": "    if: ${{ !github.event.pull_request.draft }} && github.repository == 'owner/repo' # TODO: Replace with your repository (e.g., 'your-org/your-repo')\n        ^~~",
+        "end_column": 11
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__angular.yml",
+        "line": 35,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml",
+        "line": 15,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v3\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"docker/login-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml",
+        "line": 18,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/login-action@v2\n              ^~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 36
+      },
+      {
+        "message": "the runner of \"docker/metadata-action@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml",
+        "line": 26,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/metadata-action@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 39
+      },
+      {
+        "message": "the runner of \"docker/setup-qemu-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml",
+        "line": 35,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/setup-qemu-action@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "the runner of \"docker/setup-buildx-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml",
+        "line": 39,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/setup-buildx-action@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 43
+      },
+      {
+        "message": "the runner of \"docker/build-push-action@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__docker.yml",
+        "line": 43,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/build-push-action@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/Nuxt_Nuxt__reproduire.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__e2e-tests.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__black-lint.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/dotnet_AspNetCore.Docs__merge-live.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/dotnet_AspNetCore.Docs__merge-live.yml",
+        "line": 21,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__codeql-analysis.yml": [
+    [
+      {
+        "message": "property \"check\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__codeql-analysis.yml",
+        "line": 55,
+        "column": 23,
+        "kind": "expression",
+        "snippet": "      conclusion: ${{ steps.check.outputs.conclusion }}\n                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 52
+      },
+      {
+        "message": "property \"check\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__codeql-analysis.yml",
+        "line": 83,
+        "column": 23,
+        "kind": "expression",
+        "snippet": "      conclusion: ${{ steps.check.outputs.conclusion }}\n                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 52
+      },
+      {
+        "message": "property \"check\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__codeql-analysis.yml",
+        "line": 110,
+        "column": 23,
+        "kind": "expression",
+        "snippet": "      conclusion: ${{ steps.check.outputs.conclusion }}\n                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 52
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__labeler-module.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__check-changelog.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__label.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/chatgptnextweb_chatgpt-next-web__issue-translator.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__release.yml": [
+    [
+      {
+        "message": "the runner of \"docker/setup-qemu-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__release.yml",
+        "line": 23,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/setup-qemu-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 39
+      },
+      {
+        "message": "the runner of \"docker/setup-buildx-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__release.yml",
+        "line": 26,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/setup-buildx-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "the runner of \"docker/login-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__release.yml",
+        "line": 29,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/login-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 34
+      },
+      {
+        "message": "the runner of \"docker/metadata-action@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__release.yml",
+        "line": 36,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/metadata-action@v4\n            ^~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      },
+      {
+        "message": "the runner of \"docker/build-push-action@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__release.yml",
+        "line": 45,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: docker/build-push-action@v4\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 39
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__stale.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/jquery_jquery__browserstack-dispatch.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__chromatic.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/jenkinsci_jenkins__publish-release-artifact.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__wheels.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__label-blank-issue.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/pixijs_pixi.js__push.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__build_on_pr.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__build_on_pr.yml",
+        "line": 42,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__build_on_pr.yml",
+        "line": 103,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__build_on_pr.yml",
+        "line": 129,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/mattermost_mattermost__e2e-tests-ci-template.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/jquery_jquery__node.js.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/openzipkin_zipkin__test_readme.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__codeql-analysis.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/app-vnext_polly__ossf-scorecard.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/Prisma_Prisma__test-template.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/pixijs_pixi.js__pull-unit.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 23,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/setup-java@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 27,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/setup-java@v2\n              ^~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 35
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 40,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/setup-java@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 44,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/setup-java@v2\n              ^~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 35
+      },
+      {
+        "message": "the runner of \"actions/upload-artifact@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 57,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/upload-artifact@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 40
+      },
+      {
+        "message": "the runner of \"actions/download-artifact@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 70,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/download-artifact@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 42
+      },
+      {
+        "message": "the runner of \"actions/github-script@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 85,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      },
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 113,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/download-artifact@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 117,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/download-artifact@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 42
+      },
+      {
+        "message": "the runner of \"docker/metadata-action@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 123,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/metadata-action@v3\n              ^~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 39
+      },
+      {
+        "message": "the runner of \"docker/setup-qemu-action@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 136,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/setup-qemu-action@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "the runner of \"docker/setup-buildx-action@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 138,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/setup-buildx-action@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 43
+      },
+      {
+        "message": "the runner of \"docker/login-action@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 140,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/login-action@v1\n              ^~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 36
+      },
+      {
+        "message": "the runner of \"docker/login-action@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 145,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/login-action@v1\n              ^~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 36
+      },
+      {
+        "message": "the runner of \"docker/build-push-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/halo-dev_halo__halo.yml",
+        "line": 151,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: docker/build-push-action@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__submodule.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__submodule.yml",
+        "line": 14,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "object, array, and null values should not be evaluated in template with ${{ }} but evaluating the value of type {action: string; action_path: string; action_ref: string; action_repository: string; action_status: string; actor: string; actor_id: string; api_url: string; artifact_cache_size_limit: number; base_ref: string; env: string; event: object; event_name: string; event_path: string; graphql_url: string; head_ref: string; job: string; output: string; path: string; ref: string; ref_name: string; ref_protected: bool; ref_type: string; repository: string; repository_id: string; repository_owner: string; repository_owner_id: string; repository_visibility: string; repositoryurl: string; retention_days: number; run_attempt: string; run_id: string; run_number: string; secret_source: string; server_url: string; sha: string; state: string; step_summary: string; token: string; triggering_actor: string; workflow: string; workflow_ref: string; workflow_sha: string; workspace: string}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__submodule.yml",
+        "line": 20,
+        "column": 19,
+        "kind": "expression",
+        "snippet": "        run: |",
+        "end_column": 19
+      },
+      {
+        "message": "the runner of \"peter-evans/create-pull-request@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__submodule.yml",
+        "line": 36,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: peter-evans/create-pull-request@v3\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 48
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__api-docs.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__codeql.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__codeql.yml",
+        "line": 49,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: actions/checkout@v3\n            ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 31
+      },
+      {
+        "message": "the runner of \"github/codeql-action/init@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__codeql.yml",
+        "line": 53,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: github/codeql-action/init@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 40
+      },
+      {
+        "message": "the runner of \"github/codeql-action/autobuild@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__codeql.yml",
+        "line": 67,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: github/codeql-action/autobuild@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 45
+      },
+      {
+        "message": "the runner of \"github/codeql-action/analyze@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__codeql.yml",
+        "line": 80,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: github/codeql-action/analyze@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 43
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/oracle_graal__reachability-metadata.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/app-vnext_polly__on-push-do-docs.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/abpframework_abp__codeql-analysis.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 56,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"github/codeql-action/init@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 69,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: github/codeql-action/init@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 42
+      },
+      {
+        "message": "the runner of \"github/codeql-action/autobuild@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 80,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: github/codeql-action/autobuild@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 47
+      },
+      {
+        "message": "the runner of \"github/codeql-action/analyze@v1\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__codeql-analysis.yml",
+        "line": 94,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: github/codeql-action/analyze@v1\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 45
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/Jackett_Jackett__issuebot.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml": [
+    [
+      {
+        "message": "label \"blacksmith-2vcpu-ubuntu-2204\" is unknown. available labels are \"windows-latest\", \"windows-latest-8-cores\", \"windows-2025\", \"windows-2022\", \"windows-2019\", \"ubuntu-latest\", \"ubuntu-latest-4-cores\", \"ubuntu-latest-8-cores\", \"ubuntu-latest-16-cores\", \"ubuntu-24.04\", \"ubuntu-24.04-arm\", \"ubuntu-22.04\", \"ubuntu-22.04-arm\", \"ubuntu-20.04\", \"macos-latest\", \"macos-latest-xl\", \"macos-latest-xlarge\", \"macos-latest-large\", \"macos-15-xlarge\", \"macos-15-large\", \"macos-15\", \"macos-14-xl\", \"macos-14-xlarge\", \"macos-14-large\", \"macos-14\", \"macos-13-xl\", \"macos-13-xlarge\", \"macos-13-large\", \"macos-13\", \"self-hosted\", \"x64\", \"arm\", \"arm64\", \"linux\", \"macos\", \"windows\". if it is a custom label for self-hosted runner, set list of labels in actionlint.yaml config file",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml",
+        "line": 30,
+        "column": 14,
+        "kind": "runner-label",
+        "snippet": "    runs-on: blacksmith-2vcpu-ubuntu-2204\n             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "label \"blacksmith-2vcpu-ubuntu-2204\" is unknown. available labels are \"windows-latest\", \"windows-latest-8-cores\", \"windows-2025\", \"windows-2022\", \"windows-2019\", \"ubuntu-latest\", \"ubuntu-latest-4-cores\", \"ubuntu-latest-8-cores\", \"ubuntu-latest-16-cores\", \"ubuntu-24.04\", \"ubuntu-24.04-arm\", \"ubuntu-22.04\", \"ubuntu-22.04-arm\", \"ubuntu-20.04\", \"macos-latest\", \"macos-latest-xl\", \"macos-latest-xlarge\", \"macos-latest-large\", \"macos-15-xlarge\", \"macos-15-large\", \"macos-15\", \"macos-14-xl\", \"macos-14-xlarge\", \"macos-14-large\", \"macos-14\", \"macos-13-xl\", \"macos-13-xlarge\", \"macos-13-large\", \"macos-13\", \"self-hosted\", \"x64\", \"arm\", \"arm64\", \"linux\", \"macos\", \"windows\". if it is a custom label for self-hosted runner, set list of labels in actionlint.yaml config file",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml",
+        "line": 41,
+        "column": 14,
+        "kind": "runner-label",
+        "snippet": "    runs-on: blacksmith-2vcpu-ubuntu-2204\n             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "label \"blacksmith-2vcpu-ubuntu-2204\" is unknown. available labels are \"windows-latest\", \"windows-latest-8-cores\", \"windows-2025\", \"windows-2022\", \"windows-2019\", \"ubuntu-latest\", \"ubuntu-latest-4-cores\", \"ubuntu-latest-8-cores\", \"ubuntu-latest-16-cores\", \"ubuntu-24.04\", \"ubuntu-24.04-arm\", \"ubuntu-22.04\", \"ubuntu-22.04-arm\", \"ubuntu-20.04\", \"macos-latest\", \"macos-latest-xl\", \"macos-latest-xlarge\", \"macos-latest-large\", \"macos-15-xlarge\", \"macos-15-large\", \"macos-15\", \"macos-14-xl\", \"macos-14-xlarge\", \"macos-14-large\", \"macos-14\", \"macos-13-xl\", \"macos-13-xlarge\", \"macos-13-large\", \"macos-13\", \"self-hosted\", \"x64\", \"arm\", \"arm64\", \"linux\", \"macos\", \"windows\". if it is a custom label for self-hosted runner, set list of labels in actionlint.yaml config file",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml",
+        "line": 59,
+        "column": 14,
+        "kind": "runner-label",
+        "snippet": "    runs-on: blacksmith-2vcpu-ubuntu-2204\n             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "label \"blacksmith-2vcpu-ubuntu-2204\" is unknown. available labels are \"windows-latest\", \"windows-latest-8-cores\", \"windows-2025\", \"windows-2022\", \"windows-2019\", \"ubuntu-latest\", \"ubuntu-latest-4-cores\", \"ubuntu-latest-8-cores\", \"ubuntu-latest-16-cores\", \"ubuntu-24.04\", \"ubuntu-24.04-arm\", \"ubuntu-22.04\", \"ubuntu-22.04-arm\", \"ubuntu-20.04\", \"macos-latest\", \"macos-latest-xl\", \"macos-latest-xlarge\", \"macos-latest-large\", \"macos-15-xlarge\", \"macos-15-large\", \"macos-15\", \"macos-14-xl\", \"macos-14-xlarge\", \"macos-14-large\", \"macos-14\", \"macos-13-xl\", \"macos-13-xlarge\", \"macos-13-large\", \"macos-13\", \"self-hosted\", \"x64\", \"arm\", \"arm64\", \"linux\", \"macos\", \"windows\". if it is a custom label for self-hosted runner, set list of labels in actionlint.yaml config file",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml",
+        "line": 83,
+        "column": 14,
+        "kind": "runner-label",
+        "snippet": "    runs-on: blacksmith-2vcpu-ubuntu-2204\n             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      },
+      {
+        "message": "label \"blacksmith-2vcpu-ubuntu-2204\" is unknown. available labels are \"windows-latest\", \"windows-latest-8-cores\", \"windows-2025\", \"windows-2022\", \"windows-2019\", \"ubuntu-latest\", \"ubuntu-latest-4-cores\", \"ubuntu-latest-8-cores\", \"ubuntu-latest-16-cores\", \"ubuntu-24.04\", \"ubuntu-24.04-arm\", \"ubuntu-22.04\", \"ubuntu-22.04-arm\", \"ubuntu-20.04\", \"macos-latest\", \"macos-latest-xl\", \"macos-latest-xlarge\", \"macos-latest-large\", \"macos-15-xlarge\", \"macos-15-large\", \"macos-15\", \"macos-14-xl\", \"macos-14-xlarge\", \"macos-14-large\", \"macos-14\", \"macos-13-xl\", \"macos-13-xlarge\", \"macos-13-large\", \"macos-13\", \"self-hosted\", \"x64\", \"arm\", \"arm64\", \"linux\", \"macos\", \"windows\". if it is a custom label for self-hosted runner, set list of labels in actionlint.yaml config file",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-postgres-mysql.yml",
+        "line": 110,
+        "column": 14,
+        "kind": "runner-label",
+        "snippet": "    runs-on: blacksmith-2vcpu-ubuntu-2204\n             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 41
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__compress.yml": [
+    [
+      {
+        "message": "the runner of \"peter-evans/create-pull-request@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__compress.yml",
+        "line": 50,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: peter-evans/create-pull-request@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 48
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/remix-run_remix__release.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/redisson_redisson__maven.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__deploy.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__prettier.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/abpframework_abp__auto-pr.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__auto-pr.yml",
+        "line": 16,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"peter-evans/create-pull-request@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__auto-pr.yml",
+        "line": 24,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: peter-evans/create-pull-request@v3\n              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 48
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/google_gson__check-android-compatibility.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/google_gson__cifuzz.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/jquery_jquery__browserstack.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/Jackett_Jackett__codeql-analysis.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/getsentry_sentry__backend.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__check-documentation-urls.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 13,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/setup-node@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 27,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/setup-node@v2\n              ^~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 35
+      },
+      {
+        "message": "the runner of \"actions/github-script@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 32,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 42,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 42,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 47,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 47,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      },
+      {
+        "message": "the runner of \"actions/github-script@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 57,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      },
+      {
+        "message": "the runner of \"actions/github-script@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 74,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      },
+      {
+        "message": "the runner of \"actions/github-script@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 93,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      },
+      {
+        "message": "the runner of \"actions/github-script@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/cypress-io_cypress__update-browser-versions.yml",
+        "line": 108,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v4\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/app-vnext_polly__stale.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-master.yml": [
+    [
+      {
+        "message": "property \"branch\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-master.yml",
+        "line": 16,
+        "column": 16,
+        "kind": "expression",
+        "snippet": "      ref: ${{ inputs.branch }}\n               ^~~~~~~~~~~~~",
+        "end_column": 28
+      },
+      {
+        "message": "property \"branch\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/n8n-io_n8n__ci-master.yml",
+        "line": 26,
+        "column": 16,
+        "kind": "expression",
+        "snippet": "      ref: ${{ inputs.branch }}\n               ^~~~~~~~~~~~~",
+        "end_column": 28
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/appwrite_appwrite__cleanup-cache.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/parcel-bundler_parcel__canary-release.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__check-sdist.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/oracle_graal__spring.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/google_gson__check-api-compatibility.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/cheeriojs_cheerio__site.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/app-vnext_polly__after-release.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/abpframework_abp__build-and-test.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__build-and-test.yml",
+        "line": 54,
+        "column": 13,
+        "kind": "action",
+        "snippet": "    - uses: actions/checkout@v2\n            ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 31
+      },
+      {
+        "message": "the runner of \"codecov/codecov-action@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/abpframework_abp__build-and-test.yml",
+        "line": 70,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: codecov/codecov-action@v2\n            ^~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/mattermost_mattermost__codeql-analysis.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/google_gson__codeql-analysis.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__ci.yml": [
+    [
+      {
+        "message": "property \"os\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__ci.yml",
+        "line": 431,
+        "column": 45,
+        "kind": "expression",
+        "snippet": "          job-id: jdk-integration-tests-${{ matrix.os }}-${{ matrix.dist }}-${{ matrix.version }}\n                                            ^~~~~~~~~",
+        "end_column": 53
+      },
+      {
+        "message": "property \"variant\" is not defined in object type {}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__ci.yml",
+        "line": 467,
+        "column": 47,
+        "kind": "expression",
+        "snippet": "          job-id: store-integration-tests-${{ matrix.variant }}\n                                              ^~~~~~~~~~~~~~",
+        "end_column": 60
+      },
+      {
+        "message": "property \"conditional\" is not defined in object type {build: {outputs: {}; result: string}}",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/keycloak_keycloak__ci.yml",
+        "line": 965,
+        "column": 9,
+        "kind": "expression",
+        "snippet": "    if: needs.conditional.outputs.ci-webauthn == 'true'\n        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 45
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__draft_github_release_post_after_merge.yml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__draft_github_release_post_after_merge.yml",
+        "line": 17,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 33
+      },
+      {
+        "message": "the runner of \"actions/setup-python@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__draft_github_release_post_after_merge.yml",
+        "line": 20,
+        "column": 15,
+        "kind": "action",
+        "snippet": "      - uses: actions/setup-python@v2\n              ^~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 37
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__draft_github_release_post_after_merge.yml",
+        "line": 25,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      },
+      {
+        "message": "workflow command \"set-output\" was deprecated. use `echo \"{name}={value}\" >> $GITHUB_OUTPUT` instead: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__draft_github_release_post_after_merge.yml",
+        "line": 25,
+        "column": 14,
+        "kind": "deprecated-commands",
+        "snippet": "        run: |\n             ^",
+        "end_column": 14
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/getsentry_sentry__codecov_carryforward_reports.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__report_test_coverage.yml": [
+    [
+      {
+        "message": "the runner of \"actions/github-script@v6\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__report_test_coverage.yml",
+        "line": 15,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v6\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      },
+      {
+        "message": "the runner of \"actions/github-script@v6\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/hpcaitech_ColossalAI__report_test_coverage.yml",
+        "line": 64,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v6\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/mattermost_mattermost__e2e-fulltests-ci.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/parcel-bundler_parcel__ci.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/localstack_localstack__tests-cli.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/dotnet_AspNetCore.Docs__whats-new.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/alibaba_sentinel__document-lint.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/gui-cs_Terminal.Gui__dotnet-core.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/scikit-learn_scikit-learn__unassign.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__pr-checker.yml": [
+    [
+      {
+        "message": "the runner of \"actions/github-script@v5\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/doocs_Leetcode__pr-checker.yml",
+        "line": 19,
+        "column": 15,
+        "kind": "action",
+        "snippet": "        uses: actions/github-script@v5\n              ^~~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 38
+      }
+    ]
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/Nuxt_Nuxt__scorecards.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/jenkinsci_jenkins__announce-lts-rc.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/oracle_graal__micronaut.yml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/commaai_openpilot__repo-maintenance.yaml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/spacedriveapp_spacedrive__cache-factory.yaml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/commaai_openpilot__release.yaml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/commaai_openpilot__prebuilt.yaml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/commaai_openpilot__badges.yaml": [
+    []
+  ],
+  "/workspaces/Catching-Smells/RQ3/gha-ci-detector/.github/workflows/gpt-engineer-org_gpt-engineer__ci.yaml": [
+    [
+      {
+        "message": "the runner of \"actions/checkout@v3\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/gpt-engineer-org_gpt-engineer__ci.yaml",
+        "line": 25,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: actions/checkout@v3\n            ^~~~~~~~~~~~~~~~~~~",
+        "end_column": 31
+      },
+      {
+        "message": "the runner of \"actions/setup-python@v4\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+        "filepath": "../RQ3/gha-ci-detector/.github/workflows/gpt-engineer-org_gpt-engineer__ci.yaml",
+        "line": 28,
+        "column": 13,
+        "kind": "action",
+        "snippet": "      uses: actions/setup-python@v4\n            ^~~~~~~~~~~~~~~~~~~~~~~",
+        "end_column": 35
+      }
+    ]
+  ]
+}
