@@ -65,3 +65,19 @@ def analyze_all(workflow_folder: Annotated[Optional[str], typer.Argument()] = No
 def analyze_one(file_path: str = typer.Argument()) -> None:
     workflow = Workflow.from_file(file_path)
     analyze_and_report_workflow(workflow)
+
+
+@app.command(name="path")
+def analyze_path(directory_path: Annotated[Optional[str], typer.Argument()] = None) -> None:
+    """
+    Analyze all workflow files in the given directory path.
+    """
+    workflow_folder = directory_path if directory_path is not None else "./.github/workflows"
+
+    workflow_files = [join(workflow_folder, f) for f in listdir(workflow_folder)
+                      if isfile(join(workflow_folder, f))]
+    smell_count = {}
+    all_smells = []
+    for wf in workflow_files:
+        workflow = Workflow.from_file(wf)
+        all_smells += list(analyze_and_report_workflow(workflow))
