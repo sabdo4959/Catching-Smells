@@ -20,7 +20,7 @@ def files_should_be_indented_correctly(workflow: Workflow) -> None:
             check-keys: false
 
     """
-    yaml_config = config.YamlLintConfig(file="/workspaces/Catching-Smells/RQ3/gha-ci-detector/src/gha_ci_detector/yamllintconf.yaml")
+    yaml_config = config.YamlLintConfig(file="/Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector/src/gha_ci_detector/yamllintconf.yaml")
     #yaml_config = config.YamlLintConfig(content=rules)
     problems = list(linter.run(workflow.file_content, yaml_config))
     if len(problems) > 0:
@@ -59,7 +59,7 @@ def external_actions_must_have_permissions_workflow(workflow: Workflow) -> None:
         if job.has_permissions():
             continue
         for step in job.get_steps():
-            if "uses" in step.yaml.keys():
+            if isinstance(step.yaml, dict) and "uses" in step.yaml.keys():
                 line_nr = workflow.get_line_number(job.name + ":", use_whitespace=False)
                 workflow.smells.add("1. Define permissions for workflows with external actions ("
                                     "job "
@@ -298,6 +298,8 @@ def multi_line_steps(workflow: Workflow) -> None:
         for step in job.get_steps():
             if "run" in step.yaml.keys():
                 run = step.yaml["run"]
+                if not isinstance(run, str):
+                    continue  # 문자열이 아니면 건너뜀
                 unformatted_run = run.replace("\\\n", " ")
                 if "\n" in unformatted_run[:-1] or "&&" in run:
                     line_nr = workflow.get_line_number(("-run: " + run.split("\n")[0]).strip(),
@@ -386,6 +388,8 @@ def installing_packages_without_version(workflow: Workflow) -> None:
         for step in job.get_steps():
             if "run" in step.yaml.keys():
                 run = step.yaml["run"]
+                if not isinstance(run, str):
+                    continue  # 문자열이 아니면 건너뜀
                 lines = run.split("\n")
                 for l in lines:
                     # Special case for playwright because it cannot handle versions

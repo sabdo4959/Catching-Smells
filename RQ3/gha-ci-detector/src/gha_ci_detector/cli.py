@@ -1,5 +1,7 @@
+import csv
 import json
 import os
+import sys
 from os import listdir
 from os.path import isfile, join
 from typing import Optional, Annotated, Set
@@ -81,3 +83,35 @@ def analyze_path(directory_path: Annotated[Optional[str], typer.Argument()] = No
     for wf in workflow_files:
         workflow = Workflow.from_file(wf)
         all_smells += list(analyze_and_report_workflow(workflow))
+
+
+@app.command(name="csv")
+def analyze_csv(
+    csv_file_path: Annotated[Optional[str], typer.Argument()] = None,
+    workflow_dir: Annotated[Optional[str], typer.Argument()] = None
+) -> None:
+    """
+    Analyze workflow files in workflow_dir whose filename matches file_hash in the given CSV file.
+    """
+    if csv_file_path is None:
+        print("CSV file path is required.", file=sys.stderr)
+        return
+    if workflow_dir is None:
+        print("Workflow directory path is required.", file=sys.stderr)
+        return
+
+    # file_hash 목록 추출
+    file_hashes = set()
+    with open(csv_file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            file_hash = row.get("file_hash")
+            if file_hash:
+                file_hashes.add(file_hash)
+
+    # 디렉토리 내 파일 중 file_hash와 일치하는 파일만 분석
+    for fname in os.listdir(workflow_dir):
+        fpath = os.path.join(workflow_dir, fname)
+        if os.path.isfile(fpath) and fname in file_hashes:
+            workflow = Workflow.from_file(fpath)
+            analyze_and_report_workflow(workflow)

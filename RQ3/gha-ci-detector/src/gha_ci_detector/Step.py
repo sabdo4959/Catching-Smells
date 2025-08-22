@@ -7,28 +7,38 @@ class Step:
         self.is_inherited = is_inherited
 
     def get_if(self) -> Optional[str]:
+        if not isinstance(self.yaml, dict):
+            return None
         if "if" in self.yaml.keys():
             return self.yaml["if"]
         else:
             return None
 
     def get_name(self) -> Optional[str]:
+        if not isinstance(self.yaml, dict):
+            return None
         if "name" in self.yaml.keys():
             return self.yaml["name"]
         else:
             return None
 
     def get_uses(self) -> Optional[str]:
+        if not isinstance(self.yaml, dict):
+            return None
         if "uses" in self.yaml.keys():
             return self.yaml["uses"]
         else:
             return None
 
-    def get_execution(self) -> str:
+    def get_execution(self) -> Optional[str]:
         if (uses := self.get_uses()) is not None:
             return uses
-        else:
+        if not isinstance(self.yaml, dict):
+            return None
+        elif "run" in self.yaml:
             return self.yaml["run"]
+        else:
+            return None
 
     def get_line_numbers(self, get_line_number: Callable[[str, bool], int]) -> tuple[int, int]:
         numbers: list[int] = list(sorted(
