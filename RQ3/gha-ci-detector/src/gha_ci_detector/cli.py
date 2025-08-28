@@ -114,4 +114,7 @@ def analyze_csv(
         fpath = os.path.join(workflow_dir, fname)
         if os.path.isfile(fpath) and fname in file_hashes:
             workflow = Workflow.from_file(fpath)
-            analyze_and_report_workflow(workflow)
+            if workflow and workflow.file_content: # 워크플로 객체가 유효하고 내용이 있는지 확인
+                analyze_and_report_workflow(workflow)
+            else:
+                print(f"Skipping analysis for problematic file: {fname}")

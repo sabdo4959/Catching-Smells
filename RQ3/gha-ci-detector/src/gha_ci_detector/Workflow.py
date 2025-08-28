@@ -14,8 +14,13 @@ class Workflow:
 
     @classmethod
     def from_file(cls, filepath):
-        data = open(filepath).read()
-        return cls(data, filepath)
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                data = f.read()
+            return cls(data, filepath)
+        except Exception as e:
+            print(f"Error reading file {filepath}: {e}")
+            return cls("", filepath)
 
     def get_jobs(self) -> list[Job]:
         if self.yaml is None or 'jobs' not in self.yaml:
