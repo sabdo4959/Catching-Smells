@@ -222,7 +222,7 @@ def action_should_have_timeout(workflow: Workflow) -> None:
             continue
         if "timeout-minutes" not in job.yaml.keys():
             line_nr = workflow.get_line_number(job.name + ":", use_whitespace=False)
-            workflow.smells.add(f"8. Actions should have a timeout (job: {job.job_name}, line: {line_nr})")
+            workflow.smells.add(f"5. Actions should have a timeout (job: {job.job_name}, line: {line_nr})")
 
 
 @handle_yaml_parsing_errors
