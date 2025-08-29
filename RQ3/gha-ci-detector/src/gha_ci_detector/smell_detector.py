@@ -12,20 +12,22 @@ from gha_ci_detector.Workflow import Workflow
 def handle_yaml_parsing_errors(func):
     """
     YAML 파싱 관련 예외들을 처리하는 데코레이터.
-    예외 발생 시, '14. Avoid incorrectly formatted workflows' 스멜을 추가하고 계속 진행합니다.
+    예외 발생 시, '23. Avoid incorrectly unparsable workflows' 스멜을 추가하고 계속 진행합니다.
     """
     @wraps(func)
     def wrapper(workflow: Workflow, *args, **kwargs):
         try:
             return func(workflow, *args, **kwargs)
         except (AttributeError, TypeError, KeyError, IndexError, 
-                yaml.reader.ReaderError, yaml.scanner.ScannerError,  # YAML 관련 예외들 추가
+                yaml.YAMLError,  # YAML 관련 모든 예외를 포괄적으로 처리
+                yaml.reader.ReaderError, yaml.scanner.ScannerError,
                 yaml.parser.ParserError) as e:
             # 예외가 발생하면, 잘못된 형식의 워크플로 스멜을 추가합니다
-            smell_message = f"14. Avoid incorrectly formatted workflows (error in {func.__name__})"
+            smell_message = f"23. Avoid incorrectly unparsable workflows (error in {func.__name__})"
             workflow.smells.add(smell_message)
             # 디버깅을 위해 어떤 예외가 발생했는지 출력할 수 있습니다
             print(f"YAML parsing error in {func.__name__}: {str(e)}")
+            return None  # 명시적으로 None 반환
     return wrapper
 
 
