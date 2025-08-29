@@ -1,5 +1,7 @@
 import re
 from typing import Optional
+from functools import wraps
+import yaml  # YAML 예외 처리를 위해 import 추가
 
 from yamllint import linter, config
 
@@ -8,6 +10,29 @@ from gha_ci_detector.Step import Step
 from gha_ci_detector.Workflow import Workflow
 
 
+def handle_yaml_parsing_errors(func):
+    """
+    YAML 파싱 관련 예외들을 처리하는 데코레이터.
+    예외 발생 시, '23. Avoid incorrectly unparsable workflows' 스멜을 추가하고 계속 진행합니다.
+    """
+    @wraps(func)
+    def wrapper(workflow: Workflow, *args, **kwargs):
+        try:
+            return func(workflow, *args, **kwargs)
+        except (AttributeError, TypeError, KeyError, IndexError,
+                yaml.YAMLError,  # YAML 관련 모든 예외를 포괄적으로 처리
+                yaml.reader.ReaderError, yaml.scanner.ScannerError,
+                yaml.parser.ParserError) as e:
+            # 예외가 발생하면, 잘못된 형식의 워크플로 스멜을 추가합니다
+            smell_message = f"23. Avoid incorrectly unparsable workflows (error in {func.__name__})"
+            workflow.smells.add(smell_message)
+            # 디버깅을 위해 어떤 예외가 발생했는지 출력할 수 있습니다
+            print(f"YAML parsing error in {func.__name__}: {str(e)}")
+            return None  # 명시적으로 None 반환
+    return wrapper
+
+
+@handle_yaml_parsing_errors
 def files_should_be_indented_correctly(workflow: Workflow) -> None:
     rules = """
         extends: default
@@ -20,7 +45,8 @@ def files_should_be_indented_correctly(workflow: Workflow) -> None:
             check-keys: false
 
     """
-    yaml_config = config.YamlLintConfig(content=rules)
+    #yaml_config = config.YamlLintConfig(content=rules)
+    yaml_config = config.YamlLintConfig(file="/Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector/src/gha_ci_detector/yamllintconf.yaml")
     problems = list(linter.run(workflow.file_content, yaml_config))
     if len(problems) > 0:
         workflow.smells.add("14. Avoid incorrectly formatted workflows")
@@ -28,6 +54,7 @@ def files_should_be_indented_correctly(workflow: Workflow) -> None:
     # Maybe this needs to be renamed to correctly formatted workflows?
 
 
+@handle_yaml_parsing_errors
 def external_actions_must_have_permissions_workflow(workflow: Workflow) -> None:
     """
     Check if the change adds 'permission' and if we are using an external action.
@@ -65,6 +92,7 @@ def external_actions_must_have_permissions_workflow(workflow: Workflow) -> None:
                                     f"at line: {line_nr})")
 
 
+@handle_yaml_parsing_errors
 def pull_based_actions_on_fork(workflow: Workflow) -> None:
     """
     Check if the 'if' statement is added somewhere, also make sure that the action we are doing
@@ -112,6 +140,7 @@ def pull_based_actions_on_fork(workflow: Workflow) -> None:
             # TODO: Maybe we can extend this further?
 
 
+@handle_yaml_parsing_errors
 def running_ci_when_nothing_changed(workflow: Workflow) -> None:
     """
     CI includes building, testing, linting.
@@ -144,6 +173,7 @@ def running_ci_when_nothing_changed(workflow: Workflow) -> None:
                                 "changed")
 
 
+@handle_yaml_parsing_errors
 def use_fixed_version_runs_on(workflow: Workflow) -> None:
     """
     Runs on should use a fixed version and not 'latest'
@@ -157,6 +187,7 @@ def use_fixed_version_runs_on(workflow: Workflow) -> None:
         workflow.smells.add(f"3. Use fixed version for runs-on argument (line {line_nr})")
 
 
+@handle_yaml_parsing_errors
 def use_specific_version_instead_of_dynamic(workflow: Workflow) -> None:
     """
     Check if a version is updated to contain more dots or is changed from latest to something
@@ -184,6 +215,7 @@ def use_specific_version_instead_of_dynamic(workflow: Workflow) -> None:
                                 f"{line_nr})")
 
 
+@handle_yaml_parsing_errors
 def action_should_have_timeout(workflow: Workflow) -> None:
     """
     TODO: Try to compile a list of actions on github which tend to run long?
@@ -202,6 +234,7 @@ def action_should_have_timeout(workflow: Workflow) -> None:
             workflow.smells.add(f"10. Avoid jobs without timeouts (line: {line_nr})")
 
 
+@handle_yaml_parsing_errors
 def use_cache_from_setup(workflow: Workflow) -> None:
     """
     Many setup/install actions such as `setup-node` already provide a cache for the downloaded libraries
@@ -228,6 +261,7 @@ def use_cache_from_setup(workflow: Workflow) -> None:
             workflow.smells.add("21. Use cache parameter instead of cache option")
 
 
+@handle_yaml_parsing_errors
 def scheduled_workflows_on_forks(workflow: Workflow) -> None:
     on_dict = workflow.get_on()
     if on_dict is not None and isinstance(on_dict, dict) and "schedule" in on_dict.keys():
@@ -241,6 +275,7 @@ def scheduled_workflows_on_forks(workflow: Workflow) -> None:
                 workflow.smells.add("1. Avoid executing scheduled workflows on forks")
 
 
+@handle_yaml_parsing_errors
 def use_name_for_step(workflow: Workflow) -> None:
     for job in workflow.get_jobs():
         for step in job.get_steps():
@@ -249,6 +284,7 @@ def use_name_for_step(workflow: Workflow) -> None:
                 workflow.smells.add(f"13. Use names for run steps (lines {start}:{end})")
 
 
+@handle_yaml_parsing_errors
 def upload_artifact_must_have_if(workflow: Workflow) -> None:
     for job in workflow.get_jobs():
         if job.get_if() is not None and "github.repository" in job.get_if():
@@ -286,6 +322,7 @@ def upload_artifact_must_have_if(workflow: Workflow) -> None:
                         f" {job.name}")
 
 
+@handle_yaml_parsing_errors
 def multi_line_steps(workflow: Workflow) -> None:
     """
     TODO: This smell still needs to be renamed
@@ -304,12 +341,14 @@ def multi_line_steps(workflow: Workflow) -> None:
                                         f"{line_nr})")
 
 
+@handle_yaml_parsing_errors
 def comment_in_workflow(workflow: Workflow) -> None:
     source_code = workflow.file_content
     if "#" not in source_code:
         workflow.smells.add("12. Avoid workflows without comments")
 
 
+@handle_yaml_parsing_errors
 def deploy_from_fork(workflow: Workflow) -> None:
     if "deploy" in workflow.name:
         for job in workflow.get_jobs():
@@ -329,6 +368,7 @@ def deploy_from_fork(workflow: Workflow) -> None:
             workflow.smells.add("22. Avoid deploying jobs on forks")
 
 
+@handle_yaml_parsing_errors
 def run_multiple_versions(workflow: Workflow) -> None:
     def job_has_setup_action_with_version(job: Job) -> bool:
         setup_step: list[Step] = list(filter(lambda s: s.get_uses() is not None and
@@ -372,6 +412,7 @@ def run_multiple_versions(workflow: Workflow) -> None:
                 workflow.smells.add(f"20. Run CI on multiple language versions (job: {job.name})")
 
 
+@handle_yaml_parsing_errors
 def installing_packages_without_version(workflow: Workflow) -> None:
     def excluded_commands(line: str) -> bool:
         return "upgrade" not in line and "mvn" not in line and ".sh" not in line
@@ -400,6 +441,7 @@ def installing_packages_without_version(workflow: Workflow) -> None:
                                                 f"{line_nr})")
 
 
+@handle_yaml_parsing_errors
 def stop_workflows_for_old_commit(workflow: Workflow) -> None:
     if "concurrency" not in workflow.yaml.keys():
         if ((isinstance(workflow.yaml["on"], dict) and "schedule" in workflow.get_on().keys()) or
