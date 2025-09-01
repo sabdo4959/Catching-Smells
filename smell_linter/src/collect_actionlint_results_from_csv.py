@@ -51,7 +51,11 @@ def run_actionlint_on_files(csv_path: Path, workflows_dir: Path) -> Dict[str, Li
         return {}
 
     try:
-        df = pd.read_csv(csv_path)
+        df = pd.read_csv(
+            csv_path,
+            encoding='utf-8',          # 인코딩을 UTF-8로 명시
+            encoding_errors='ignore'   # 인코딩 오류 발생 시 무시
+        )
         if 'file_hash' not in df.columns:
             print(f"ERROR: CSV 파일에 'file_hash' 컬럼이 없습니다.", file=sys.stderr)
             return {}

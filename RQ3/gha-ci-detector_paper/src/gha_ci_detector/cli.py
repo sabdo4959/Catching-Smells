@@ -113,6 +113,19 @@ def analyze_csv(
             on_bad_lines='skip',
             encoding='utf-8',          # 인코딩을 UTF-8로 명시
             encoding_errors='ignore'   # 인코딩 오류 발생 시 무시
+        )
+        
+        if "file_hash" not in df.columns:
+            print("CSV 파일에 'file_hash' 열이 없습니다.", file=sys.stderr)
+            return
+
+        file_hashes = set(df["file_hash"].astype(str).tolist())
+    except Exception as e:
+        print(f"Error reading CSV file: {e}", file=sys.stderr)
+        return
+
+    # workflow_dir의 모든 파일에 대해 반복
+    for fname in os.listdir(workflow_dir):
         fpath = os.path.join(workflow_dir, fname)
         if os.path.isfile(fpath) and fname in file_hashes:
             workflow = Workflow.from_file(fpath)
