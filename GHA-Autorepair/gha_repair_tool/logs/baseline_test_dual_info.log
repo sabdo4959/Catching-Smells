@@ -1,0 +1,71 @@
+2025-10-30 12:51:51,974 - __main__ - INFO - 베이스라인 자동 복구 시작: 2개 파일
+2025-10-30 12:51:51,974 - __main__ - INFO - 입력 디렉토리: data_original
+2025-10-30 12:51:51,974 - __main__ - INFO - 출력 디렉토리: data_repair_baseline_test2
+2025-10-30 12:51:51,975 - __main__ - INFO - [1/2] 처리 중: 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,975 - __main__ - INFO - 입력 파일 경로: data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,975 - __main__ - INFO - 출력 파일 경로: data_repair_baseline_test2/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:51:51,975 - __main__ - INFO - === 파일 1/2 베이스라인 복구 시작 ===
+2025-10-30 12:51:51,975 - main - INFO - === Baseline 모드 시작 ===
+2025-10-30 12:51:51,975 - main - INFO - 1단계: 원본 워크플로우 읽기
+2025-10-30 12:51:51,975 - main - INFO - 2단계: actionlint 구문 검사 실행
+2025-10-30 12:51:51,975 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-10-30 12:51:51,975 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,997 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.02초)
+2025-10-30 12:51:51,997 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-10-30 12:51:51,997 - main - INFO - actionlint에서 1개 오류 발견 (syntax-check 및 expression만)
+2025-10-30 12:51:51,997 - main - INFO - 3단계: Smell Detector 실행
+2025-10-30 12:51:51,997 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:52,650 - utils.process_runner - INFO - 총 0개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-10-30 12:51:52,650 - utils.process_runner - INFO - 대상 스멜 0개이지만 스멜 #23 (YAML 파싱 오류) 12개 발견됨
+2025-10-30 12:51:52,650 - utils.process_runner - INFO - Smell detector 실행 완료: 0개 스멜 발견
+2025-10-30 12:51:52,650 - main - INFO - Smell detector에서 0개 스멜 발견
+2025-10-30 12:51:52,650 - main - INFO - 4단계: 통합 프롬프트 생성
+2025-10-30 12:51:52,650 - main - INFO - 5단계: LLM API 호출
+2025-10-30 12:51:52,703 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-10-30 12:52:07,067 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-30 12:52:07,080 - utils.llm_api - INFO - LLM API 호출 성공
+2025-10-30 12:52:07,080 - main - INFO - 6단계: 수정된 YAML 추출
+2025-10-30 12:52:07,080 - main - INFO - 7단계: 결과 검증 및 저장
+2025-10-30 12:52:07,087 - main - INFO - Baseline 모드 복구 완료
+2025-10-30 12:52:07,087 - main - INFO - 수정된 파일: data_repair_baseline_test2/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:52:07,087 - __main__ - INFO - === 파일 1/2 베이스라인 복구 완료 ===
+2025-10-30 12:52:07,087 - __main__ - INFO - ✅ 성공 (15.11초): 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32 -> 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:52:07,087 - __main__ - INFO - [2/2] 처리 중: 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,087 - __main__ - INFO - 입력 파일 경로: data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,087 - __main__ - INFO - 출력 파일 경로: data_repair_baseline_test2/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:07,087 - __main__ - INFO - === 파일 2/2 베이스라인 복구 시작 ===
+2025-10-30 12:52:07,087 - main - INFO - === Baseline 모드 시작 ===
+2025-10-30 12:52:07,087 - main - INFO - 1단계: 원본 워크플로우 읽기
+2025-10-30 12:52:07,087 - main - INFO - 2단계: actionlint 구문 검사 실행
+2025-10-30 12:52:07,088 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-10-30 12:52:07,088 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,118 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.03초)
+2025-10-30 12:52:07,118 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-10-30 12:52:07,118 - main - INFO - actionlint에서 3개 오류 발견 (syntax-check 및 expression만)
+2025-10-30 12:52:07,118 - main - INFO - 3단계: Smell Detector 실행
+2025-10-30 12:52:07,118 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,652 - utils.process_runner - INFO - 총 6개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-10-30 12:52:07,652 - utils.process_runner - INFO - Smell detector 실행 완료: 6개 스멜 발견
+2025-10-30 12:52:07,652 - main - INFO - Smell detector에서 6개 스멜 발견
+2025-10-30 12:52:07,652 - main - INFO - 4단계: 통합 프롬프트 생성
+2025-10-30 12:52:07,652 - main - INFO - 5단계: LLM API 호출
+2025-10-30 12:52:07,659 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-10-30 12:52:39,223 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-30 12:52:39,227 - utils.llm_api - INFO - LLM API 호출 성공
+2025-10-30 12:52:39,227 - main - INFO - 6단계: 수정된 YAML 추출
+2025-10-30 12:52:39,228 - main - INFO - 7단계: 결과 검증 및 저장
+2025-10-30 12:52:39,248 - main - INFO - Baseline 모드 복구 완료
+2025-10-30 12:52:39,248 - main - INFO - 수정된 파일: data_repair_baseline_test2/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:39,248 - __main__ - INFO - === 파일 2/2 베이스라인 복구 완료 ===
+2025-10-30 12:52:39,249 - __main__ - INFO - ✅ 성공 (32.16초): 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428 -> 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:39,249 - __main__ - INFO - ============================================================
+2025-10-30 12:52:39,249 - __main__ - INFO - 베이스라인 자동 복구 완료!
+2025-10-30 12:52:39,249 - __main__ - INFO - 총 처리 시간: 47.3초
+2025-10-30 12:52:39,249 - __main__ - INFO - 총 파일: 2
+2025-10-30 12:52:39,249 - __main__ - INFO - 성공: 2 (100.0%)
+2025-10-30 12:52:39,249 - __main__ - INFO - 실패: 0
+2025-10-30 12:52:39,249 - __main__ - INFO - 평균 처리 시간: 23.64초/파일
+2025-10-30 12:52:39,249 - __main__ - INFO - 출력 파일 위치: data_repair_baseline_test2
+2025-10-30 12:52:39,249 - __main__ - INFO - INFO 로그 파일: logs/baseline_test_dual_info.log
+2025-10-30 12:52:39,249 - __main__ - INFO - DEBUG 로그 파일: logs/baseline_test_dual_debug.log
+2025-10-30 12:52:39,249 - __main__ - INFO - ============================================================

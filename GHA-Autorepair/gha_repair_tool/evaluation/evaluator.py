@@ -199,10 +199,20 @@ class BaselineEvaluator:
             
             # 제거율 계산
             if original_smells == 0:
-                removal_rate = 100.0  # 원래 스멜이 없었다면 100%
+                # 원본에 스멜이 없었던 경우
+                if final_smells == 0:
+                    removal_rate = 100.0  # 완벽 상태 유지
+                else:
+                    removal_rate = 0.0    # 새로운 스멜 생성 (실패)
+                    self.logger.debug(f"스멜 추가됨: 0 -> {final_smells}")
             else:
-                removal_rate = ((original_smells - final_smells) / original_smells) * 100.0
-                removal_rate = max(0.0, removal_rate)  # 음수 방지
+                # 원본에 스멜이 있었던 경우
+                if final_smells <= original_smells:
+                    removal_rate = ((original_smells - final_smells) / original_smells) * 100.0
+                else:
+                    # 스멜이 늘어난 경우: 0%로 처리 (실패)
+                    removal_rate = 0.0
+                    self.logger.debug(f"스멜 증가: {original_smells} -> {final_smells}")
             
             self.logger.debug(f"스멜 변화: {original_smells} -> {final_smells} (제거율: {removal_rate:.1f}%)")
             return original_smells, final_smells, removal_rate

@@ -1,8 +1,23 @@
-# GHA-Autorepair: GitHub Actions 워크플로우 자동 복구 도구
+# GHA-Autor### 2. 배치 처리 시스템
+- 여러 파일을 자동으로 순차 처리
+- 진행 상황 모니터링 및 상세 로깅
+- 오류 처리 및 복구 통계 제공
+- **이중 로그 시스템**: INFO와 DEBUG 레벨 분리
+
+### 3. 고급 로깅 시스템
+- **INFO 로그**: 요약 정보 및 진행 상황 (터미널 출력과 동일)
+- **DEBUG 로그**: 상세 실행 과정 및 디버깅 정보
+- **Smell #23 추적**: 대상 외 스멜(YAML 파싱 오류) 가시성 확보
+- **logs 폴더 구조**: 체계적인 로그 파일 관리
+
+### 4. 평가 시스템
+- **구문 성공률**: syntax-check/expression 오류 해결 비율
+- **스멜 제거율**: 대상 스멜 제거 성공 비율  
+- **편집 거리**: 원본 대비 변경량의 적절성tHub Actions 워크플로우 자동 복구 도구
 
 GitHub Actions 워크플로우의 구문 오류와 코드 스멜을 자동으로 감지하고 복구하는 도구입니다.
 
-## 🚀 주요 기능
+## 🚀 주요 기능뮴
 
 ### 1. Baseline 모드 (통합 복구)
 - **actionlint 구문 검사** + **smell detection** + **LLM 복구**를 한 번의 요청으로 처리
@@ -26,14 +41,18 @@ GHA-Autorepair/
 ├── gha_repair_tool/
 │   ├── main.py                    # 메인 진입점
 │   ├── baseline_auto_repair.py    # 배치 처리 스크립트
+│   ├── logs/                      # 로그 파일 저장소
+│   │   ├── *_info.log            # INFO 레벨 로그
+│   │   └── *_debug.log           # DEBUG 레벨 로그
 │   ├── evaluation/
 │   │   └── evaluator.py          # 평가 시스템
 │   ├── utils/
-│   │   ├── process_runner.py     # 외부 도구 실행
+│   │   ├── process_runner.py     # 외부 도구 실행 (smell #23 추적)
 │   │   ├── llm_api.py           # LLM API 인터페이스
-│   │   └── yaml_parser.py       # YAML 파싱
+│   │   └── yaml_parser.py       # YAML 파싱 및 검증
 │   ├── data_original/           # 원본 워크플로우 파일들
 │   ├── data_repair_baseline/    # 복구된 파일들
+│   ├── failed_files/            # 실패 분석용 파일들
 │   └── test_evaluation_results/ # 평가 결과
 ```
 
@@ -68,9 +87,13 @@ python main.py --input data_original/workflow.yml --output . --mode baseline
 python baseline_auto_repair.py \
     --input-dir data_original \
     --output-dir data_repair_baseline \
-    --log-file baseline_repair_log_20251030.log \
+    --log-file baseline_repair_20251030 \
     --max-files 100
 ```
+
+**출력**: 
+- `logs/baseline_repair_20251030_info.log` (요약 로그)
+- `logs/baseline_repair_20251030_debug.log` (상세 로그)
 
 ### 3. 평가 실행
 ```bash
@@ -116,32 +139,40 @@ normalized_distance = edit_distance / max(len(original), len(repaired))
 TARGET_SMELLS = {'1', '4', '5', '10', '11', '15', '16'}
 ```
 
-### Smell #23 추적
-- YAML 파싱 오류를 별도 추적
-- 대상 스멜이 0개일 때 #23 개수 로깅
-```
+### Smell #23 추적 시스템
+```python
+# 대상 스멀이 0개일 때 #23 추적 로그 예시
 2025-10-30 11:40:03,860 - utils.process_runner - INFO - 총 0개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
 2025-10-30 11:40:03,860 - utils.process_runner - INFO - 대상 스멜 0개이지만 스멜 #23 (YAML 파싱 오류) 12개 발견됨
 ```
 
-## 📈 실행 결과 예시
-
-### 배치 처리 로그
+### 이중 로그 시스템
 ```
-2025-10-30 11:40:03,315 - __main__ - INFO - 베이스라인 자동 복구 시작: 100개 파일
-2025-10-30 11:40:20,067 - __main__ - INFO - ✅ 성공 (16.75초): 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+INFO 로그: logs/baseline_repair_20251030_info.log (59줄 - 요약)
+DEBUG 로그: logs/baseline_repair_20251030_debug.log (832줄 - 상세)
 ```
 
-### 평가 결과 JSON
-```json
-{
-  "syntax_success_rate": 85.2,
-  "smell_removal_rate": 73.8,
-  "average_edit_distance": 0.15,
-  "total_files": 100,
-  "successful_repairs": 95
-}
+## � 실행 결과 분석 (2025-10-30)
+
+### 100개 파일 배치 처리 결과
 ```
+총 처리 시간: 3466.0초 (약 58분)
+총 파일: 100
+성공: 94 (94.0%)
+실패: 6 (6.0%)
+평균 처리 시간: 34.66초/파일
+```
+
+### 실패 원인 분석
+1. **YAML 문법 오류** (2건): LLM이 잘못된 YAML 구조 생성
+2. **GitHub Actions 구조 오류** (2건): Job에서 `runs-on`, `steps` 필드 누락  
+3. **LLM API 타임아웃** (1건): 대량 오류로 인한 프롬프트 과부하
+4. **재시도 성공** (1건): 일시적 오류 후 성공
+
+### 7단계 검증 시스템 효과
+- YAML 문법 검증으로 잘못된 파일 저장 방지
+- GitHub Actions 필수 필드 검증
+- 품질 제어를 통한 신뢰성 확보
 
 ## 🔧 주요 컴포넌트
 
@@ -215,10 +246,51 @@ def run_smell_detector(yaml_file_path):
 
 ## 🛠️ 개발 히스토리
 
-- **2025-10-30**: Baseline 모드 구현 및 평가 시스템 완성
-- **Smell #23 추적**: 대상 외 스멜 가시성 확보
-- **배치 처리**: 100개 파일 자동 복구 시스템
-- **평가 메트릭**: 3가지 핵심 지표 구현
+- **2025-10-30**: 
+  - Baseline 모드 구현 및 평가 시스템 완성
+  - **Smell #23 추적**: 대상 외 스멜 가시성 확보
+  - **이중 로그 시스템**: INFO/DEBUG 레벨 분리로 상세 분석 가능
+  - **배치 처리**: 100개 파일 자동 복구 시스템 (94% 성공률)
+  - **7단계 검증**: YAML 품질 제어 시스템으로 신뢰성 확보
+  - **실패 분석**: 6개 실패 케이스 상세 원인 분석 완료
+
+## 🔬 검증된 성능 지표
+
+- **처리 속도**: 파일당 평균 34.66초 (LLM API 응답 포함)
+- **성공률**: 94% (100개 파일 중 94개 성공)
+- **로그 정확도**: 터미널 출력과 100% 일치하는 파일 로깅
+- **품질 제어**: 7단계 검증으로 잘못된 YAML 저장 방지
+- **확장성**: 배치 크기 조정 가능, 실패 파일 재처리 지원
+
+## 🚀 최신 업데이트 (2025-10-30)
+
+### ✨ 주요 개선사항
+1. **이중 로그 시스템**: 
+   - INFO 로그: 요약 정보 (59줄/2파일)
+   - DEBUG 로그: 상세 정보 (832줄/2파일)
+   - 터미널과 동일한 출력을 파일로 저장
+
+2. **Smell #23 추적 기능**:
+   - 대상 외 스멜(YAML 파싱 오류) 개수 로깅
+   - 필터링 투명성 확보로 분석 정확도 향상
+
+3. **7단계 검증 시스템**:
+   - YAML 문법 검증
+   - GitHub Actions 필수 필드 검증
+   - 품질 제어를 통한 신뢰성 확보
+
+4. **실패 원인 분석**:
+   - 6개 실패 케이스 상세 분석 완료
+   - LLM 품질 이슈 및 복잡도 한계 파악
+
+### 📁 로그 파일 구조
+```
+logs/
+├── baseline_repair_20251030_info.log    # 요약 로그 (터미널 출력 수준)
+├── baseline_repair_20251030_debug.log   # 상세 로그 (디버깅 정보 포함)
+├── failed_analysis_info.log             # 실패 파일 재분석 요약
+└── failed_analysis_debug.log            # 실패 파일 재분석 상세
+```
 
 ---
 

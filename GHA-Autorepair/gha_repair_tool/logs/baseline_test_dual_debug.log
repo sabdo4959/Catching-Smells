@@ -1,0 +1,835 @@
+2025-10-30 12:51:51,974 - __main__ - INFO - 베이스라인 자동 복구 시작: 2개 파일
+2025-10-30 12:51:51,974 - __main__ - INFO - 입력 디렉토리: data_original
+2025-10-30 12:51:51,974 - __main__ - INFO - 출력 디렉토리: data_repair_baseline_test2
+2025-10-30 12:51:51,975 - __main__ - INFO - [1/2] 처리 중: 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,975 - __main__ - INFO - 입력 파일 경로: data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,975 - __main__ - INFO - 출력 파일 경로: data_repair_baseline_test2/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:51:51,975 - __main__ - INFO - === 파일 1/2 베이스라인 복구 시작 ===
+2025-10-30 12:51:51,975 - main - INFO - === Baseline 모드 시작 ===
+2025-10-30 12:51:51,975 - main - INFO - 1단계: 원본 워크플로우 읽기
+2025-10-30 12:51:51,975 - utils.yaml_parser - DEBUG - YAML 파일 읽기 완료: data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,975 - main - INFO - 2단계: actionlint 구문 검사 실행
+2025-10-30 12:51:51,975 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-10-30 12:51:51,975 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:51,997 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.02초)
+2025-10-30 12:51:51,997 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-10-30 12:51:51,997 - main - INFO - actionlint에서 1개 오류 발견 (syntax-check 및 expression만)
+2025-10-30 12:51:51,997 - main - INFO - 3단계: Smell Detector 실행
+2025-10-30 12:51:51,997 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 명령어 실행 성공 (0.65초)
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - Smell detector stdout: Welcome to GHA CI Detector
+Unable to parse yaml file: name: Seed Chain
+
+on:
+  workflow_call:
+    inputs:
+      chain-api-url:
+        required: true
+        type: string
+      chain-id:
+        required: true
+        type: string
+      seed-script-filename:
+        required: true
+        type: string
+      erc20-deployer-network-name:
+        required: true
+        type: string
+      genesis_validator_addresses:
+        required: true
+        type: string
+      kava_version_filepath:
+        required: true
+        type: string
+    secrets:
+      DEV_WALLET_MNEMONIC:
+        required: true
+
+jobs:
+  seed-chain-state:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo from master
+        uses: actions/checkout@v3
+        with:
+         ref: master
+      - name: checkout version of kava used by network
+        run: |
+          git pull -p
+          git checkout $(cat ${KAVA_VERSION_FILEPATH})
+         env:
+            KAVA_VERSION_FILEPATH: ${{ inputs.kava_version_filepath }}
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.19"
+          check-latest: true
+          cache: true
+      - name: build kava binary
+        run: make install
+      - name: checkout go evm tools repo
+        uses: actions/checkout@v3
+        with:
+          repository: ethereum/go-ethereum
+          path: go-ethereum
+          ref: v1.10.26
+      - name: install go evm tools
+        run: |
+          make
+          make devtools
+        working-directory: go-ethereum
+      - name: checkout kava bridge repo for deploying evm contracts
+        uses: actions/checkout@v3
+        with:
+          repository: Kava-Labs/kava-bridge
+          path: kava-bridge
+          ref: main
+      - name: install nodeJS
+        uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 18
+          cache-dependency-path: kava-bridge/contract/package.json
+      - name: "install ERC20 contract deployment dependencies"
+        run: "npm install"
+        working-directory: kava-bridge/contract
+      - name: compile default erc20 contracts
+        run: make compile-contracts
+        working-directory: kava-bridge
+      - name: run seed scripts
+        run: bash ${GITHUB_WORKSPACE}/.github/scripts/${SEED_SCRIPT_FILENAME}
+        working-directory: kava-bridge/contract
+        env:
+          CHAIN_API_URL: ${{ inputs.chain-api-url }}
+          CHAIN_ID: ${{ inputs.chain-id }}
+          DEV_WALLET_MNEMONIC: ${{ secrets.DEV_WALLET_MNEMONIC }}
+          SEED_SCRIPT_FILENAME: ${{ inputs.seed-script-filename }}
+          ERC20_DEPLOYER_NETWORK_NAME: ${{ inputs.erc20-deployer-network-name }}
+          GENESIS_VALIDATOR_ADDRESSES: ${{ inputs.genesis_validator_addresses }}
+
+while parsing a block mapping
+  in "<file>", line 36, column 9
+expected <block end>, but found '<block mapping start>'
+  in "<file>", line 40, column 10
+Detecting smells for /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+YAML parsing error in external_actions_must_have_permissions_workflow: 'NoneType' object has no attribute 'keys'
+YAML parsing error in pull_based_actions_on_fork: 'NoneType' object has no attribute 'keys'
+YAML parsing error in action_should_have_timeout: 'NoneType' object is not subscriptable
+YAML parsing error in use_name_for_step: 'NoneType' object is not subscriptable
+YAML parsing error in scheduled_workflows_on_forks: 'NoneType' object has no attribute 'keys'
+YAML parsing error in use_name_for_step: 'NoneType' object is not subscriptable
+YAML parsing error in stop_workflows_for_old_commit: 'NoneType' object has no attribute 'keys'
+YAML parsing error in upload_artifact_must_have_if: 'NoneType' object is not subscriptable
+YAML parsing error in multi_line_steps: 'NoneType' object is not subscriptable
+YAML parsing error in deploy_from_fork: 'NoneType' object is not subscriptable
+YAML parsing error in run_multiple_versions: 'NoneType' object is not subscriptable
+YAML parsing error in installing_packages_without_version: 'NoneType' object is not subscriptable
+YAML parsing error in use_cache_from_setup: 'NoneType' object is not subscriptable
+We have found 18 smells
+	- 3. Use fixed version for runs-on argument (line 29)
+	- 8. Use commit hash instead of tags for action versions (line 32)
+	- 8. Use commit hash instead of tags for action versions (line 42)
+	- 8. Use commit hash instead of tags for action versions (line 67)
+	- 12. Avoid workflows without comments
+	- 14. Avoid incorrectly formatted workflows
+	- 23. Avoid incorrectly unparsable workflows (error in run_multiple_versions)
+	- 23. Avoid incorrectly unparsable workflows (error in stop_workflows_for_old_commit)
+	- 23. Avoid incorrectly unparsable workflows (error in upload_artifact_must_have_if)
+	- 23. Avoid incorrectly unparsable workflows (error in scheduled_workflows_on_forks)
+	- 23. Avoid incorrectly unparsable workflows (error in action_should_have_timeout)
+	- 23. Avoid incorrectly unparsable workflows (error in use_name_for_step)
+	- 23. Avoid incorrectly unparsable workflows (error in pull_based_actions_on_fork)
+	- 23. Avoid incorrectly unparsable workflows (error in external_actions_must_have_permissions_workflow)
+	- 23. Avoid incorrectly unparsable workflows (error in installing_packages_without_version)
+	- 23. Avoid incorrectly unparsable workflows (error in use_cache_from_setup)
+	- 23. Avoid incorrectly unparsable workflows (error in multi_line_steps)
+	- 23. Avoid incorrectly unparsable workflows (error in deploy_from_fork)
+The following styling errors were found: 
+35:10: wrong indentation: expected 10 but found 9 (indentation)
+40:10: syntax error: expected <block end>, but found '<block mapping start>' (syntax)
+41:13: wrong indentation: expected 11 but found 12 (indentation)
+
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - Smell detector stderr: 
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - Smell detector return code: 0
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - Smell detector 출력 라인 수: 131
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 0: Welcome to GHA CI Detector
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: Welcome to GHA CI Detector
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 1: Unable to parse yaml file: name: Seed Chain
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 3: on:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 4: workflow_call:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 5: inputs:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 6: chain-api-url:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 7: required: true
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 8: type: string
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 9: chain-id:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 10: required: true
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 11: type: string
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 12: seed-script-filename:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 13: required: true
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 14: type: string
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 15: erc20-deployer-network-name:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 16: required: true
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 17: type: string
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 18: genesis_validator_addresses:
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 19: required: true
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 20: type: string
+2025-10-30 12:51:52,648 - utils.process_runner - DEBUG - 라인 21: kava_version_filepath:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 22: required: true
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 23: type: string
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 24: secrets:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 25: DEV_WALLET_MNEMONIC:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 26: required: true
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 28: jobs:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 29: seed-chain-state:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 30: runs-on: ubuntu-latest
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 31: steps:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 32: - name: checkout repo from master
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 33: uses: actions/checkout@v3
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 34: with:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 35: ref: master
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 36: - name: checkout version of kava used by network
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 37: run: |
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 38: git pull -p
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 39: git checkout $(cat ${KAVA_VERSION_FILEPATH})
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 40: env:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 41: KAVA_VERSION_FILEPATH: ${{ inputs.kava_version_filepath }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 42: - name: Set up Go
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 43: uses: actions/setup-go@v3
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 44: with:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 45: go-version: "1.19"
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 46: check-latest: true
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 47: cache: true
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 48: - name: build kava binary
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 49: run: make install
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 50: - name: checkout go evm tools repo
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 51: uses: actions/checkout@v3
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 52: with:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 53: repository: ethereum/go-ethereum
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 54: path: go-ethereum
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 55: ref: v1.10.26
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 56: - name: install go evm tools
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 57: run: |
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 58: make
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 59: make devtools
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 60: working-directory: go-ethereum
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 61: - name: checkout kava bridge repo for deploying evm contracts
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 62: uses: actions/checkout@v3
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 63: with:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 64: repository: Kava-Labs/kava-bridge
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 65: path: kava-bridge
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 66: ref: main
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 67: - name: install nodeJS
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 68: uses: actions/setup-node@v3
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 69: with:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 70: cache: npm
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 71: node-version: 18
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 72: cache-dependency-path: kava-bridge/contract/package.json
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 73: - name: "install ERC20 contract deployment dependencies"
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 74: run: "npm install"
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 75: working-directory: kava-bridge/contract
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 76: - name: compile default erc20 contracts
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 77: run: make compile-contracts
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 78: working-directory: kava-bridge
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 79: - name: run seed scripts
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 80: run: bash ${GITHUB_WORKSPACE}/.github/scripts/${SEED_SCRIPT_FILENAME}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 81: working-directory: kava-bridge/contract
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 82: env:
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 83: CHAIN_API_URL: ${{ inputs.chain-api-url }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 84: CHAIN_ID: ${{ inputs.chain-id }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 85: DEV_WALLET_MNEMONIC: ${{ secrets.DEV_WALLET_MNEMONIC }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 86: SEED_SCRIPT_FILENAME: ${{ inputs.seed-script-filename }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 87: ERC20_DEPLOYER_NETWORK_NAME: ${{ inputs.erc20-deployer-network-name }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 88: GENESIS_VALIDATOR_ADDRESSES: ${{ inputs.genesis_validator_addresses }}
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 90: while parsing a block mapping
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 91: in "<file>", line 36, column 9
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 92: expected <block end>, but found '<block mapping start>'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 93: in "<file>", line 40, column 10
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 94: Detecting smells for /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: Detecting smells for /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 95: YAML parsing error in external_actions_must_have_permissions_workflow: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in external_actions_must_have_permissions_workflow: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 96: YAML parsing error in pull_based_actions_on_fork: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in pull_based_actions_on_fork: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 97: YAML parsing error in action_should_have_timeout: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in action_should_have_timeout: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 98: YAML parsing error in use_name_for_step: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in use_name_for_step: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 99: YAML parsing error in scheduled_workflows_on_forks: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in scheduled_workflows_on_forks: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 100: YAML parsing error in use_name_for_step: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in use_name_for_step: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 101: YAML parsing error in stop_workflows_for_old_commit: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in stop_workflows_for_old_commit: 'NoneType' object has no attribute 'keys'
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 102: YAML parsing error in upload_artifact_must_have_if: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in upload_artifact_must_have_if: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 라인 103: YAML parsing error in multi_line_steps: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,649 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in multi_line_steps: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 104: YAML parsing error in deploy_from_fork: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in deploy_from_fork: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 105: YAML parsing error in run_multiple_versions: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in run_multiple_versions: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 106: YAML parsing error in installing_packages_without_version: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in installing_packages_without_version: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 107: YAML parsing error in use_cache_from_setup: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): YAML parsing error in use_cache_from_setup: 'NoneType' object is not subscriptable
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 108: We have found 18 smells
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: We have found 18 smells
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 109: - 3. Use fixed version for runs-on argument (line 29)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#3): Use fixed version for runs-on argument (line 29)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 110: - 8. Use commit hash instead of tags for action versions (line 32)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 32)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 111: - 8. Use commit hash instead of tags for action versions (line 42)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 42)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 112: - 8. Use commit hash instead of tags for action versions (line 67)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 67)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 113: - 12. Avoid workflows without comments
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#12): Avoid workflows without comments
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 114: - 14. Avoid incorrectly formatted workflows
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#14): Avoid incorrectly formatted workflows
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 115: - 23. Avoid incorrectly unparsable workflows (error in run_multiple_versions)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in run_multiple_versions)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 116: - 23. Avoid incorrectly unparsable workflows (error in stop_workflows_for_old_commit)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in stop_workflows_for_old_commit)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 117: - 23. Avoid incorrectly unparsable workflows (error in upload_artifact_must_have_if)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in upload_artifact_must_have_if)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 118: - 23. Avoid incorrectly unparsable workflows (error in scheduled_workflows_on_forks)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in scheduled_workflows_on_forks)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 119: - 23. Avoid incorrectly unparsable workflows (error in action_should_have_timeout)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in action_should_have_timeout)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 120: - 23. Avoid incorrectly unparsable workflows (error in use_name_for_step)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in use_name_for_step)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 121: - 23. Avoid incorrectly unparsable workflows (error in pull_based_actions_on_fork)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in pull_based_actions_on_fork)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 122: - 23. Avoid incorrectly unparsable workflows (error in external_actions_must_have_permissions_workflow)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in external_actions_must_have_permissions_workflow)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 123: - 23. Avoid incorrectly unparsable workflows (error in installing_packages_without_version)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in installing_packages_without_version)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 124: - 23. Avoid incorrectly unparsable workflows (error in use_cache_from_setup)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in use_cache_from_setup)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 125: - 23. Avoid incorrectly unparsable workflows (error in multi_line_steps)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in multi_line_steps)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 126: - 23. Avoid incorrectly unparsable workflows (error in deploy_from_fork)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#23): Avoid incorrectly unparsable workflows (error in deploy_from_fork)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 127: The following styling errors were found:
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: The following styling errors were found:
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 128: 35:10: wrong indentation: expected 10 but found 9 (indentation)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 129: 40:10: syntax error: expected <block end>, but found '<block mapping start>' (syntax)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 스타일 오류 건너뛰기 (대상 스멜 아님): 40:10: syntax error: expected <block end>, but found '<block mapping start>' (syntax)
+2025-10-30 12:51:52,650 - utils.process_runner - DEBUG - 라인 130: 41:13: wrong indentation: expected 11 but found 12 (indentation)
+2025-10-30 12:51:52,650 - utils.process_runner - INFO - 총 0개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-10-30 12:51:52,650 - utils.process_runner - INFO - 대상 스멜 0개이지만 스멜 #23 (YAML 파싱 오류) 12개 발견됨
+2025-10-30 12:51:52,650 - utils.process_runner - INFO - Smell detector 실행 완료: 0개 스멜 발견
+2025-10-30 12:51:52,650 - main - INFO - Smell detector에서 0개 스멜 발견
+2025-10-30 12:51:52,650 - main - INFO - 4단계: 통합 프롬프트 생성
+2025-10-30 12:51:52,650 - main - DEBUG - 생성된 프롬프트:
+2025-10-30 12:51:52,650 - main - DEBUG - GitHub Actions 워크플로우에서 발견된 문제들을 수정해주세요.
+
+**원본 워크플로우:**
+```yaml
+name: Seed Chain
+
+on:
+  workflow_call:
+    inputs:
+      chain-api-url:
+        required: true
+        type: string
+      chain-id:
+        required: true
+        type: string
+      seed-script-filename:
+        required: true
+        type: string
+      erc20-deployer-network-name:
+        required: true
+        type: string
+      genesis_validator_addresses:
+        required: true
+        type: string
+      kava_version_filepath:
+  ...
+2025-10-30 12:51:52,650 - main - INFO - 5단계: LLM API 호출
+2025-10-30 12:51:52,703 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-10-30 12:51:52,858 - openai._base_client - DEBUG - Request options: {'method': 'post', 'url': '/chat/completions', 'timeout': 60, 'files': None, 'idempotency_key': 'stainless-python-retry-d02a613e-f147-40a8-ac16-fa728540d771', 'json_data': {'messages': [{'role': 'user', 'content': 'GitHub Actions 워크플로우에서 발견된 문제들을 수정해주세요.\n\n**원본 워크플로우:**\n```yaml\nname: Seed Chain\n\non:\n  workflow_call:\n    inputs:\n      chain-api-url:\n        required: true\n        type: string\n      chain-id:\n        required: true\n        type: string\n      seed-script-filename:\n        required: true\n        type: string\n      erc20-deployer-network-name:\n        required: true\n        type: string\n      genesis_validator_addresses:\n        required: true\n        type: string\n      kava_version_filepath:\n        required: true\n        type: string\n    secrets:\n      DEV_WALLET_MNEMONIC:\n        required: true\n\njobs:\n  seed-chain-state:\n    runs-on: ubuntu-latest\n    steps:\n      - name: checkout repo from master\n        uses: actions/checkout@v3\n        with:\n         ref: master\n      - name: checkout version of kava used by network\n        run: |\n          git pull -p\n          git checkout $(cat ${KAVA_VERSION_FILEPATH})\n         env:\n            KAVA_VERSION_FILEPATH: ${{ inputs.kava_version_filepath }}\n      - name: Set up Go\n        uses: actions/setup-go@v3\n        with:\n          go-version: "1.19"\n          check-latest: true\n          cache: true\n      - name: build kava binary\n        run: make install\n      - name: checkout go evm tools repo\n        uses: actions/checkout@v3\n        with:\n          repository: ethereum/go-ethereum\n          path: go-ethereum\n          ref: v1.10.26\n      - name: install go evm tools\n        run: |\n          make\n          make devtools\n        working-directory: go-ethereum\n      - name: checkout kava bridge repo for deploying evm contracts\n        uses: actions/checkout@v3\n        with:\n          repository: Kava-Labs/kava-bridge\n          path: kava-bridge\n          ref: main\n      - name: install nodeJS\n        uses: actions/setup-node@v3\n        with:\n          cache: npm\n          node-version: 18\n          cache-dependency-path: kava-bridge/contract/package.json\n      - name: "install ERC20 contract deployment dependencies"\n        run: "npm install"\n        working-directory: kava-bridge/contract\n      - name: compile default erc20 contracts\n        run: make compile-contracts\n        working-directory: kava-bridge\n      - name: run seed scripts\n        run: bash ${GITHUB_WORKSPACE}/.github/scripts/${SEED_SCRIPT_FILENAME}\n        working-directory: kava-bridge/contract\n        env:\n          CHAIN_API_URL: ${{ inputs.chain-api-url }}\n          CHAIN_ID: ${{ inputs.chain-id }}\n          DEV_WALLET_MNEMONIC: ${{ secrets.DEV_WALLET_MNEMONIC }}\n          SEED_SCRIPT_FILENAME: ${{ inputs.seed-script-filename }}\n          ERC20_DEPLOYER_NETWORK_NAME: ${{ inputs.erc20-deployer-network-name }}\n          GENESIS_VALIDATOR_ADDRESSES: ${{ inputs.genesis_validator_addresses }}\n\n```\n\n**발견된 문제들:**\n\n**구문 오류 (actionlint):**\n1. could not parse as YAML: yaml: line 35: did not find expected key\n\n**의미론적 스멜:** 없음\n\n**수정 요청:**\n위에서 발견된 모든 구문 오류와 의미론적 스멜을 수정한 완전한 GitHub Actions 워크플로우를 제공해주세요.\n\n**수정 시 고려사항:**\n1. GitHub Actions의 최신 문법과 모범 사례를 따라주세요\n2. 기존 워크플로우의 의도와 기능을 유지해주세요\n3. 보안 관련 문제는 우선적으로 수정해주세요\n4. 모든 구문 오류를 수정해주세요\n\n**응답 형식:**\n```yaml\n# 수정된 워크플로우\n```\n'}], 'model': 'gpt-4o-mini', 'max_tokens': 4000, 'temperature': 0.1}}
+2025-10-30 12:51:52,878 - openai._base_client - DEBUG - Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+2025-10-30 12:51:52,879 - httpcore.connection - DEBUG - connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=60 socket_options=None
+2025-10-30 12:51:52,902 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x112076660>
+2025-10-30 12:51:52,903 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x1118e5db0> server_hostname='api.openai.com' timeout=60
+2025-10-30 12:51:52,918 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x11202afd0>
+2025-10-30 12:51:52,918 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-10-30 12:51:52,919 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-10-30 12:51:52,919 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-10-30 12:51:52,919 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-10-30 12:51:52,919 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-10-30 12:52:07,064 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Thu, 30 Oct 2025 03:52:09 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-vyhnsq8e1qgrxbfbbkfufii7'), (b'openai-processing-ms', b'12491'), (b'openai-project', b'proj_ECazg92OTAh2UNT7fm96ON8t'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'13905'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'199129'), (b'x-ratelimit-reset-requests', b'8.64s'), (b'x-ratelimit-reset-tokens', b'261ms'), (b'x-request-id', b'req_a9f7e7ebd62a439bbe1a5591ac16a376'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=QGH9CNQI3DUga7pCXKsKSUUnihrccLQ5mmc6ZqIZDSk-1761796329-1.0.1.1-9GKGZCguEL1JI4UIARiAbhAQKZ_z3xbuyICxi2k6HD5gz1tZNgUSQxsFaKFPuG_4_6qUPaDgNnJPYRLMdQxw_E.TcyukJSyn2e13GHD0m6w; path=/; expires=Thu, 30-Oct-25 04:22:09 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=rsnip6rk7fW_HuAjfWDDCJNu4VyahRyR.xZXku8frRQ-1761796329112-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9967f4f8fb0caa32-ICN'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2025-10-30 12:52:07,067 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-30 12:52:07,067 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-10-30 12:52:07,068 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-10-30 12:52:07,068 - httpcore.http11 - DEBUG - response_closed.started
+2025-10-30 12:52:07,068 - httpcore.http11 - DEBUG - response_closed.complete
+2025-10-30 12:52:07,069 - openai._base_client - DEBUG - HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Thu, 30 Oct 2025 03:52:09 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-vyhnsq8e1qgrxbfbbkfufii7'), ('openai-processing-ms', '12491'), ('openai-project', 'proj_ECazg92OTAh2UNT7fm96ON8t'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '13905'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9999'), ('x-ratelimit-remaining-tokens', '199129'), ('x-ratelimit-reset-requests', '8.64s'), ('x-ratelimit-reset-tokens', '261ms'), ('x-request-id', 'req_a9f7e7ebd62a439bbe1a5591ac16a376'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=QGH9CNQI3DUga7pCXKsKSUUnihrccLQ5mmc6ZqIZDSk-1761796329-1.0.1.1-9GKGZCguEL1JI4UIARiAbhAQKZ_z3xbuyICxi2k6HD5gz1tZNgUSQxsFaKFPuG_4_6qUPaDgNnJPYRLMdQxw_E.TcyukJSyn2e13GHD0m6w; path=/; expires=Thu, 30-Oct-25 04:22:09 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=rsnip6rk7fW_HuAjfWDDCJNu4VyahRyR.xZXku8frRQ-1761796329112-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9967f4f8fb0caa32-ICN'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+2025-10-30 12:52:07,069 - openai._base_client - DEBUG - request_id: req_a9f7e7ebd62a439bbe1a5591ac16a376
+2025-10-30 12:52:07,080 - utils.llm_api - INFO - LLM API 호출 성공
+2025-10-30 12:52:07,080 - main - INFO - 6단계: 수정된 YAML 추출
+2025-10-30 12:52:07,080 - main - DEBUG - 추출된 YAML:
+name: Seed Chain
+
+on:
+  workflow_call:
+    inputs:
+      chain-api-url:
+        required: true
+        type: string
+      chain-id:
+        required: true
+        type: string
+      seed-script-filename:
+        required: true
+        type: string
+      erc20-deployer-network-name:
+        required: true
+        type: string
+      genesis_validator_addresses:
+        required: true
+        type: string
+      kava_version_filepath:
+        required: true
+        type: string
+    secrets:
+      DEV_WALLET_MNEMONIC:
+        required: true
+
+jobs:
+  seed-chain-state:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo from master
+        uses: actions/checkout@v3
+        with:
+          ref: master
+      - name: Checkout version of Kava used by network
+        run: |
+          git pull -p
+          git checkout $(cat ${KAVA_VERSION_FILEPATH})
+        env:
+          KAVA_VERSION_FILEPATH: ${{ inputs.kava_version_filepath }}
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.19"
+          check-latest: true
+          cache: true
+      - name: Build Kava binary
+        run: make install
+      - name: Checkout Go EVM tools repo
+        uses: actions/checkout@v3
+        with:
+          repository: ethereum/go-ethereum
+          path: go-ethereum
+          ref: v1.10.26
+      - name: Install Go EVM tools
+        run: |
+          make
+          make devtools
+        working-directory: go-ethereum
+      - name: Checkout Kava bridge repo for deploying EVM contracts
+        uses: actions/checkout@v3
+        with:
+          repository: Kava-Labs/kava-bridge
+          path: kava-bridge
+          ref: main
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 18
+          cache-dependency-path: kava-bridge/contract/package.json
+      - name: Install ERC20 contract deployment dependencies
+        run: npm install
+        working-directory: kava-bridge/contract
+      - name: Compile default ERC20 contracts
+        run: make compile-contracts
+        working-directory: kava-bridge
+      - name: Run seed scripts
+        run: bash ${GITHUB_WORKSPACE}/.github/scripts/${SEED_SCRIPT_FILENAME}
+        working-directory: kava-bridge/contract
+        env:
+          CHAIN_API_URL: ${{ inputs.chain-api-url }}
+          CHAIN_ID: ${{ inputs.chain-id }}
+          DEV_WALLET_MNEMONIC: ${{ secrets.DEV_WALLET_MNEMONIC }}
+          SEED_SCRIPT_FILENAME: ${{ inputs.seed-script-filename }}
+          ERC20_DEPLOYER_NETWORK_NAME: ${{ inputs.erc20-deployer-network-name }}
+          GENESIS_VALIDATOR_ADDRESSES: ${{ inputs.genesis_validator_addresses }}
+2025-10-30 12:52:07,080 - main - INFO - 7단계: 결과 검증 및 저장
+2025-10-30 12:52:07,080 - main - DEBUG - 검증할 YAML 길이: 2686 문자
+2025-10-30 12:52:07,080 - main - DEBUG - YAML 시작 부분: 'name: Seed Chain\n\non:\n  workflow_call:\n    inputs:\n      chain-api-url:\n        required: true\n     '
+2025-10-30 12:52:07,086 - utils.yaml_parser - DEBUG - 파싱된 YAML 객체: {'name': 'Seed Chain', 'on': {'workflow_call': {'inputs': {'chain-api-url': {'required': True, 'type': 'string'}, 'chain-id': {'required': True, 'type': 'string'}, 'seed-script-filename': {'required': True, 'type': 'string'}, 'erc20-deployer-network-name': {'required': True, 'type': 'string'}, 'genesis_validator_addresses': {'required': True, 'type': 'string'}, 'kava_version_filepath': {'required': True, 'type': 'string'}}, 'secrets': {'DEV_WALLET_MNEMONIC': {'required': True}}}}, 'jobs': {'seed-chain-state': {'runs-on': 'ubuntu-latest', 'steps': [{'name': 'Checkout repo from master', 'uses': 'actions/checkout@v3', 'with': {'ref': 'master'}}, {'name': 'Checkout version of Kava used by network', 'run': 'git pull -p\ngit checkout $(cat ${KAVA_VERSION_FILEPATH})\n', 'env': {'KAVA_VERSION_FILEPATH': '${{ inputs.kava_version_filepath }}'}}, {'name': 'Set up Go', 'uses': 'actions/setup-go@v3', 'with': {'go-version': '1.19', 'check-latest': True, 'cache': True}}, {'name': 'Build Kava binary', 'run': 'make install'}, {'name': 'Checkout Go EVM tools repo', 'uses': 'actions/checkout@v3', 'with': {'repository': 'ethereum/go-ethereum', 'path': 'go-ethereum', 'ref': 'v1.10.26'}}, {'name': 'Install Go EVM tools', 'run': 'make\nmake devtools\n', 'working-directory': 'go-ethereum'}, {'name': 'Checkout Kava bridge repo for deploying EVM contracts', 'uses': 'actions/checkout@v3', 'with': {'repository': 'Kava-Labs/kava-bridge', 'path': 'kava-bridge', 'ref': 'main'}}, {'name': 'Install Node.js', 'uses': 'actions/setup-node@v3', 'with': {'cache': 'npm', 'node-version': 18, 'cache-dependency-path': 'kava-bridge/contract/package.json'}}, {'name': 'Install ERC20 contract deployment dependencies', 'run': 'npm install', 'working-directory': 'kava-bridge/contract'}, {'name': 'Compile default ERC20 contracts', 'run': 'make compile-contracts', 'working-directory': 'kava-bridge'}, {'name': 'Run seed scripts', 'run': 'bash ${GITHUB_WORKSPACE}/.github/scripts/${SEED_SCRIPT_FILENAME}', 'working-directory': 'kava-bridge/contract', 'env': {'CHAIN_API_URL': '${{ inputs.chain-api-url }}', 'CHAIN_ID': '${{ inputs.chain-id }}', 'DEV_WALLET_MNEMONIC': '${{ secrets.DEV_WALLET_MNEMONIC }}', 'SEED_SCRIPT_FILENAME': '${{ inputs.seed-script-filename }}', 'ERC20_DEPLOYER_NETWORK_NAME': '${{ inputs.erc20-deployer-network-name }}', 'GENESIS_VALIDATOR_ADDRESSES': '${{ inputs.genesis_validator_addresses }}'}}]}}}
+2025-10-30 12:52:07,087 - utils.yaml_parser - DEBUG - YAML 파일 저장 완료: data_repair_baseline_test2/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:52:07,087 - main - INFO - Baseline 모드 복구 완료
+2025-10-30 12:52:07,087 - main - INFO - 수정된 파일: data_repair_baseline_test2/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:52:07,087 - __main__ - INFO - === 파일 1/2 베이스라인 복구 완료 ===
+2025-10-30 12:52:07,087 - __main__ - INFO - ✅ 성공 (15.11초): 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32 -> 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_baseline_repaired.yml
+2025-10-30 12:52:07,087 - __main__ - INFO - [2/2] 처리 중: 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,087 - __main__ - INFO - 입력 파일 경로: data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,087 - __main__ - INFO - 출력 파일 경로: data_repair_baseline_test2/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:07,087 - __main__ - INFO - === 파일 2/2 베이스라인 복구 시작 ===
+2025-10-30 12:52:07,087 - main - INFO - === Baseline 모드 시작 ===
+2025-10-30 12:52:07,087 - main - INFO - 1단계: 원본 워크플로우 읽기
+2025-10-30 12:52:07,087 - utils.yaml_parser - DEBUG - YAML 파일 읽기 완료: data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,087 - main - INFO - 2단계: actionlint 구문 검사 실행
+2025-10-30 12:52:07,088 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-10-30 12:52:07,088 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,118 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.03초)
+2025-10-30 12:52:07,118 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-10-30 12:52:07,118 - main - INFO - actionlint에서 3개 오류 발견 (syntax-check 및 expression만)
+2025-10-30 12:52:07,118 - main - INFO - 3단계: Smell Detector 실행
+2025-10-30 12:52:07,118 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 명령어 실행 성공 (0.53초)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - Smell detector stdout: Welcome to GHA CI Detector
+Detecting smells for /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+We have found 22 smells
+	- 2. Prevent running issue/PR actions on forks line -1:51
+	- 3. Use fixed version for runs-on argument (line 16)
+	- 6. Define permissions for workflows with external actions (job at line: 69)
+	- 6. Define permissions for workflows with external actions (job at line: 126)
+	- 6. Define permissions for workflows with external actions (job at line: 16)
+	- 8. Use commit hash instead of tags for action versions (line 24)
+	- 8. Use commit hash instead of tags for action versions (line 20)
+	- 8. Use commit hash instead of tags for action versions (line 36)
+	- 8. Use commit hash instead of tags for action versions (line 130)
+	- 8. Use commit hash instead of tags for action versions (line 57)
+	- 8. Use commit hash instead of tags for action versions (line 31)
+	- 10. Avoid jobs without timeouts (line: 126)
+	- 10. Avoid jobs without timeouts (line: 16)
+	- 10. Avoid jobs without timeouts (line: 69)
+	- 12. Avoid workflows without comments
+	- 15. Use permissions whenever using Github Token (job at line 69)
+	- 15. Use permissions whenever using Github Token (job at line 126)
+	- 15. Use permissions whenever using Github Token (job at line 16)
+	- 19. Run tests on multiple OS's (job: build-omni)
+	- 19. Run tests on multiple OS's (job: build-frontend)
+	- 19. Run tests on multiple OS's (job: build-backend)
+	- 22. Avoid deploying jobs on forks
+
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - Smell detector stderr: 
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - Smell detector return code: 0
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - Smell detector 출력 라인 수: 25
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 0: Welcome to GHA CI Detector
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: Welcome to GHA CI Detector
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 1: Detecting smells for /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: Detecting smells for /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 2: We have found 22 smells
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 메타데이터 라인 건너뛰기: We have found 22 smells
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 3: - 2. Prevent running issue/PR actions on forks line -1:51
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#2): Prevent running issue/PR actions on forks line -1:51
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 4: - 3. Use fixed version for runs-on argument (line 16)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#3): Use fixed version for runs-on argument (line 16)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 5: - 6. Define permissions for workflows with external actions (job at line: 69)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#6): Define permissions for workflows with external actions (job at line: 69)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 6: - 6. Define permissions for workflows with external actions (job at line: 126)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#6): Define permissions for workflows with external actions (job at line: 126)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 7: - 6. Define permissions for workflows with external actions (job at line: 16)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#6): Define permissions for workflows with external actions (job at line: 16)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 8: - 8. Use commit hash instead of tags for action versions (line 24)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 24)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 9: - 8. Use commit hash instead of tags for action versions (line 20)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 20)
+2025-10-30 12:52:07,651 - utils.process_runner - DEBUG - 라인 10: - 8. Use commit hash instead of tags for action versions (line 36)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 36)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 11: - 8. Use commit hash instead of tags for action versions (line 130)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 130)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 12: - 8. Use commit hash instead of tags for action versions (line 57)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 57)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 13: - 8. Use commit hash instead of tags for action versions (line 31)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#8): Use commit hash instead of tags for action versions (line 31)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 14: - 10. Avoid jobs without timeouts (line: 126)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 스멜 감지 (#10): Avoid jobs without timeouts (line: 126)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 15: - 10. Avoid jobs without timeouts (line: 16)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 스멜 감지 (#10): Avoid jobs without timeouts (line: 16)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 16: - 10. Avoid jobs without timeouts (line: 69)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 스멜 감지 (#10): Avoid jobs without timeouts (line: 69)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 17: - 12. Avoid workflows without comments
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#12): Avoid workflows without comments
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 18: - 15. Use permissions whenever using Github Token (job at line 69)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 스멜 감지 (#15): Use permissions whenever using Github Token (job at line 69)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 19: - 15. Use permissions whenever using Github Token (job at line 126)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 스멜 감지 (#15): Use permissions whenever using Github Token (job at line 126)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 20: - 15. Use permissions whenever using Github Token (job at line 16)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 스멜 감지 (#15): Use permissions whenever using Github Token (job at line 16)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 21: - 19. Run tests on multiple OS's (job: build-omni)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#19): Run tests on multiple OS's (job: build-omni)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 22: - 19. Run tests on multiple OS's (job: build-frontend)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#19): Run tests on multiple OS's (job: build-frontend)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 23: - 19. Run tests on multiple OS's (job: build-backend)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#19): Run tests on multiple OS's (job: build-backend)
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 라인 24: - 22. Avoid deploying jobs on forks
+2025-10-30 12:52:07,652 - utils.process_runner - DEBUG - 대상 외 스멜 건너뛰기 (#22): Avoid deploying jobs on forks
+2025-10-30 12:52:07,652 - utils.process_runner - INFO - 총 6개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-10-30 12:52:07,652 - utils.process_runner - INFO - Smell detector 실행 완료: 6개 스멜 발견
+2025-10-30 12:52:07,652 - main - INFO - Smell detector에서 6개 스멜 발견
+2025-10-30 12:52:07,652 - main - INFO - 4단계: 통합 프롬프트 생성
+2025-10-30 12:52:07,652 - main - DEBUG - 생성된 프롬프트:
+2025-10-30 12:52:07,652 - main - DEBUG - GitHub Actions 워크플로우에서 발견된 문제들을 수정해주세요.
+
+**원본 워크플로우:**
+```yaml
+name: Build Containers
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    name: Build Frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-q...
+2025-10-30 12:52:07,652 - main - INFO - 5단계: LLM API 호출
+2025-10-30 12:52:07,659 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-10-30 12:52:07,660 - openai._base_client - DEBUG - Request options: {'method': 'post', 'url': '/chat/completions', 'timeout': 60, 'files': None, 'idempotency_key': 'stainless-python-retry-d5aae783-ee12-4755-9588-818713cbe8bc', 'json_data': {'messages': [{'role': 'user', 'content': 'GitHub Actions 워크플로우에서 발견된 문제들을 수정해주세요.\n\n**원본 워크플로우:**\n```yaml\nname: Build Containers\n\non:\n  workflow_call:\n    inputs:\n      tag:\n        required: true\n        type: string\n    secrets:\n      DOCKERHUB_USERNAME:\n        required: true\n      DOCKERHUB_TOKEN:\n        required: true\n\njobs:\n  build-frontend:\n    runs-on: ubuntu-latest\n    name: Build Frontend\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v3\n\n      - name: Set up QEMU\n        id: qemu\n        uses: docker/setup-qemu-action@v2\n        with:\n          image: tonistiigi/binfmt:latest\n          platforms: all\n\n      - name: Set up Docker Buildx\n        id: buildx\n        uses: docker/setup-buildx-action@v2\n        with:\n          install: true\n\n      - name: Login to Docker Hub\n        uses: docker/login-action@v2\n        with:\n          username: ${{ secrets.DOCKERHUB_USERNAME }}\n          password: ${{ secrets.DOCKERHUB_TOKEN }}\n\n      - name: Log in to the Container registry\n        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n\n      - name: Extract metadata (tags, labels) for Docker\n        id: meta\n        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7\n        with:\n          images: |\n              hkotel/mealie\n              ghcr.io/${{ github.repository }}\n\n      - name: Build and push Frontend images\n        uses: docker/build-push-action@v4\n        with:\n          file: docker/frontend.Dockerfile\n          context: .\n          push: true\n          tags: frontend-${{ steps.meta.outputs.tags }}\n          labels: ${{ steps.meta.outputs.labels }}\n          platforms:\n            - linux/amd64\n            - linux/arm64\n\n  build-backend:\n    runs-on: ubuntu-latest\n    name: Build Backend\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v3\n\n      - name: Set up QEMU\n        id: qemu\n        uses: docker/setup-qemu-action@v2\n        with:\n          image: tonistiigi/binfmt:latest\n          platforms: all\n\n      - name: Set up Docker Buildx\n        id: buildx\n        uses: docker/setup-buildx-action@v2\n        with:\n          install: true\n\n      - name: Login to Docker Hub\n        uses: docker/login-action@v2\n        with:\n          username: ${{ secrets.DOCKERHUB_USERNAME }}\n          password: ${{ secrets.DOCKERHUB_TOKEN }}\n\n      - name: Override __init__.py\n        run: |\n          echo "__version__ = \\"${{ inputs.tag }}\\"" > ./mealie/__init__.py\n\n      - name: Log in to the Container registry\n        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n\n      - name: Extract metadata (tags, labels) for Docker\n        id: meta\n        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7\n        with:\n          images: |\n            hkotel/mealie\n            ghcr.io/${{ github.repository }}\n\n      - name: Build and push API images\n        uses: docker/build-push-action@v4\n        with:\n          file: docker/api.Dockerfile\n          context: .\n          push: true\n          tags: api-${{ steps.meta.outputs.tags }}\n          labels: ${{ steps.meta.outputs.labels }}\n          platforms:\n            - linux/amd64\n            - linux/arm64\n\n  build-omni:\n    runs-on: ubuntu-latest\n    name: Build Omni\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v2\n\n      - name: Set up QEMU\n        id: qemu\n        uses: docker/setup-qemu-action@v2\n        with:\n          image: tonistiigi/binfmt:latest\n          platforms: all\n\n      - name: Set up Docker Buildx\n        id: buildx\n        uses: docker/setup-buildx-action@v2\n        with:\n          install: true\n\n      - name: Login to Docker Hub\n        uses: docker/login-action@v2\n        with:\n          username: ${{ secrets.DOCKERHUB_USERNAME }}\n          password: ${{ secrets.DOCKERHUB_TOKEN }}\n\n      - name: Override __init__.py\n        run: |\n          echo "__version__ = \\"${{ inputs.tag }}\\"" > ./mealie/__init__.py\n\n      - name: Log in to the Container registry\n        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1\n        with:\n          registry: ghcr.io\n          username: ${{ github.actor }}\n          password: ${{ secrets.GITHUB_TOKEN }}\n\n      - name: Extract metadata (tags, labels) for Docker\n        id: meta\n        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7\n        with:\n          images: |\n            hkotel/mealie\n            ghcr.io/${{ github.repository }}\n\n      - name: Build and push API images\n        uses: docker/build-push-action@v4\n        with:\n          file: docker/omni.Dockerfile\n          context: .\n          push: true\n          tags: omni-${{ steps.meta.outputs.tags }}\n          labels: ${{ steps.meta.outputs.labels }}\n          platforms:\n            - linux/amd64\n            - linux/arm64\n\n```\n\n**발견된 문제들:**\n\n**구문 오류 (actionlint):**\n1. expected scalar node for string value but found sequence node with "!!seq" tag\n2. expected scalar node for string value but found sequence node with "!!seq" tag\n3. expected scalar node for string value but found sequence node with "!!seq" tag\n\n**의미론적 스멜:**\n1. - 10. Avoid jobs without timeouts (line: 126)\n2. - 10. Avoid jobs without timeouts (line: 16)\n3. - 10. Avoid jobs without timeouts (line: 69)\n4. - 15. Use permissions whenever using Github Token (job at line 69)\n5. - 15. Use permissions whenever using Github Token (job at line 126)\n6. - 15. Use permissions whenever using Github Token (job at line 16)\n\n**수정 요청:**\n위에서 발견된 모든 구문 오류와 의미론적 스멜을 수정한 완전한 GitHub Actions 워크플로우를 제공해주세요.\n\n**수정 시 고려사항:**\n1. GitHub Actions의 최신 문법과 모범 사례를 따라주세요\n2. 기존 워크플로우의 의도와 기능을 유지해주세요\n3. 보안 관련 문제는 우선적으로 수정해주세요\n4. 모든 구문 오류를 수정해주세요\n\n**응답 형식:**\n```yaml\n# 수정된 워크플로우\n```\n'}], 'model': 'gpt-4o-mini', 'max_tokens': 4000, 'temperature': 0.1}}
+2025-10-30 12:52:07,660 - openai._base_client - DEBUG - Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+2025-10-30 12:52:07,661 - httpcore.connection - DEBUG - connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=60 socket_options=None
+2025-10-30 12:52:07,666 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x1121a51d0>
+2025-10-30 12:52:07,666 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x1111925d0> server_hostname='api.openai.com' timeout=60
+2025-10-30 12:52:07,675 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x11191b6f0>
+2025-10-30 12:52:07,675 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-10-30 12:52:07,675 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-10-30 12:52:07,675 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-10-30 12:52:07,675 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-10-30 12:52:07,675 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-10-30 12:52:39,221 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Thu, 30 Oct 2025 03:52:41 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-vyhnsq8e1qgrxbfbbkfufii7'), (b'openai-processing-ms', b'31115'), (b'openai-project', b'proj_ECazg92OTAh2UNT7fm96ON8t'), (b'openai-version', b'2020-10-01'), (b'x-envoy-upstream-service-time', b'31304'), (b'x-ratelimit-limit-requests', b'10000'), (b'x-ratelimit-limit-tokens', b'200000'), (b'x-ratelimit-remaining-requests', b'9999'), (b'x-ratelimit-remaining-tokens', b'198425'), (b'x-ratelimit-reset-requests', b'8.64s'), (b'x-ratelimit-reset-tokens', b'472ms'), (b'x-request-id', b'req_23a038972a8c420e89064dffe4e73c63'), (b'x-openai-proxy-wasm', b'v0.1'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=pvUFotm0VbliwR3sDh5KGFY3zIGJdBmaFAJtD_0o_To-1761796361-1.0.1.1-c5Ri0sQkrI_2A2YICCtTHOIir8l1j.kG23vYi4dV40ETIPMK0VpUH8Z1Qiu2YcC.w5fOZF8gu3t9ZJVJ9_1STTaV_SmXxJzqxlFh0mPRMcI; path=/; expires=Thu, 30-Oct-25 04:22:41 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=T59pl8E5az__C59tClfCOF_2EbIMu9tOLgzAFca5Crs-1761796361283-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9967f5552ef030b5-ICN'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2025-10-30 12:52:39,223 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-30 12:52:39,224 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-10-30 12:52:39,225 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-10-30 12:52:39,225 - httpcore.http11 - DEBUG - response_closed.started
+2025-10-30 12:52:39,225 - httpcore.http11 - DEBUG - response_closed.complete
+2025-10-30 12:52:39,225 - openai._base_client - DEBUG - HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Thu, 30 Oct 2025 03:52:41 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-vyhnsq8e1qgrxbfbbkfufii7'), ('openai-processing-ms', '31115'), ('openai-project', 'proj_ECazg92OTAh2UNT7fm96ON8t'), ('openai-version', '2020-10-01'), ('x-envoy-upstream-service-time', '31304'), ('x-ratelimit-limit-requests', '10000'), ('x-ratelimit-limit-tokens', '200000'), ('x-ratelimit-remaining-requests', '9999'), ('x-ratelimit-remaining-tokens', '198425'), ('x-ratelimit-reset-requests', '8.64s'), ('x-ratelimit-reset-tokens', '472ms'), ('x-request-id', 'req_23a038972a8c420e89064dffe4e73c63'), ('x-openai-proxy-wasm', 'v0.1'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=pvUFotm0VbliwR3sDh5KGFY3zIGJdBmaFAJtD_0o_To-1761796361-1.0.1.1-c5Ri0sQkrI_2A2YICCtTHOIir8l1j.kG23vYi4dV40ETIPMK0VpUH8Z1Qiu2YcC.w5fOZF8gu3t9ZJVJ9_1STTaV_SmXxJzqxlFh0mPRMcI; path=/; expires=Thu, 30-Oct-25 04:22:41 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=T59pl8E5az__C59tClfCOF_2EbIMu9tOLgzAFca5Crs-1761796361283-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '9967f5552ef030b5-ICN'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+2025-10-30 12:52:39,225 - openai._base_client - DEBUG - request_id: req_23a038972a8c420e89064dffe4e73c63
+2025-10-30 12:52:39,227 - utils.llm_api - INFO - LLM API 호출 성공
+2025-10-30 12:52:39,227 - main - INFO - 6단계: 수정된 YAML 추출
+2025-10-30 12:52:39,228 - main - DEBUG - 추출된 YAML:
+name: Build Containers
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    name: Build Frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            hkotel/mealie
+            ghcr.io/${{ github.repository }}
+
+      - name: Build and push Frontend images
+        uses: docker/build-push-action@v4
+        with:
+          file: docker/frontend.Dockerfile
+          context: .
+          push: true
+          tags: frontend-${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+
+  build-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    name: Build Backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Override __init__.py
+        run: |
+          echo "__version__ = \"${{ inputs.tag }}\"" > ./mealie/__init__.py
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            hkotel/mealie
+            ghcr.io/${{ github.repository }}
+
+      - name: Build and push API images
+        uses: docker/build-push-action@v4
+        with:
+          file: docker/api.Dockerfile
+          context: .
+          push: true
+          tags: api-${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+
+  build-omni:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    name: Build Omni
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Override __init__.py
+        run: |
+          echo "__version__ = \"${{ inputs.tag }}\"" > ./mealie/__init__.py
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            hkotel/mealie
+            ghcr.io/${{ github.repository }}
+
+      - name: Build and push API images
+        uses: docker/build-push-action@v4
+        with:
+          file: docker/omni.Dockerfile
+          context: .
+          push: true
+          tags: omni-${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+2025-10-30 12:52:39,228 - main - INFO - 7단계: 결과 검증 및 저장
+2025-10-30 12:52:39,228 - main - DEBUG - 검증할 YAML 길이: 4917 문자
+2025-10-30 12:52:39,228 - main - DEBUG - YAML 시작 부분: 'name: Build Containers\n\non:\n  workflow_call:\n    inputs:\n      tag:\n        required: true\n        t'
+2025-10-30 12:52:39,238 - httpcore.connection - DEBUG - close.started
+2025-10-30 12:52:39,240 - httpcore.connection - DEBUG - close.complete
+2025-10-30 12:52:39,248 - utils.yaml_parser - DEBUG - 파싱된 YAML 객체: {'name': 'Build Containers', 'on': {'workflow_call': {'inputs': {'tag': {'required': True, 'type': 'string'}}, 'secrets': {'DOCKERHUB_USERNAME': {'required': True}, 'DOCKERHUB_TOKEN': {'required': True}}}}, 'jobs': {'build-frontend': {'runs-on': 'ubuntu-latest', 'timeout-minutes': 30, 'permissions': {'contents': 'read', 'packages': 'write'}, 'name': 'Build Frontend', 'steps': [{'name': 'Checkout', 'uses': 'actions/checkout@v3'}, {'name': 'Set up QEMU', 'id': 'qemu', 'uses': 'docker/setup-qemu-action@v2', 'with': {'image': 'tonistiigi/binfmt:latest', 'platforms': 'all'}}, {'name': 'Set up Docker Buildx', 'id': 'buildx', 'uses': 'docker/setup-buildx-action@v2', 'with': {'install': True}}, {'name': 'Login to Docker Hub', 'uses': 'docker/login-action@v2', 'with': {'username': '${{ secrets.DOCKERHUB_USERNAME }}', 'password': '${{ secrets.DOCKERHUB_TOKEN }}'}}, {'name': 'Log in to the Container registry', 'uses': 'docker/login-action@v2', 'with': {'registry': 'ghcr.io', 'username': '${{ github.actor }}', 'password': '${{ secrets.GITHUB_TOKEN }}'}}, {'name': 'Extract metadata (tags, labels) for Docker', 'id': 'meta', 'uses': 'docker/metadata-action@v4', 'with': {'images': 'hkotel/mealie\nghcr.io/${{ github.repository }}\n'}}, {'name': 'Build and push Frontend images', 'uses': 'docker/build-push-action@v4', 'with': {'file': 'docker/frontend.Dockerfile', 'context': '.', 'push': True, 'tags': 'frontend-${{ steps.meta.outputs.tags }}', 'labels': '${{ steps.meta.outputs.labels }}', 'platforms': 'linux/amd64,linux/arm64'}}]}, 'build-backend': {'runs-on': 'ubuntu-latest', 'timeout-minutes': 30, 'permissions': {'contents': 'read', 'packages': 'write'}, 'name': 'Build Backend', 'steps': [{'name': 'Checkout', 'uses': 'actions/checkout@v3'}, {'name': 'Set up QEMU', 'id': 'qemu', 'uses': 'docker/setup-qemu-action@v2', 'with': {'image': 'tonistiigi/binfmt:latest', 'platforms': 'all'}}, {'name': 'Set up Docker Buildx', 'id': 'buildx', 'uses': 'docker/setup-buildx-action@v2', 'with': {'install': True}}, {'name': 'Login to Docker Hub', 'uses': 'docker/login-action@v2', 'with': {'username': '${{ secrets.DOCKERHUB_USERNAME }}', 'password': '${{ secrets.DOCKERHUB_TOKEN }}'}}, {'name': 'Override __init__.py', 'run': 'echo "__version__ = \\"${{ inputs.tag }}\\"" > ./mealie/__init__.py\n'}, {'name': 'Log in to the Container registry', 'uses': 'docker/login-action@v2', 'with': {'registry': 'ghcr.io', 'username': '${{ github.actor }}', 'password': '${{ secrets.GITHUB_TOKEN }}'}}, {'name': 'Extract metadata (tags, labels) for Docker', 'id': 'meta', 'uses': 'docker/metadata-action@v4', 'with': {'images': 'hkotel/mealie\nghcr.io/${{ github.repository }}\n'}}, {'name': 'Build and push API images', 'uses': 'docker/build-push-action@v4', 'with': {'file': 'docker/api.Dockerfile', 'context': '.', 'push': True, 'tags': 'api-${{ steps.meta.outputs.tags }}', 'labels': '${{ steps.meta.outputs.labels }}', 'platforms': 'linux/amd64,linux/arm64'}}]}, 'build-omni': {'runs-on': 'ubuntu-latest', 'timeout-minutes': 30, 'permissions': {'contents': 'read', 'packages': 'write'}, 'name': 'Build Omni', 'steps': [{'name': 'Checkout', 'uses': 'actions/checkout@v3'}, {'name': 'Set up QEMU', 'id': 'qemu', 'uses': 'docker/setup-qemu-action@v2', 'with': {'image': 'tonistiigi/binfmt:latest', 'platforms': 'all'}}, {'name': 'Set up Docker Buildx', 'id': 'buildx', 'uses': 'docker/setup-buildx-action@v2', 'with': {'install': True}}, {'name': 'Login to Docker Hub', 'uses': 'docker/login-action@v2', 'with': {'username': '${{ secrets.DOCKERHUB_USERNAME }}', 'password': '${{ secrets.DOCKERHUB_TOKEN }}'}}, {'name': 'Override __init__.py', 'run': 'echo "__version__ = \\"${{ inputs.tag }}\\"" > ./mealie/__init__.py\n'}, {'name': 'Log in to the Container registry', 'uses': 'docker/login-action@v2', 'with': {'registry': 'ghcr.io', 'username': '${{ github.actor }}', 'password': '${{ secrets.GITHUB_TOKEN }}'}}, {'name': 'Extract metadata (tags, labels) for Docker', 'id': 'meta', 'uses': 'docker/metadata-action@v4', 'with': {'images': 'hkotel/mealie\nghcr.io/${{ github.repository }}\n'}}, {'name': 'Build and push API images', 'uses': 'docker/build-push-action@v4', 'with': {'file': 'docker/omni.Dockerfile', 'context': '.', 'push': True, 'tags': 'omni-${{ steps.meta.outputs.tags }}', 'labels': '${{ steps.meta.outputs.labels }}', 'platforms': 'linux/amd64,linux/arm64'}}]}}}
+2025-10-30 12:52:39,248 - utils.yaml_parser - DEBUG - YAML 파일 저장 완료: data_repair_baseline_test2/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:39,248 - main - INFO - Baseline 모드 복구 완료
+2025-10-30 12:52:39,248 - main - INFO - 수정된 파일: data_repair_baseline_test2/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:39,248 - __main__ - INFO - === 파일 2/2 베이스라인 복구 완료 ===
+2025-10-30 12:52:39,249 - __main__ - INFO - ✅ 성공 (32.16초): 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428 -> 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml
+2025-10-30 12:52:39,249 - __main__ - INFO - ============================================================
+2025-10-30 12:52:39,249 - __main__ - INFO - 베이스라인 자동 복구 완료!
+2025-10-30 12:52:39,249 - __main__ - INFO - 총 처리 시간: 47.3초
+2025-10-30 12:52:39,249 - __main__ - INFO - 총 파일: 2
+2025-10-30 12:52:39,249 - __main__ - INFO - 성공: 2 (100.0%)
+2025-10-30 12:52:39,249 - __main__ - INFO - 실패: 0
+2025-10-30 12:52:39,249 - __main__ - INFO - 평균 처리 시간: 23.64초/파일
+2025-10-30 12:52:39,249 - __main__ - INFO - 출력 파일 위치: data_repair_baseline_test2
+2025-10-30 12:52:39,249 - __main__ - INFO - INFO 로그 파일: logs/baseline_test_dual_info.log
+2025-10-30 12:52:39,249 - __main__ - INFO - DEBUG 로그 파일: logs/baseline_test_dual_debug.log
+2025-10-30 12:52:39,249 - __main__ - INFO - ============================================================
+2025-10-30 12:52:39,280 - httpcore.connection - DEBUG - close.started
+2025-10-30 12:52:39,280 - httpcore.connection - DEBUG - close.complete
