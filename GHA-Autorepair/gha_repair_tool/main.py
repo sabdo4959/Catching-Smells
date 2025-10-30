@@ -246,6 +246,314 @@ def run_baseline_mode(input_path: str, output_path: str) -> bool:
         return False
 
 
+def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: bool = True) -> bool:
+    """
+    2단계 모드: actionlint → LLM → smell detection → LLM
+    
+    Args:
+        input_path: 입력 YAML 파일 경로
+        output_path: 출력 YAML 파일 경로
+        use_guided_prompt: 가이드 프롬프트 사용 여부
+        
+    Returns:
+        bool: 성공 여부
+    """
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # 1단계: 파일 읽기
+        logger.info("=== 2단계 모드 시작 ===")
+        logger.info("1단계: 입력 파일 읽기")
+        yaml_content = yaml_parser.read_yaml_content(input_path)
+        
+        if not yaml_content:
+            logger.error("입력 파일 읽기 실패")
+            return False
+        
+        logger.info(f"파일 크기: {len(yaml_content)} 문자")
+        
+        # Phase 1: Syntax Repair (actionlint → LLM)
+        logger.info("=== Phase 1: 구문 오류 수정 ===")
+        
+        # 2단계: actionlint 실행
+        logger.info("2단계: actionlint 구문 검사")
+        from utils import process_runner
+        actionlint_result = process_runner.run_actionlint(input_path)
+        
+        actionlint_errors = []
+        if not actionlint_result.get("success", True):
+            all_errors = actionlint_result.get("errors", [])
+            # syntax-check와 expression 타입의 에러만 필터링
+            actionlint_errors = [
+                error for error in all_errors 
+                if isinstance(error, dict) and error.get('kind') in ['syntax-check', 'expression']
+            ]
+            logger.info(f"actionlint에서 {len(actionlint_errors)}개 오류 발견 (syntax-check 및 expression만)")
+        else:
+            logger.info("actionlint 검사 통과")
+        
+        if actionlint_errors:
+            logger.info(f"actionlint 오류 {len(actionlint_errors)}개 발견")
+            for i, error in enumerate(actionlint_errors[:3]):  # 처음 3개만 로그
+                logger.info(f"  오류 {i+1}: {error.get('message', 'N/A')}")
+            
+            # 3단계: 구문 오류 수정 프롬프트 생성
+            logger.info("3단계: 구문 오류 수정 프롬프트 생성")
+            syntax_prompt = create_syntax_repair_prompt(yaml_content, actionlint_errors, use_guided_prompt)
+            
+            # 4단계: 구문 오류 수정 LLM 호출
+            logger.info("4단계: 구문 오류 수정 LLM 호출")
+            llm_response = llm_api.call_llm_with_retry(syntax_prompt, max_tokens=4000)
+            
+            if not llm_response:
+                logger.error("구문 오류 수정 LLM 호출 실패")
+                return False
+            
+            # 5단계: 수정된 YAML 추출
+            logger.info("5단계: 구문 수정된 YAML 추출")
+            phase1_yaml = llm_api.extract_code_from_response(llm_response, "yaml")
+            
+            if not phase1_yaml:
+                logger.warning("YAML 코드 블록을 찾을 수 없음, 전체 응답 사용")
+                phase1_yaml = llm_response.strip()
+            
+            logger.info(f"Phase 1 완료, 수정된 YAML 크기: {len(phase1_yaml)} 문자")
+        else:
+            logger.info("actionlint 오류 없음, Phase 1 건너뛰기")
+            phase1_yaml = yaml_content
+        
+        # Phase 2: Semantic Repair (smell detection → LLM)
+        logger.info("=== Phase 2: 스멜 수정 ===")
+        
+        # 6단계: 임시 파일로 Phase 1 결과 저장 (smell detection을 위해)
+        logger.info("6단계: 임시 파일 생성 및 스멜 검사")
+        temp_path = f"{input_path}_temp_phase1.yml"
+        
+        try:
+            # 임시 파일 저장
+            success = yaml_parser.write_yaml_content(phase1_yaml, temp_path)
+            if not success:
+                logger.error("임시 파일 저장 실패")
+                return False
+            
+            # 7단계: smell detection 실행
+            logger.info("7단계: smell detection 실행")
+            from utils import process_runner
+            smell_result = process_runner.run_smell_detector(temp_path)
+            smells = smell_result.get("smells", [])
+            
+            if smells:
+                logger.info(f"스멜 {len(smells)}개 발견")
+                for i, smell in enumerate(smells[:3]):  # 처음 3개만 로그
+                    logger.info(f"  스멜 {i+1}: {smell.get('description', 'N/A')}")
+                
+                # 8단계: 스멜 수정 프롬프트 생성
+                logger.info("8단계: 스멜 수정 프롬프트 생성")
+                semantic_prompt = create_semantic_repair_prompt(phase1_yaml, smells, use_guided_prompt)
+                
+                # 9단계: 스멜 수정 LLM 호출
+                logger.info("9단계: 스멜 수정 LLM 호출")
+                llm_response = llm_api.call_llm_with_retry(semantic_prompt, max_tokens=4000)
+                
+                if not llm_response:
+                    logger.error("스멜 수정 LLM 호출 실패")
+                    return False
+                
+                # 10단계: 최종 수정된 YAML 추출
+                logger.info("10단계: 최종 수정된 YAML 추출")
+                final_yaml = llm_api.extract_code_from_response(llm_response, "yaml")
+                
+                if not final_yaml:
+                    logger.warning("YAML 코드 블록을 찾을 수 없음, 전체 응답 사용")
+                    final_yaml = llm_response.strip()
+                
+                logger.info(f"Phase 2 완료, 최종 YAML 크기: {len(final_yaml)} 문자")
+            else:
+                logger.info("스멜 없음, Phase 2 건너뛰기")
+                final_yaml = phase1_yaml
+                
+        finally:
+            # 임시 파일 삭제
+            import os
+            try:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+                    logger.debug(f"임시 파일 삭제: {temp_path}")
+            except Exception as e:
+                logger.warning(f"임시 파일 삭제 실패: {e}")
+        
+        # 11단계: 최종 결과 검증 및 저장
+        logger.info("11단계: 최종 결과 검증 및 저장")
+        validation_result = yaml_parser.validate_github_actions_workflow(final_yaml)
+        
+        if validation_result.get("is_valid", False):
+            success = yaml_parser.write_yaml_content(final_yaml, output_path)
+            if success:
+                logger.info("2단계 모드 복구 완료")
+                logger.info(f"최종 수정된 파일: {output_path}")
+                return True
+            else:
+                logger.error("최종 파일 저장 실패")
+                return False
+        else:
+            logger.error("최종 YAML이 유효하지 않음")
+            logger.error(f"검증 오류: {validation_result.get('issues', [])}")
+            # 유효하지 않아도 일단 저장해보기
+            yaml_parser.write_yaml_content(final_yaml, output_path)
+            return False
+            
+    except Exception as e:
+        logger.error(f"2단계 모드 실행 중 오류: {e}")
+        return False
+
+
+def create_syntax_repair_prompt(yaml_content: str, actionlint_errors: list, use_guided_prompt: bool = True) -> str:
+    """
+    구문 오류 수정을 위한 프롬프트 생성
+    
+    Args:
+        yaml_content: 원본 YAML 내용
+        actionlint_errors: actionlint 오류 목록
+        use_guided_prompt: 가이드 프롬프트 사용 여부
+        
+    Returns:
+        str: 생성된 프롬프트
+    """
+    if use_guided_prompt:
+        prompt = f"""You are an expert GitHub Actions workflow developer. Please fix the syntax errors in the following YAML workflow file.
+
+**Original YAML:**
+```yaml
+{yaml_content}
+```
+
+**Syntax Errors Detected by actionlint:**
+"""
+        for i, error in enumerate(actionlint_errors, 1):
+            prompt += f"{i}. {error.get('message', 'Unknown error')}\n"
+            if error.get('line'):
+                prompt += f"   Line {error['line']}: {error.get('column', 'N/A')}\n"
+
+        prompt += """
+**Instructions:**
+1. Fix ONLY the syntax errors listed above
+2. Do NOT modify the workflow logic or functionality
+3. Preserve all original comments and formatting where possible
+4. Return the complete corrected YAML workflow
+5. Ensure the output is valid YAML syntax
+
+**Fixed YAML:**
+```yaml"""
+
+    else:
+        # Baseline-level prompt for fair comparison
+        prompt = f"""GitHub Actions 워크플로우의 구문 오류를 수정해주세요.
+
+**원본 워크플로우:**
+```yaml
+{yaml_content}
+```
+
+**발견된 구문 오류:**
+"""
+        for i, error in enumerate(actionlint_errors, 1):
+            prompt += f"{i}. {error.get('message', 'Unknown error')}\n"
+            if error.get('line'):
+                prompt += f"   라인 {error['line']}\n"
+
+        prompt += """
+**수정 요청:**
+위의 구문 오류를 수정한 완전한 GitHub Actions 워크플로우를 제공해주세요.
+
+**수정 시 고려사항:**
+1. GitHub Actions의 올바른 문법을 따라주세요
+2. 기존 워크플로우의 의도와 기능을 유지해주세요
+3. 모든 구문 오류를 적절히 수정해주세요
+
+**응답 형식:**
+```yaml
+# 수정된 워크플로우
+```
+"""
+
+    return prompt
+
+
+def create_semantic_repair_prompt(yaml_content: str, smells: list, use_guided_prompt: bool = True) -> str:
+    """
+    스멜 수정을 위한 프롬프트 생성
+    
+    Args:
+        yaml_content: Phase 1에서 구문 오류가 수정된 YAML 내용
+        smells: 감지된 스멜 목록
+        use_guided_prompt: 가이드 프롬프트 사용 여부
+        
+    Returns:
+        str: 생성된 프롬프트
+    """
+    if use_guided_prompt:
+        prompt = f"""You are an expert GitHub Actions workflow developer. Please fix the code smells and improve the quality of the following YAML workflow file.
+
+**Current YAML (syntax errors already fixed):**
+```yaml
+{yaml_content}
+```
+
+**Code Smells Detected:**
+"""
+        for i, smell in enumerate(smells, 1):
+            prompt += f"{i}. **{smell.get('type', 'Unknown')}**: {smell.get('description', 'No description')}\n"
+            if smell.get('location'):
+                prompt += f"   Location: {smell['location']}\n"
+            if smell.get('suggestion'):
+                prompt += f"   Suggestion: {smell['suggestion']}\n"
+
+        prompt += """
+**Instructions:**
+1. Fix the code smells listed above
+2. Improve workflow efficiency and best practices
+3. Maintain the original workflow functionality
+4. Apply GitHub Actions best practices
+5. Return the complete improved YAML workflow
+
+**Improved YAML:**
+```yaml"""
+
+    else:
+        # Baseline-level prompt for fair comparison
+        prompt = f"""GitHub Actions 워크플로우의 의미론적 스멜을 수정해주세요.
+
+**현재 워크플로우 (구문 오류는 이미 수정됨):**
+```yaml
+{yaml_content}
+```
+
+**발견된 의미론적 스멜:**
+"""
+        for i, smell in enumerate(smells, 1):
+            prompt += f"{i}. {smell.get('description', 'Unknown issue')}\n"
+            if smell.get('message'):
+                prompt += f"   세부사항: {smell.get('message')}\n"
+
+        prompt += """
+**수정 요청:**
+위의 의미론적 스멜을 수정하여 개선된 GitHub Actions 워크플로우를 제공해주세요.
+
+**수정 시 고려사항:**
+1. GitHub Actions의 모범 사례를 따라주세요
+2. 워크플로우의 효율성과 안전성을 개선해주세요
+3. 기존 워크플로우의 의도와 기능을 유지해주세요
+4. 모든 스멜을 적절히 수정해주세요
+
+**응답 형식:**
+```yaml
+# 개선된 워크플로우
+```
+"""
+
+    return prompt
+
+
 def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: list) -> str:
     """
     베이스라인 모드용 통합 프롬프트를 생성합니다.
@@ -300,67 +608,6 @@ def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: l
 """
     
     return prompt
-
-
-def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: bool = True) -> bool:
-    """
-    2단계 모드: 구문 복구 -> 의미론적 복구
-    
-    Args:
-        input_path: 입력 YAML 파일 경로
-        output_path: 출력 YAML 파일 경로
-        use_guided_prompt: 가이드 프롬프트 사용 여부
-        
-    Returns:
-        bool: 성공 여부
-    """
-    logger = logging.getLogger(__name__)
-    
-    try:
-        # 1단계: 구문 복구
-        logger.info("1단계: 구문 복구 시작")
-        syntax_repaired_path = syntax_repairer.repair_syntax(
-            input_path, 
-            use_guided_prompt=use_guided_prompt
-        )
-        
-        if not syntax_repaired_path:
-            logger.error("구문 복구 실패")
-            return False
-            
-        logger.info(f"구문 복구 완료: {syntax_repaired_path}")
-        
-        # 2단계: 의미론적 스멜 탐지
-        logger.info("2단계: 의미론적 스멜 탐지 시작")
-        detected_smells = semantic_detector.detect_smells(syntax_repaired_path)
-        
-        if detected_smells:
-            logger.info(f"{len(detected_smells)}개의 스멜 탐지됨")
-            
-            # 의미론적 스멜 복구
-            logger.info("의미론적 스멜 복구 시작")
-            semantic_repaired_path = semantic_repairer.repair_smells(
-                syntax_repaired_path,
-                detected_smells,
-                use_guided_prompt=use_guided_prompt
-            )
-            
-            if semantic_repaired_path:
-                # 최종 결과를 출력 파일로 복사
-                yaml_parser.copy_file(semantic_repaired_path, output_path)
-                logger.info("의미론적 복구 완료")
-                return True
-            else:
-                logger.error("의미론적 복구 실패")
-                return False
-        else:
-            logger.info("탐지된 스멜이 없음. 구문 복구 결과를 최종 출력으로 사용")
-            yaml_parser.copy_file(syntax_repaired_path, output_path)
-            return True
-            
-    except Exception as e:
-        logger.error(f"2단계 모드 실행 중 오류: {e}")
-        return False
 
 
 def run_poc_test(input_path: str, output_path: str) -> bool:
