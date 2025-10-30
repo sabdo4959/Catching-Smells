@@ -1,0 +1,4 @@
+original_file,repaired_file,syntax_success,initial_smells,final_smells,smell_removal_rate,edit_distance,processing_time,error_message
+/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection.yml,/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_baseline_output.yml,True,4,0,100.00,43,0.611,
+/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection2.yml,/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_output2.yml,True,4,2,50.00,39,0.565,
+/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection_final.yml,/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_output3.yml,True,0,2,100.00,26,0.575,

@@ -1,0 +1,61 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Test and Publish Package
+
+#on:
+#  release:
+#    types: [created]
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt-hotspot'
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      #      - name: Run Tests
+      #        run: mvn -U clean verify --file pom.xml
+
+      - name: Build with Maven
+        run: mvn --file pom.xml -U clean package -Punit-tests
+
+      - name: Set up Apache Maven Central (Overwrite settings.xml)
+        uses: actions/setup-java@v3
+        with: # running setup-java again overwrites the settings.xml
+          java-version: '11'
+          distribution: 'adopt-hotspot'
+          cache: 'maven'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Publish to GitHub Packages Apache Maven
+        run: |
+          git config --global user.email "koujalgi.amith@gmail.com"
+          git config --global user.name "amithkoujalgi"
+        mvn clean -Punit-tests release:clean release:prepare release:perform -B -Darguments="-DskipTests -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}"
+        #        run: mvn clean deploy -Punit-tests -Dgpg.passphrase="${{ secrets.GPG_PASSPHRASE }}"
+
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

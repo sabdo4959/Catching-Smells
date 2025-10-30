@@ -1,0 +1,101 @@
+{
+  "group_name": "test_baseline",
+  "total_files": 3,
+  "syntax_success_count": 0,
+  "syntax_success_rate": 0.0,
+  "avg_smell_removal_rate": 0.0,
+  "avg_edit_distance": 0.0,
+  "detailed_results": [
+    {
+      "file_path": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection.yml",
+      "original_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection.yml",
+      "repaired_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_baseline_output.yml",
+      "syntax_success": false,
+      "actionlint_errors": [
+        {
+          "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+          "filepath": "test_baseline_output.yml",
+          "line": 12,
+          "column": 13,
+          "kind": "action",
+          "snippet": "      uses: actions/checkout@v2  # 최신 버전으로 업데이트\n            ^~~~~~~~~~~~~~~~~~~",
+          "end_column": 31
+        },
+        {
+          "message": "the runner of \"actions/download-artifact@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+          "filepath": "test_baseline_output.yml",
+          "line": 15,
+          "column": 13,
+          "kind": "action",
+          "snippet": "      uses: actions/download-artifact@v2  # 최신 버전으로 업데이트\n            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+          "end_column": 40
+        },
+        {
+          "message": "the runner of \"actions/setup-java@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+          "filepath": "test_baseline_output.yml",
+          "line": 18,
+          "column": 13,
+          "kind": "action",
+          "snippet": "      uses: actions/setup-java@v2  # 최신 버전으로 업데이트\n            ^~~~~~~~~~~~~~~~~~~~~",
+          "end_column": 33
+        }
+      ],
+      "initial_smells_count": 0,
+      "final_smells_count": 0,
+      "smell_removal_rate": 0.0,
+      "edit_distance": 43,
+      "evaluation_time": "2025-10-30T11:11:14.678271",
+      "processing_time": 0.004571,
+      "error_message": null
+    },
+    {
+      "file_path": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection2.yml",
+      "original_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection2.yml",
+      "repaired_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_output2.yml",
+      "syntax_success": false,
+      "actionlint_errors": [
+        {
+          "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+          "filepath": "test_output2.yml",
+          "line": 12,
+          "column": 15,
+          "kind": "action",
+          "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+          "end_column": 33
+        }
+      ],
+      "initial_smells_count": 0,
+      "final_smells_count": 0,
+      "smell_removal_rate": 0.0,
+      "edit_distance": 39,
+      "evaluation_time": "2025-10-30T11:11:14.682879",
+      "processing_time": 0.005111,
+      "error_message": null
+    },
+    {
+      "file_path": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection_final.yml",
+      "original_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection_final.yml",
+      "repaired_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_output3.yml",
+      "syntax_success": false,
+      "actionlint_errors": [
+        {
+          "message": "the runner of \"actions/checkout@v2\" action is too old to run on GitHub Actions. update the action's version to fix this issue",
+          "filepath": "test_output3.yml",
+          "line": 12,
+          "column": 15,
+          "kind": "action",
+          "snippet": "        uses: actions/checkout@v2\n              ^~~~~~~~~~~~~~~~~~~",
+          "end_column": 33
+        }
+      ],
+      "initial_smells_count": 0,
+      "final_smells_count": 0,
+      "smell_removal_rate": 0.0,
+      "edit_distance": 26,
+      "evaluation_time": "2025-10-30T11:11:14.688026",
+      "processing_time": 0.00423,
+      "error_message": null
+    }
+  ],
+  "evaluation_time": "2025-10-30T11:11:14.692375"
+}

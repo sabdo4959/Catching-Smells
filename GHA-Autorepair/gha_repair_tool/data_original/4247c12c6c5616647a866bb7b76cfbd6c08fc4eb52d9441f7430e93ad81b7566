@@ -1,0 +1,63 @@
+name: Publish & deploy canary version
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "*.md"
+      - "templates/**"
+      - "scripts/**"
+      - ".vscode/**"
+      - "apps/**"
+
+jobs:
+  publish:
+    name: Publish canary version - ${{ github.event_name }}
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'chore: next version release')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: corepack enable
+      - run: pnpm --version
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+      - name: install
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Build packages
+        run: pnpm run build --filter='./packages/*'
+
+      - name: Generate shapshot
+        run: |
+          pnpm up -r --workspace templates 
+          pnpm run version --snapshot canary
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHANGESETS_TOKEN }}
+
+      - name: Set publishing config
+        run: npm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Publish canary packages
+        run: pnpm changeset publish --no-git-tag --no-git-checks --tag canary
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NPM_CONFIG_PROVENANCE: true

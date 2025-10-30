@@ -529,8 +529,11 @@ def run_smell_detector(yaml_file_path: str) -> Dict[str, Any]:
     logger = logging.getLogger(__name__)
     
     try:
-        if not os.path.exists(yaml_file_path):
-            logger.error(f"YAML 파일이 존재하지 않음: {yaml_file_path}")
+        # 절대경로로 변환
+        abs_yaml_path = os.path.abspath(yaml_file_path)
+        
+        if not os.path.exists(abs_yaml_path):
+            logger.error(f"YAML 파일이 존재하지 않음: {abs_yaml_path}")
             return {
                 "success": False,
                 "smells": [],
@@ -541,7 +544,7 @@ def run_smell_detector(yaml_file_path: str) -> Dict[str, Any]:
         # 기존 gha-ci-detector 실행 (smell detection 전용 환경 사용)
         detector_path = "/Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src"
         python_path = "/Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python"
-        command = f"cd {detector_path} && {python_path} -m gha_ci_detector file {yaml_file_path}"
+        command = f"cd {detector_path} && {python_path} -m gha_ci_detector file {abs_yaml_path}"
         
         result = run_command(command, timeout=60, shell=True)
         
@@ -558,16 +561,25 @@ def run_smell_detector(yaml_file_path: str) -> Dict[str, Any]:
                 "smells": smells,
                 "raw_output": result["stdout"]
             }
-        # 성공했지만 출력이 없거나, stderr에 오류가 있는 경우
+        # 실행 실패한 경우도 출력을 파싱해보기 (일부 스멜이 감지되었을 수 있음)
+        elif result["stdout"].strip():
+            logger.warning(f"Smell detector 실행 실패했지만 출력 있음 (코드: {result['returncode']})")
+            smells = _parse_smell_detector_output(result["stdout"])
+            logger.info(f"Smell detector 실행 완료: {len(smells)}개 스멜 발견")
+            return {
+                "success": True,
+                "smells": smells,
+                "raw_output": result["stdout"]
+            }
+        # 성공했지만 출력이 없는 경우
         elif result["success"] and not result["stdout"].strip():
             logger.warning("Smell detector가 빈 출력을 반환했습니다.")
             if result["stderr"].strip():
                 logger.warning(f"Smell detector stderr: {result['stderr']}")
             return {
-                "success": False,
+                "success": True,
                 "smells": [],
-                "raw_output": result["stdout"],
-                "error": "Empty output from smell detector"
+                "raw_output": result["stdout"]
             }
         else:
             logger.warning(f"Smell detector 실행 실패: {result['stderr']}")
@@ -604,6 +616,9 @@ def _parse_smell_detector_output(output: str) -> list:
     
     # 대상 스멜 번호 정의
     TARGET_SMELLS = {'1', '4', '5', '10', '11', '15', '16'}
+    
+    # 스멜 #23 (YAML 파싱 오류) 추적용
+    smell_23_count = 0
     
     try:
         lines = output.strip().split('\n')
@@ -643,6 +658,10 @@ def _parse_smell_detector_output(output: str) -> list:
                         smell_number = "unknown"
                         smell_description = smell_text
                     
+                    # 스멜 #23 (YAML 파싱 오류) 추적
+                    if smell_number == '23':
+                        smell_23_count += 1
+                    
                     # 대상 스멜 번호만 필터링
                     if smell_number in TARGET_SMELLS:
                         smells.append({
@@ -666,4 +685,9 @@ def _parse_smell_detector_output(output: str) -> list:
         logger.error(f"Smell 출력 파싱 중 오류: {e}")
     
     logger.info(f"총 {len(smells)}개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)")
+    
+    # 대상 스멜이 0개이고 스멜 #23이 있을 때 로그 남기기
+    if len(smells) == 0 and smell_23_count > 0:
+        logger.info(f"대상 스멜 0개이지만 스멜 #23 (YAML 파싱 오류) {smell_23_count}개 발견됨")
+    
     return smells

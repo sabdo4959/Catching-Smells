@@ -1,0 +1,277 @@
+name: Release Zotero/Juris-M .deb packages
+
+on:
+  schedule:
+    - cron: 0 */2 * * *
+  push:
+  workflow_dispatch:
+    inputs:
+      build:
+        description: forced rebuild
+        required: false
+        default: ''
+      publish:
+        description: forced publish
+        required: false
+        default: ''
+      readme:
+        description: forced publish of readme
+        required: false
+        default: ''
+
+jobs:
+  rebuild:
+    strategy:
+      matrix:
+        packagesystem:
+        - apt
+    env:
+      REPO: ${{ matrix.packagesystem }}
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.repo.outputs.publish }}
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.6.0
+      with:
+        access_token: ${{ github.token }}
+
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Import GPG key
+      uses: retorquere/ghaction-import-gpg@master
+      with:
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+    - name: install build requirements
+      run: |
+        sudo add-apt-repository ppa:mozillateam/ppa -y
+        sudo apt-get -q update
+        sudo apt-get -qy install dpkg-sig fakeroot moreutils
+
+    - name: Cache repo
+      uses: actions/cache@v2
+      env:
+        cache-name: v3
+      with:
+        path: |
+          ./apt
+        key: repo-${{ env.cache-name }}-${{ github.ref }}-${{ hashFiles('rebuild.py', 'apt.py') }}
+
+    - name: force rebuild
+      if: ${{ github.event.inputs.build == 'true' }}
+      run: rm -rf $REPO
+
+    - name: rebuild ${{ matrix.packagesystem }} repo
+      id: repo
+      env:
+        PYTHONUNBUFFERED: true
+      run: ./rebuild.py --mode apt && find $REPO -type f
+
+    - name: show status
+      run: echo publish=${{ steps.repo.outputs.publish }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: rebuild
+    strategy:
+      matrix:
+        hosting:
+        - backblaze
+        - ioperf
+        - mwt
+        - github
+        - sourceforge
+        packagesystem:
+        - apt
+    env:
+      REPO: ${{ matrix.packagesystem }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Restore cached repo
+      uses: actions/cache@v2
+      env:
+        cache-name: v3
+      with:
+        path: |
+          ./${{ matrix.packagesystem }}
+        key: repo-${{ env.cache-name }}-${{ github.ref }}-${{ hashFiles('rebuild.py', 'apt.py') }}
+
+    - name: install utilities
+      run: |
+        sudo apt-get -qy install moreutils pandoc
+        curl https://rclone.org/install.sh | sudo bash
+
+    - name: Install SF SSH Key
+      if: ${{ matrix.hosting == 'sourceforge' }}
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SF_SSH_KEY }}
+        known_hosts: 'sourceforge'
+        if_key_exists: replace
+
+    - name: Install MWT SSH Key
+      if: ${{ matrix.hosting == 'mwt' }}
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.MWT_SSH_KEY }}
+        known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+        if_key_exists: replace
+
+    - name: configure rclone
+      if: ${{ matrix.hosting == 'ioperf' }} || ${{ matrix.hosting == 'backblaze' }}
+      run: |
+        mkdir -p ~/.config/rclone
+        cat <<EOF > ~/.config/rclone/rclone.conf
+        [b2-zotero-apt]
+        type = b2
+        account = ${{ secrets.B2_APPLICATION_KEY_ID }}
+        key = ${{ secrets.B2_APPLICATION_KEY }}
+        hard_delete = true
+        download_url = https://apt.retorque.re/file/zotero-apt
+
+        [b2-apt-package-archive]
+        type = b2
+        account = ${{ secrets.B2_APPLICATION_KEY_ID }}
+        key = ${{ secrets.B2_APPLICATION_KEY }}
+        hard_delete = true
+        download_url = https://zotero.retorque.re/file/apt-package-archive
+
+        [ioperf]
+        type = ftp
+        host = 202.61.244.114
+        user = ${{ secrets.IOPERF_USERNAME }}
+        explicit_tls = true
+        no_check_certificate = true
+        encoding = Slash,Asterisk,Ctl,Dot
+        set_modtime = false
+        EOF
+
+        rclone config password ioperf pass "${{ secrets.IOPERF_PASSWORD }}"
+
+    - name: publish ${{ matrix.packagesystem }} on ${{ matrix.hosting }}
+      if: ${{ needs.rebuild.outputs.publish == 'true' }} || ${{ github.event.inputs.publish == 'true' }} || ${{ github.event.inputs.publish == matrix.hosting }} || ${{ github.event.inputs.readme == 'true' }}
+      continue-on-error: ${{ matrix.hosting == 'sourceforge' }}
+      env:
+        REFRESH: _${{ needs.rebuild.outputs.publish == 'true' }}_${{ github.event.inputs.publish == 'true' }}_${{ github.event.inputs.publish == matrix.hosting }}_
+        PYTHONUNBUFFERED: true
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_ACCESS_TOKEN: ${{ github.token }}
+      run: |
+        echo $REFRESH
+        case "${{ matrix.hosting }}" in
+          backblaze)
+            if ./setup.py https://zotero.retorque.re/file/apt-package-archive || [[ $REFRESH =~ _true_ ]]; then
+              rclone sync $REPO b2-apt-package-archive:apt-package-archive -v
+              rclone cleanup b2-apt-package-archive:apt-package-archive -v
+            fi
+            rclone copy install.sh b2-apt-package-archive:apt-package-archive -v
+            rclone copy index.html b2-apt-package-archive:apt-package-archive -v
+
+            if ./setup.py https://apt.retorque.re/file/zotero-apt || [[ $REFRESH =~ _true_ ]]; then
+              rclone sync $REPO b2-zotero-apt:zotero-apt -v
+              rclone cleanup b2-zotero-apt:zotero-apt -v
+            fi
+            rclone copy install.sh b2-zotero-apt:zotero-apt -v
+            rclone copy index.html b2-zotero-apt:zotero-apt -v
+            ;;
+
+          ioperf)
+            if ./setup.py https://zotero-deb.mirror.ioperf.eu || [[ $REFRESH =~ _true_ ]]; then
+              rclone sync $REPO ioperf:zotero-deb.mirror.ioperf.eu -v
+            fi
+            rclone copy install.sh ioperf:zotero-deb.mirror.ioperf.eu -v
+            rclone copy index.html ioperf:zotero-deb.mirror.ioperf.eu -v
+            ;;
+
+          mwt)
+            if ./setup.py https://mirror-rs.mwt.me || [[ $REFRESH =~ _true_ ]]; then
+              rsync -e "ssh -o StrictHostKeyChecking=no" -avhz --delete $REPO/ retorquere@mirror-rs.mwt.me:/apt-package-archive/
+            fi
+            rsync -e "ssh -o StrictHostKeyChecking=no" -vz index.html retorquere@mirror-rs.mwt.me:/apt-package-archive/
+            rsync -e "ssh -o StrictHostKeyChecking=no" -vz install.sh retorquere@mirror-rs.mwt.me:/apt-package-archive/
+            ;;
+
+          sourceforge)
+            if ./setup.py https://downloads.sourceforge.net/project/zotero-deb || [[ $REFRESH =~ _true_ ]]; then
+              rsync -e "ssh -o StrictHostKeyChecking=no" -avhz --delete $REPO/ retorquere@frs.sourceforge.net:/home/frs/project/zotero-deb/
+            fi
+            rsync -e "ssh -o StrictHostKeyChecking=no" -vz  index.md retorquere@frs.sourceforge.net:/home/frs/project/zotero-deb/README.md
+            rsync -e "ssh -o StrictHostKeyChecking=no" -vz  install.sh retorquere@frs.sourceforge.net:/home/frs/project/zotero-deb/
+            ;;
+
+          github)
+            if ./setup.py https://github.com/retorquere/zotero-deb/releases/download/apt-get || [[ $REFRESH =~ _true_ ]]; then
+              (cd $REPO && gh release view apt-get --json assets | ../ghr apt-get | bash)
+            fi
+            gh release upload apt-get install.sh --clobber
+            ;;
+        esac
+
+  test:
+    runs-on: ubuntu-latest
+    needs: publish
+    strategy:
+      fail-fast: false
+      matrix:
+        hosting:
+        - backblaze
+        - ioperf
+        - mwt
+        - github
+        - sourceforge
+    steps:
+    - name: install apt fixes
+      if: matrix.hosting == 'github'
+      run: |
+        # https://github.com/retorquere/zotero-deb/issues/49
+        sudo add-apt-repository ppa:tj/bugfixes
+        sudo apt-get -q update
+        sudo apt-get -qy install apt
+
+    - name: test install from ${{ matrix.hosting }}
+      continue-on-error: ${{ matrix.hosting == 'sourceforge' || matrix.hosting == 'github' }}
+      command: |
+        sleep 60
+        case "${{ matrix.hosting }}" in
+          backblaze)
+            curl -sL https://zotero.retorque.re/file/apt-package-archive/install.sh | sudo bash
+            ;;
+          ioperf)
+            curl -sL https://zotero-deb.mirror.ioperf.eu/install.sh | sudo bash
+            ;;
+          mwt)
+            curl -sL https://mirror-rs.mwt.me/apt-package-archive/install.sh | bash
+            ;;
+          github)
+            curl -sL https://github.com/retorquere/zotero-deb/releases/download/apt-get/install.sh | sudo bash
+            ;;
+          sourceforge)
+            curl -sL https://downloads.sourceforge.net/project/zotero-deb/install.sh | sudo bash
+            ;;
+        esac
+  
+        sudo apt-get -q update
+        sudo apt-get -qy install zotero jurism zotero-beta
+        for c in zotero zotero-beta jurism; do
+          file /usr/lib/$c/${c/-beta/}
+          file /usr/lib/$c/${c/-beta/}-bin
+          file /usr/local/bin/$c
+        done

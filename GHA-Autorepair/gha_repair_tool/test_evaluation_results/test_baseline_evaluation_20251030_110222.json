@@ -1,0 +1,53 @@
+{
+  "group_name": "test_baseline",
+  "total_files": 3,
+  "syntax_success_count": 3,
+  "syntax_success_rate": 100.0,
+  "avg_smell_removal_rate": 83.33333333333333,
+  "avg_edit_distance": 36.0,
+  "detailed_results": [
+    {
+      "file_path": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection.yml",
+      "original_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection.yml",
+      "repaired_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_baseline_output.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 4,
+      "final_smells_count": 0,
+      "smell_removal_rate": 100.0,
+      "edit_distance": 43,
+      "evaluation_time": "2025-10-30T11:02:20.620946",
+      "processing_time": 1.003734,
+      "error_message": null
+    },
+    {
+      "file_path": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection2.yml",
+      "original_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection2.yml",
+      "repaired_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_output2.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 4,
+      "final_smells_count": 2,
+      "smell_removal_rate": 50.0,
+      "edit_distance": 39,
+      "evaluation_time": "2025-10-30T11:02:21.624774",
+      "processing_time": 0.557703,
+      "error_message": null
+    },
+    {
+      "file_path": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection_final.yml",
+      "original_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_smell_detection_final.yml",
+      "repaired_file": "/Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/test_output3.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 0,
+      "final_smells_count": 2,
+      "smell_removal_rate": 100.0,
+      "edit_distance": 26,
+      "evaluation_time": "2025-10-30T11:02:22.182525",
+      "processing_time": 0.561704,
+      "error_message": null
+    }
+  ],
+  "evaluation_time": "2025-10-30T11:02:22.744277"
+}
