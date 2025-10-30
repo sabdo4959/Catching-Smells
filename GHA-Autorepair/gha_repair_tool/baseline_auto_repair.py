@@ -27,22 +27,66 @@ class BaselineAutoRepairer:
         Args:
             input_dir: 입력 디렉토리 (data_original)
             output_dir: 출력 디렉토리 (data_repair_baseline)
-            log_file: 로그 파일 경로
+            log_file: 기본 로그 파일명 (확장자 제외)
         """
         self.logger = logging.getLogger(__name__)
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
+        self.log_file = log_file
         
         # 출력 디렉토리 생성
         self.output_dir.mkdir(exist_ok=True)
         
-        # 로그 파일 설정
+        # logs 디렉토리 생성
+        logs_dir = Path("logs")
+        logs_dir.mkdir(exist_ok=True)
+        
+        # 로그 파일 설정 (INFO와 DEBUG 레벨 분리)
         if log_file:
-            file_handler = logging.FileHandler(log_file, encoding='utf-8')
-            file_handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            file_handler.setFormatter(formatter)
-            self.logger.addHandler(file_handler)
+            # 파일명에서 확장자 제거
+            base_name = Path(log_file).stem
+            
+            # 루트 로거 설정
+            root_logger = logging.getLogger()
+            root_logger.setLevel(logging.DEBUG)
+            
+            # 기존 핸들러 제거 (중복 방지)
+            for handler in root_logger.handlers[:]:
+                root_logger.removeHandler(handler)
+            
+            # 1. INFO 레벨 파일 핸들러 (요약 로그)
+            info_file_handler = logging.FileHandler(
+                logs_dir / f"{base_name}_info.log", 
+                encoding='utf-8'
+            )
+            info_file_handler.setLevel(logging.INFO)
+            info_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            info_file_handler.setFormatter(info_formatter)
+            
+            # INFO 레벨만 필터링하는 필터 추가
+            info_filter = logging.Filter()
+            info_filter.filter = lambda record: record.levelno >= logging.INFO and record.levelno < logging.ERROR
+            info_file_handler.addFilter(info_filter)
+            root_logger.addHandler(info_file_handler)
+            
+            # 2. DEBUG 레벨 파일 핸들러 (상세 로그)
+            debug_file_handler = logging.FileHandler(
+                logs_dir / f"{base_name}_debug.log", 
+                encoding='utf-8'
+            )
+            debug_file_handler.setLevel(logging.DEBUG)
+            debug_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            debug_file_handler.setFormatter(debug_formatter)
+            root_logger.addHandler(debug_file_handler)
+            
+            # 3. 콘솔 핸들러 (터미널 출력 - INFO 레벨만)
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setLevel(logging.INFO)
+            console_handler.setFormatter(info_formatter)
+            root_logger.addHandler(console_handler)
+            
+            self.info_log_path = logs_dir / f"{base_name}_info.log"
+            self.debug_log_path = logs_dir / f"{base_name}_debug.log"
     
     def repair_all_files(self, max_files: int = None) -> Dict[str, any]:
         """
@@ -72,15 +116,19 @@ class BaselineAutoRepairer:
         
         for i, input_file in enumerate(input_files, 1):
             self.logger.info(f"[{i}/{total_files}] 처리 중: {input_file.name}")
+            self.logger.info(f"입력 파일 경로: {input_file}")
             
             try:
                 # 출력 파일 경로 생성
                 output_file = self.output_dir / f"{input_file.name}_baseline_repaired.yml"
+                self.logger.info(f"출력 파일 경로: {output_file}")
                 
                 # 베이스라인 복구 실행
+                self.logger.info(f"=== 파일 {i}/{total_files} 베이스라인 복구 시작 ===")
                 file_start_time = time.time()
                 success = run_baseline_mode(str(input_file), str(output_file))
                 processing_time = time.time() - file_start_time
+                self.logger.info(f"=== 파일 {i}/{total_files} 베이스라인 복구 완료 ===")
                 
                 if success and output_file.exists():
                     successful_repairs.append({
@@ -104,6 +152,7 @@ class BaselineAutoRepairer:
                     'processing_time': 0.0
                 })
                 self.logger.error(f"❌ 오류: {input_file.name} - {e}")
+                self.logger.exception(f"상세 오류 정보:")  # 스택 트레이스 포함
         
         total_processing_time = (datetime.now() - start_time).total_seconds()
         
@@ -130,6 +179,9 @@ class BaselineAutoRepairer:
         self.logger.info(f"실패: {len(failed_repairs)}")
         self.logger.info(f"평균 처리 시간: {summary['avg_processing_time']:.2f}초/파일")
         self.logger.info(f"출력 파일 위치: {self.output_dir}")
+        if hasattr(self, 'info_log_path') and hasattr(self, 'debug_log_path'):
+            self.logger.info(f"INFO 로그 파일: {self.info_log_path}")
+            self.logger.info(f"DEBUG 로그 파일: {self.debug_log_path}")
         self.logger.info("=" * 60)
         
         return summary
@@ -153,13 +205,11 @@ def main():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         args.log_file = f"baseline_repair_log_{timestamp}.log"
     
-    # 로깅 설정
+    # 기본 로깅 설정 (BaselineAutoRepairer에서 추가 설정됨)
     logging.basicConfig(
         level=getattr(logging, args.log_level.upper()),
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-        ]
+        handlers=[]  # 핸들러는 BaselineAutoRepairer에서 설정
     )
     
     try:
@@ -177,7 +227,11 @@ def main():
         print(f"실패: {summary['failed_repairs']}")
         print(f"성공률: {summary['success_rate']:.1f}%")
         print(f"총 처리 시간: {summary['total_processing_time']:.1f}초")
-        print(f"로그 파일: {args.log_file}")
+        if hasattr(repairer, 'info_log_path') and hasattr(repairer, 'debug_log_path'):
+            print(f"INFO 로그: {repairer.info_log_path}")
+            print(f"DEBUG 로그: {repairer.debug_log_path}")
+        else:
+            print(f"로그 파일: {args.log_file}")
         
         return summary['failed_repairs'] == 0
         
