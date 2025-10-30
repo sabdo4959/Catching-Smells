@@ -1,0 +1,47 @@
+name: Deploy Hub
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      CLUSTER_NAME: low-touch-hubs-cluster
+      PROJECT: two-eye-two-see
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '290.0.1'
+          project_id: two-eye-two-see
+          service_account_key: ${{ secrets.GCP_KMS_DECRYPTOR_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud info
+
+      - name: Fetch kubectl creds
+        run: |
+         gcloud container clusters get-credentials ${CLUSTER_NAME} --region=us-central1
+
+      - uses: azure/setup-helm@v1
+        run: |
+          helm dep up hub
+
+      - uses: mdgreenwald/mozilla-sops-action@v1
+
+      - name: Setup dependencies
+        run: |
+          python3 -m pip install -r requirements.txt
+
+      - name: Deploy hubs
+        env:
+          PROXY_SECRET_KEY: ${{ secrets.PROXY_SECRET_KEY }}
+          AUTH0_MANAGEMENT_CLIENT_ID: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_ID }}
+          AUTH0_MANAGEMENT_CLIENT_SECRET: ${{ secrets.AUTH0_MANAGEMENT_CLIENT_SECRET }}
+        run: |
+          python3 -m pip install -r requirements.txt
+          python3 deploy.py

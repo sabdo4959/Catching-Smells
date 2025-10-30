@@ -1,0 +1,41 @@
+on:
+  push:
+    branches:
+      - master
+name: release-please
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: go
+          package-name: release-please-action
+          extra-files: core/lib/data/def.go
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.18'
+
+      - name: Create archive
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          cd core || exit 1
+          ls -lah
+          bash ./emp3r0r --release || exit 2
+          ls -lah
+
+        uses: PeerXu/upload-asset@v1
+        with:
+          file: ./core/emp3r0r.tar.xz
+          os: linux
+          arch: amd64
+          with_tag: true
+          with_sha1: true
+          suffix: .tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

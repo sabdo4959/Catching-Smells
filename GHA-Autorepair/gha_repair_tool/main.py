@@ -1,0 +1,427 @@
+#!/usr/bin/env python3
+"""
+GHA-Repair Tool Main Entry Point
+
+이 스크립트는 GitHub Actions 워크플로우를 위한 2단계 자동 복구 프로세스의 진입점입니다.
+Ablation Study를 위한 다양한 실행 모드를 지원합니다.
+
+실행 모드:
+- baseline: 구문+스멜 통합 요청으로 한 번에 처리
+- two_phase_simple: 2단계 처리 (단순 프롬프트 사용)
+- gha_repair: 2단계 처리 (가이드 프롬프트 사용)
+"""
+
+import argparse
+import logging
+import sys
+from pathlib import Path
+
+# 모듈 임포트
+from syntax_repair import repairer as syntax_repairer
+from semantic_repair import detector as semantic_detector
+from semantic_repair import repairer as semantic_repairer
+#from verification import verifier
+from utils import llm_api
+from utils import yaml_parser
+
+
+def setup_logging(log_level="INFO"):
+    """로깅 설정을 초기화합니다."""
+    logging.basicConfig(
+        level=getattr(logging, log_level.upper()),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+        ]
+    )
+
+
+def main():
+    """메인 함수: 명령줄 인수를 파싱하고 선택된 모드에 따라 실행합니다."""
+    parser = argparse.ArgumentParser(
+        description="GHA-Repair: GitHub Actions 워크플로우 자동 복구 도구"
+    )
+    
+    parser.add_argument(
+        "--input", 
+        required=True, 
+        type=str,
+        help="입력 YAML 워크플로우 파일 경로"
+    )
+    
+    parser.add_argument(
+        "--output", 
+        type=str,
+        help="출력 복구된 YAML 파일 경로 (지정하지 않으면 자동 생성)"
+    )
+    
+    parser.add_argument(
+        "--mode", 
+        choices=['baseline', 'two_phase_simple', 'gha_repair', 'poc_test'],
+        default='gha_repair',
+        help="실행 모드 선택 (기본값: gha_repair, poc_test: 기본 기능 테스트)"
+    )
+    
+    parser.add_argument(
+        "--verify", 
+        action='store_true',
+        help="복구 후 동치성 검증 수행 여부"
+    )
+    
+    parser.add_argument(
+        "--log-level",
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
+        default='INFO',
+        help="로그 레벨 설정 (기본값: INFO)"
+    )
+    
+    args = parser.parse_args()
+    
+    # 로깅 설정
+    setup_logging(args.log_level)
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"GHA-Repair 도구 시작 (모드: {args.mode})")
+    logger.info(f"입력 파일: {args.input}")
+    logger.info(f"출력 파일: {args.output}")
+    
+    # 입력 파일 존재 확인
+    input_path = Path(args.input)
+    if not input_path.exists():
+        logger.error(f"입력 파일을 찾을 수 없습니다: {args.input}")
+        sys.exit(1)
+    
+    # 출력 파일 경로 자동 생성 (지정되지 않은 경우)
+    if not args.output:
+        input_stem = input_path.stem  # 확장자 제외한 파일명
+        input_dir = input_path.parent
+        args.output = str(input_dir / f"{input_stem}_repaired.yml")
+        logger.info(f"출력 파일 경로 자동 생성: {args.output}")
+    else:
+        # 출력 경로가 디렉토리인 경우 파일명 추가
+        output_path = Path(args.output)
+        if output_path.is_dir():
+            input_stem = input_path.stem
+            args.output = str(output_path / f"{input_stem}_repaired.yml")
+            logger.info(f"디렉토리 경로 감지, 파일명 추가: {args.output}")
+    
+    logger.info(f"출력 파일: {args.output}")
+    
+    try:
+        # 선택된 모드에 따라 실행
+        if args.mode == 'baseline':
+            logger.info("Baseline 모드로 실행 중...")
+            result = run_baseline_mode(args.input, args.output)
+            
+        elif args.mode == 'two_phase_simple':
+            logger.info("Two-phase Simple 모드로 실행 중...")
+            result = run_two_phase_mode(args.input, args.output, use_guided_prompt=False)
+            
+        elif args.mode == 'gha_repair':
+            logger.info("GHA-Repair 모드로 실행 중...")
+            result = run_two_phase_mode(args.input, args.output, use_guided_prompt=True)
+            
+        elif args.mode == 'poc_test':
+            logger.info("POC 테스트 모드로 실행 중...")
+            result = run_poc_test(args.input, args.output)
+        
+        if result:
+            logger.info(f"작업 완료: {args.output}")
+            
+            # 동치성 검증 수행 (옵션)
+            if args.verify and args.mode != 'poc_test':
+                logger.info("동치성 검증 수행 중...")
+                #verification_result = verifier.verify_equivalence(args.input, args.output)
+                #logger.info(f"검증 결과: {verification_result}")
+        else:
+            logger.error("작업 실패")
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"실행 중 오류 발생: {e}")
+        sys.exit(1)
+
+
+def run_baseline_mode(input_path: str, output_path: str) -> bool:
+    """
+    Baseline 모드: actionlint + smell detector 결과를 통합하여 한 번에 처리
+    
+    Args:
+        input_path: 입력 YAML 파일 경로
+        output_path: 출력 YAML 파일 경로
+        
+    Returns:
+        bool: 성공 여부
+    """
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info("=== Baseline 모드 시작 ===")
+        
+        # 1. 원본 YAML 내용 읽기
+        logger.info("1단계: 원본 워크플로우 읽기")
+        original_content = yaml_parser.read_yaml_content(input_path)
+        if not original_content:
+            logger.error("워크플로우 파일 읽기 실패")
+            return False
+        
+        # 2. actionlint 실행
+        logger.info("2단계: actionlint 구문 검사 실행")
+        from utils import process_runner
+        actionlint_result = process_runner.run_actionlint(input_path)
+        
+        actionlint_errors = []
+        if not actionlint_result.get("success", True):
+            all_errors = actionlint_result.get("errors", [])
+            # syntax-check와 expression 타입의 에러만 필터링
+            actionlint_errors = [
+                error for error in all_errors 
+                if isinstance(error, dict) and error.get('kind') in ['syntax-check', 'expression']
+            ]
+            logger.info(f"actionlint에서 {len(actionlint_errors)}개 오류 발견 (syntax-check 및 expression만)")
+        else:
+            logger.info("actionlint 검사 통과")
+        
+        # 3. smell detector 실행 (기존 프로젝트 연동)
+        logger.info("3단계: Smell Detector 실행")
+        smell_result = process_runner.run_smell_detector(input_path)
+        
+        detected_smells = smell_result.get("smells", [])
+        logger.info(f"Smell detector에서 {len(detected_smells)}개 스멜 발견")
+        
+        # 4. 통합 프롬프트 생성
+        logger.info("4단계: 통합 프롬프트 생성")
+        integrated_prompt = create_baseline_prompt(
+            original_content, 
+            actionlint_errors, 
+            detected_smells
+        )
+        
+        # 디버그: 프롬프트 내용 확인
+        logger.debug("생성된 프롬프트:")
+        logger.debug(integrated_prompt[:500] + "...")  # 처음 500자만 로그
+        
+        # 5. LLM 호출
+        logger.info("5단계: LLM API 호출")
+        llm_response = llm_api.call_llm_with_retry(integrated_prompt, max_tokens=4000)
+        
+        if not llm_response:
+            logger.error("LLM API 호출 실패")
+            return False
+        
+        # 6. 응답에서 YAML 추출
+        logger.info("6단계: 수정된 YAML 추출")
+        repaired_yaml = llm_api.extract_code_from_response(llm_response, "yaml")
+        
+        if not repaired_yaml:
+            logger.warning("YAML 코드 블록을 찾을 수 없음, 전체 응답 사용")
+            repaired_yaml = llm_response.strip()
+        
+        logger.debug(f"추출된 YAML:\n{repaired_yaml}")
+        
+        # 7. 결과 검증 및 저장
+        logger.info("7단계: 결과 검증 및 저장")
+        logger.debug(f"검증할 YAML 길이: {len(repaired_yaml)} 문자")
+        logger.debug(f"YAML 시작 부분: {repr(repaired_yaml[:100])}")
+        validation_result = yaml_parser.validate_github_actions_workflow(repaired_yaml)
+        
+        if validation_result.get("is_valid", False):
+            success = yaml_parser.write_yaml_content(repaired_yaml, output_path)
+            if success:
+                logger.info("Baseline 모드 복구 완료")
+                logger.info(f"수정된 파일: {output_path}")
+                return True
+            else:
+                logger.error("수정된 파일 저장 실패")
+                return False
+        else:
+            logger.error("수정된 YAML이 유효하지 않음")
+            logger.error(f"검증 오류: {validation_result.get('issues', [])}")
+            # 유효하지 않아도 일단 저장해보기
+            yaml_parser.write_yaml_content(repaired_yaml, output_path)
+            return False
+            
+    except Exception as e:
+        logger.error(f"Baseline 모드 실행 중 오류: {e}")
+        return False
+
+
+def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: list) -> str:
+    """
+    베이스라인 모드용 통합 프롬프트를 생성합니다.
+    """
+    prompt = f"""GitHub Actions 워크플로우에서 발견된 문제들을 수정해주세요.
+
+**원본 워크플로우:**
+```yaml
+{yaml_content}
+```
+
+**발견된 문제들:**
+
+"""
+    
+    # actionlint 오류 추가
+    if actionlint_errors:
+        prompt += "**구문 오류 (actionlint):**\n"
+        for i, error in enumerate(actionlint_errors[:10], 1):  # 최대 10개
+            if isinstance(error, dict):
+                error_msg = error.get('message', str(error))
+            else:
+                error_msg = str(error)
+            prompt += f"{i}. {error_msg}\n"
+        prompt += "\n"
+    else:
+        prompt += "**구문 오류:** 없음\n\n"
+    
+    # smell detector 결과 추가
+    if smells:
+        prompt += "**의미론적 스멜:**\n"
+        for i, smell in enumerate(smells[:10], 1):  # 최대 10개
+            smell_msg = smell.get('message', str(smell))
+            prompt += f"{i}. {smell_msg}\n"
+        prompt += "\n"
+    else:
+        prompt += "**의미론적 스멜:** 없음\n\n"
+    
+    prompt += """**수정 요청:**
+위에서 발견된 모든 구문 오류와 의미론적 스멜을 수정한 완전한 GitHub Actions 워크플로우를 제공해주세요.
+
+**수정 시 고려사항:**
+1. GitHub Actions의 최신 문법과 모범 사례를 따라주세요
+2. 기존 워크플로우의 의도와 기능을 유지해주세요
+3. 보안 관련 문제는 우선적으로 수정해주세요
+4. 모든 구문 오류를 수정해주세요
+
+**응답 형식:**
+```yaml
+# 수정된 워크플로우
+```
+"""
+    
+    return prompt
+
+
+def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: bool = True) -> bool:
+    """
+    2단계 모드: 구문 복구 -> 의미론적 복구
+    
+    Args:
+        input_path: 입력 YAML 파일 경로
+        output_path: 출력 YAML 파일 경로
+        use_guided_prompt: 가이드 프롬프트 사용 여부
+        
+    Returns:
+        bool: 성공 여부
+    """
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # 1단계: 구문 복구
+        logger.info("1단계: 구문 복구 시작")
+        syntax_repaired_path = syntax_repairer.repair_syntax(
+            input_path, 
+            use_guided_prompt=use_guided_prompt
+        )
+        
+        if not syntax_repaired_path:
+            logger.error("구문 복구 실패")
+            return False
+            
+        logger.info(f"구문 복구 완료: {syntax_repaired_path}")
+        
+        # 2단계: 의미론적 스멜 탐지
+        logger.info("2단계: 의미론적 스멜 탐지 시작")
+        detected_smells = semantic_detector.detect_smells(syntax_repaired_path)
+        
+        if detected_smells:
+            logger.info(f"{len(detected_smells)}개의 스멜 탐지됨")
+            
+            # 의미론적 스멜 복구
+            logger.info("의미론적 스멜 복구 시작")
+            semantic_repaired_path = semantic_repairer.repair_smells(
+                syntax_repaired_path,
+                detected_smells,
+                use_guided_prompt=use_guided_prompt
+            )
+            
+            if semantic_repaired_path:
+                # 최종 결과를 출력 파일로 복사
+                yaml_parser.copy_file(semantic_repaired_path, output_path)
+                logger.info("의미론적 복구 완료")
+                return True
+            else:
+                logger.error("의미론적 복구 실패")
+                return False
+        else:
+            logger.info("탐지된 스멜이 없음. 구문 복구 결과를 최종 출력으로 사용")
+            yaml_parser.copy_file(syntax_repaired_path, output_path)
+            return True
+            
+    except Exception as e:
+        logger.error(f"2단계 모드 실행 중 오류: {e}")
+        return False
+
+
+def run_poc_test(input_path: str, output_path: str) -> bool:
+    """
+    간단한 POC 테스트: 입력 파일을 읽고 기본적인 검증을 수행합니다.
+    """
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info("=== POC 테스트 시작 ===")
+        
+        # 1. 파일 읽기 테스트
+        logger.info("1단계: 파일 읽기 테스트")
+        content = yaml_parser.read_yaml_content(input_path)
+        if not content:
+            logger.error("파일 읽기 실패")
+            return False
+        
+        logger.info(f"파일 크기: {len(content)} 문자")
+        
+        # 2. YAML 검증 테스트
+        logger.info("2단계: YAML 검증 테스트")
+        is_valid = yaml_parser.validate_yaml(content)
+        logger.info(f"YAML 유효성: {'유효' if is_valid else '무효'}")
+        
+        # 3. 워크플로우 구조 분석 테스트
+        logger.info("3단계: 워크플로우 구조 분석 테스트")
+        structure = yaml_parser.get_workflow_structure(content)
+        logger.info(f"워크플로우 이름: {structure.get('name', 'N/A')}")
+        logger.info(f"Job 수: {structure.get('job_count', 0)}")
+        logger.info(f"Step 수: {structure.get('step_count', 0)}")
+        
+        # 4. LLM API 테스트 (간단한 프롬프트)
+        logger.info("4단계: LLM API 연결 테스트")
+        test_prompt = "Hello, can you respond with 'API connection successful'?"
+        
+        try:
+            response = llm_api.call_llm(test_prompt, max_tokens=50)
+            if response:
+                logger.info(f"LLM API 테스트 성공: {response[:100]}...")
+            else:
+                logger.warning("LLM API 테스트 실패 - 응답 없음")
+        except Exception as e:
+            logger.warning(f"LLM API 테스트 중 오류: {e}")
+        
+        # 5. 파일 복사 테스트 (간단한 출력)
+        logger.info("5단계: 출력 파일 생성 테스트")
+        success = yaml_parser.write_yaml_content(content, output_path)
+        if success:
+            logger.info(f"출력 파일 생성 완료: {output_path}")
+        else:
+            logger.error("출력 파일 생성 실패")
+            return False
+        
+        logger.info("=== POC 테스트 완료 ===")
+        return True
+        
+    except Exception as e:
+        logger.error(f"POC 테스트 중 오류: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    main()

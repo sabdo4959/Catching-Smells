@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Gen TeaFile
+
+on:
+  push:
+    branches:
+      - main
+#  schedule:
+#    - cron: '5 * * * *'
+
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-11
+    steps:
+    # 使用别人封装好的的action，用于clone该仓库的源码到工作流中
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f tencentdoc/requirements.txt ]; then pip install -r tencentdoc/requirements.txt; fi
+    - name: 'Gen File'
+      run: python tencentdoc/excel.py
+      
+    - name: Add Diff
+      run: git add .
+
+    - name: Commit files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "🐻[Auto] fetch teaFile" -a
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.TOKEN }}
+        branch: main
+

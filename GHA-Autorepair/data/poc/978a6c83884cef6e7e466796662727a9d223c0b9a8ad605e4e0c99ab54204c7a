@@ -1,0 +1,70 @@
+name: BibLaTeX CI
+
+env:
+  TLURL: http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+  BIBERURL: https://sourceforge.net/projects/biblatex-biber/files/biblatex-biber/development/binaries/Linux/biber-linux_x86_64.tar.gz
+  
+# Controls when the action will run. 
+on:
+#  schedule:
+#   - cron: "0 2 * * *"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+       - name: Set ENV
+         run: |
+           echo "TEXDIR=$RUNNER_WORKSPACE/texlive/2020" >> $GITHUB_ENV
+           echo "TEXMFLOCAL=$RUNNER_WORKSPACE/texlive/texmf-local" >> $GITHUB_ENV
+           echo "TEXMFSYSVAR=$RUNNER_WORKSPACE/texlive/2020/texmf-var" >> $GITHUB_ENV
+           echo "TEXMFSYSCONFIG=$RUNNER_WORKSPACE/texlive/2020/texmf-config" >> $GITHUB_ENV                                            
+
+       - name: Create TL install Profile
+         run: |
+           echo "selected_scheme scheme-medium
+             TEXDIR $RUNNER_WORKSPACE/texlive/2020
+             TEXMFLOCAL $RUNNER_WORKSPACE/texlive/texmf-local
+             TEXMFSYSCONFIG $RUNNER_WORKSPACE/texlive/2020/texmf-config
+             TEXMFSYSVAR $RUNNER_WORKSPACE/texlive/2020/texmf-var" > $RUNNER_WORKSPACE/tl.profile
+    
+       - name: Install TeXLive
+         run: |
+           echo Downloading and compiling in [$PWD] from [$TLURL]
+
+           mkdir tl
+           wget -nc $TLURL
+           tar -xf $(basename $TLURL) --strip-components=1 --directory=tl
+
+           pushd tl
+           perl install-tl -profile $RUNNER_WORKSPACE/tl.profile
+           popd
+
+       - name: Set ENV
+         run: |
+           echo "$RUNNER_WORKSPACE/biblatex/biber" >> $GITHUB_PATH
+           echo "$RUNNER_WORKSPACE/texlive/2020/bin/x86_64-linux" >> $GITHUB_PATH
+
+       - name: Update TeXLive packages
+         run: |
+           tlmgr update --self --all
+
+       - name: Get DEV biber
+         run: |
+           mkdir biber
+           pushd biber
+           wget -nc $BIBERURL
+           tar -xf $(basename $BIBERURL)
+           popd
+           biber -v
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+       - name: Install biblatex
+         run: |
+           obuild/build.sh install 1 $RUNNER_WORKSPACE/texlive/texmf-local
+           kpsewhich biblatex.sty

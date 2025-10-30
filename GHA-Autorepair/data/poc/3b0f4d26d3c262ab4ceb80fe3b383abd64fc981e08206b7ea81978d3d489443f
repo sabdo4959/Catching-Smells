@@ -1,0 +1,62 @@
+#
+# AppScope - Update Latest Workflow
+#
+# Update what is returned by https://cdn.cribl.io/dl/scope/latest
+# And update the "latest" tag on https://hub.docker.com/r/cribl/scope/tags
+#
+# based on:
+#   https://levelup.gitconnected.com/how-to-manually-trigger-a-github-actions-workflow-4712542f1960
+# instructions for use:
+#   https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+#
+name: Update Latest
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New Latest Version (example value "1.1.2")
+        default: ""
+        required: true
+jobs:
+  update-cdn-latest:
+    name: Update CDN Latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update dl/scope/latest
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CF_DISTRIBUTION_ID: ${{ secrets.CF_DISTRIBUTION_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "::group::Updating https://cdn.cribl.io/dl/scope/latest to ${{ github.event.inputs.version }}"
+          S3_SCOPE=s3://io.cribl.cdn/dl/scope
+          TMPDIR=${RUNNER_TEMP}
+
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "${{ github.event.inputs.version }}" > ${TMPDIR}/latest
+            aws s3 cp ${TMPDIR}/latest ${S3_SCOPE}/latest
+            aws cloudfront create-invalidation --distribution-id ${CF_DISTRIBUTION_ID} --paths '/dl/scope/latest'
+          fi
+          echo "::endgroup::"
+
+  update-dockerhub-latest:
+    name: Update Latest Tag in Dockerhub
+    runs-on: ubuntu-latest
+    needs: update-cdn-latest
+    steps:
+      - name: Login to Dockerhub
+        uses: docker/login-action@v2
+        with:
+          username: scopeci
+          password: ${{ secrets.SCOPECI_TOKEN }}
+
+      - name: Update the Latest Tag
+        uses: imjasonh/setup-crane@v0.1
+        run: |
+          crane digest cribl/scope:${{ github.event.inputs.version }}
+          crane tag cribl/scope:${{ github.event.inputs.version }} latest
+          crane digest cribl/scope:latest
+          crane manifest cribl/scope:${{ github.event.inputs.version }} | jq .
+          crane manifest cribl/scope:latest | jq .

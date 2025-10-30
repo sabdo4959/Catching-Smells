@@ -1,0 +1,90 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.6, 3.7, 3.8, pypy3]
+        exclude:
+        # Looks like pypy on Windows is 32-bit, so don't test it since we
+        # only work with 64-bit builds
+        - os: windows-latest
+          python-version: pypy3
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - run: python download-wasmtime.py
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: pip install pytest
+      - run: pytest
+
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+      - run: pip install flake8
+      - run: flake8
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - run: pip install pdoc3
+    - run: python download-wasmtime.py
+    - run: pdoc --html wasmtime
+    - uses: actions/upload-artifact@v1
+      with:
+        name: docs
+        path: html
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - run: python download-wasmtime.py
+    - run: pip install coverage pytest
+    - run: coverage run -m pytest
+    - run: coverage html
+    - uses: actions/upload-artifact@v1
+      with:
+        name: coverage
+        path: htmlcov
+
+  upload:
+    needs: [coverage, docs]
+    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v1
+      with:
+        name: coverage
+    - uses: actions/download-artifact@v1
+      with:
+        name: docs
+    - run: mv htmlcov html/wasmtime
+    - name: Push to gh-pages
+      run: curl -LsSf https://git.io/fhJ8n | rustc - && (cd html/wasmtime && ../../rust_out)
+      env:
+        GITHUB_DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        BUILD_REPOSITORY_ID: ${{ github.repository }}
+        BUILD_SOURCEVERSION: ${{ github.sha }}
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'

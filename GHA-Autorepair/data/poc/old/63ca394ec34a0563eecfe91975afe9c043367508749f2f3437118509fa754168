@@ -1,0 +1,47 @@
+name: publish-to-npm
+on:
+  release:
+    types: [created]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: dev
+
+    # Setup .npmrc file to publish to npm
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Configure git
+      run: |
+        git config user.email "iam@jamesiv.es"
+        git config user.name "James Ives"
+
+    - run: npm install
+    - run: npm run-script build
+    - run: npm version patch -m "Release %s"
+    - run: |
+      git add package.json
+      git commit -m "Package Version 📣"
+      git push
+    - run: npm ci
+    # Publish to npm
+    - run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    # Setup .npmrc file to publish to GitHub Packages
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@JamesIves'
+
+    # Publish to GitHub Packages
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
