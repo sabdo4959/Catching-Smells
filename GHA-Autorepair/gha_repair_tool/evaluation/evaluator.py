@@ -327,52 +327,64 @@ class BaselineEvaluator:
     
     def save_results(self, summary: GroupEvaluationSummary) -> Tuple[str, str]:
         """
-        평가 결과를 JSON과 CSV 파일로 저장합니다.
+        평가 결과를 베이스라인 형식과 일치하게 JSON 파일 2개로 저장합니다.
         
         Args:
             summary: 그룹 평가 요약
             
         Returns:
-            Tuple[str, str]: (JSON 파일 경로, CSV 파일 경로)
+            Tuple[str, str]: (요약 JSON 파일 경로, 상세 JSON 파일 경로)
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # JSON 파일 저장
-        json_file = self.output_dir / f"{summary.group_name}_evaluation_{timestamp}.json"
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(asdict(summary), f, indent=2, ensure_ascii=False)
+        # 통계 계산
+        smell_removal_rates = [result.smell_removal_rate for result in summary.detailed_results]
+        edit_distances = [result.edit_distance for result in summary.detailed_results 
+                         if result.syntax_success]  # 구문 성공한 경우만
         
-        # CSV 파일 저장 (상세 결과)
-        csv_file = self.output_dir / f"{summary.group_name}_detailed_{timestamp}.csv"
-        with open(csv_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            
-            # 헤더
-            writer.writerow([
-                'original_file', 'repaired_file', 'syntax_success', 
-                'initial_smells', 'final_smells', 'smell_removal_rate',
-                'edit_distance', 'processing_time', 'error_message'
-            ])
-            
-            # 데이터
-            for result in summary.detailed_results:
-                writer.writerow([
-                    result.original_file,
-                    result.repaired_file,
-                    result.syntax_success,
-                    result.initial_smells_count,
-                    result.final_smells_count,
-                    f"{result.smell_removal_rate:.2f}",
-                    result.edit_distance,
-                    f"{result.processing_time:.3f}",
-                    result.error_message or ""
-                ])
+        import statistics
+        
+        # 1. 요약 JSON 파일 저장 (베이스라인 형식과 동일)
+        summary_data = {
+            "evaluation_date": summary.evaluation_time,
+            "total_files": summary.total_files,
+            "original_directory": "data_original",
+            "repaired_directory": "data_repair_two_phase",
+            "syntax_success_rate": round(summary.syntax_success_rate, 2),
+            "average_smell_removal_rate": round(summary.avg_smell_removal_rate, 2),
+            "average_edit_distance": round(summary.avg_edit_distance, 2),
+            "syntax_successes": summary.syntax_success_count,
+            "syntax_failures": summary.total_files - summary.syntax_success_count,
+            "smell_removal_stats": {
+                "min": min(smell_removal_rates) if smell_removal_rates else 0.0,
+                "max": max(smell_removal_rates) if smell_removal_rates else 0.0,
+                "median": statistics.median(smell_removal_rates) if smell_removal_rates else 0.0,
+                "stdev": statistics.stdev(smell_removal_rates) if len(smell_removal_rates) > 1 else 0.0
+            },
+            "edit_distance_stats": {
+                "min": min(edit_distances) if edit_distances else 0,
+                "max": max(edit_distances) if edit_distances else 0,
+                "median": statistics.median(edit_distances) if edit_distances else 0,
+                "stdev": statistics.stdev(edit_distances) if len(edit_distances) > 1 else 0.0
+            }
+        }
+        
+        summary_file = self.output_dir / f"{summary.group_name}_summary_{timestamp}.json"
+        with open(summary_file, 'w', encoding='utf-8') as f:
+            json.dump(summary_data, f, indent=2, ensure_ascii=False)
+        
+        # 2. 상세 JSON 파일 저장 (베이스라인 형식과 동일 - 배열 형태)
+        detailed_data = [asdict(result) for result in summary.detailed_results]
+        
+        detailed_file = self.output_dir / f"{summary.group_name}_detailed_{timestamp}.json"
+        with open(detailed_file, 'w', encoding='utf-8') as f:
+            json.dump(detailed_data, f, indent=2, ensure_ascii=False)
         
         self.logger.info(f"결과 저장 완료:")
-        self.logger.info(f"  JSON: {json_file}")
-        self.logger.info(f"  CSV: {csv_file}")
+        self.logger.info(f"  요약 JSON: {summary_file}")
+        self.logger.info(f"  상세 JSON: {detailed_file}")
         
-        return str(json_file), str(csv_file)
+        return str(summary_file), str(detailed_file)
     
     def print_summary(self, summary: GroupEvaluationSummary):
         """평가 요약을 콘솔에 출력합니다."""

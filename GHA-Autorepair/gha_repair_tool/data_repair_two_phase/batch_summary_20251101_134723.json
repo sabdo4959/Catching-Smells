@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-11-01T13:47:23.806812",
+  "input_dir": "data_original",
+  "output_dir": "data_repair_two_phase",
+  "total_files": 5,
+  "success_count": 0,
+  "error_count": 5,
+  "success_rate": 0.0,
+  "elapsed_time": 0.00020313262939453125,
+  "guided_prompts": false,
+  "results": [
+    {
+      "input_file": "data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32",
+      "output_file": null,
+      "success": false,
+      "error": "run_two_phase_mode() got an unexpected keyword argument 'use_guided_prompts'. Did you mean 'use_guided_prompt'?"
+    },
+    {
+      "input_file": "data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "output_file": null,
+      "success": false,
+      "error": "run_two_phase_mode() got an unexpected keyword argument 'use_guided_prompts'. Did you mean 'use_guided_prompt'?"
+    },
+    {
+      "input_file": "data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775",
+      "output_file": null,
+      "success": false,
+      "error": "run_two_phase_mode() got an unexpected keyword argument 'use_guided_prompts'. Did you mean 'use_guided_prompt'?"
+    },
+    {
+      "input_file": "data_original/403e061e7d455aee0ef3748155dbfc98aed8796c74818d68e3ac0a6bd75a9df3",
+      "output_file": null,
+      "success": false,
+      "error": "run_two_phase_mode() got an unexpected keyword argument 'use_guided_prompts'. Did you mean 'use_guided_prompt'?"
+    },
+    {
+      "input_file": "data_original/ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "output_file": null,
+      "success": false,
+      "error": "run_two_phase_mode() got an unexpected keyword argument 'use_guided_prompts'. Did you mean 'use_guided_prompt'?"
+    }
+  ]
+}

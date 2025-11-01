@@ -1,0 +1,9 @@
+{
+  "group_name": "two_phase_repair",
+  "total_files": 3,
+  "syntax_success_count": 2,
+  "syntax_success_rate": 66.66666666666666,
+  "avg_smell_removal_rate": 66.66666666666667,
+  "avg_edit_distance": 25.5,
+  "evaluation_time": "2025-11-01T15:35:47.488820"
+}

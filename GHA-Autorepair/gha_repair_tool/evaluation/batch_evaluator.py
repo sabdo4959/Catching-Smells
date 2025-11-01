@@ -25,22 +25,21 @@ from evaluation.evaluator import BaselineEvaluator
 class BaselineBatchProcessor:
     """베이스라인 배치 처리 클래스"""
     
-    def __init__(self, output_dir: str = "./batch_results"):
+    def __init__(self, output_dir: str = "./evaluation_results/baseline"):
         """
         Args:
             output_dir: 결과를 저장할 디렉토리
         """
         self.logger = logging.getLogger(__name__)
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # 수정된 파일들을 저장할 디렉토리
         self.repaired_dir = self.output_dir / "repaired_files"
         self.repaired_dir.mkdir(exist_ok=True)
         
-        # 평가 결과를 저장할 디렉토리
-        self.evaluation_dir = self.output_dir / "evaluation_results"
-        self.evaluation_dir.mkdir(exist_ok=True)
+        # 평가 결과를 저장할 디렉토리 (베이스라인은 같은 레벨에)
+        self.evaluation_dir = self.output_dir
         
         self.evaluator = BaselineEvaluator(str(self.evaluation_dir))
     
@@ -214,7 +213,7 @@ def main():
     parser.add_argument("--pattern", default="*.yml", help="파일 패턴 (디렉토리 모드용)")
     parser.add_argument("--column", default="file_path", help="파일 경로 컬럼명 (CSV 모드용)")
     parser.add_argument("--max-files", type=int, help="처리할 최대 파일 수")
-    parser.add_argument("--output-dir", default="./batch_results", help="출력 디렉토리")
+    parser.add_argument("--output-dir", default="./evaluation_results/baseline", help="출력 디렉토리")
     parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
     
     args = parser.parse_args()

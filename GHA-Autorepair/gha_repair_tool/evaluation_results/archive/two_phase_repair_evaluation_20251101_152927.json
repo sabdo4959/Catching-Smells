@@ -1,0 +1,91 @@
+{
+  "group_name": "two_phase_repair",
+  "total_files": 5,
+  "syntax_success_count": 4,
+  "syntax_success_rate": 80.0,
+  "avg_smell_removal_rate": 60.0,
+  "avg_edit_distance": 26.0,
+  "detailed_results": [
+    {
+      "file_path": "data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32",
+      "original_file": "data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32",
+      "repaired_file": "data_repair_two_phase/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_two_phase_repaired.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 0,
+      "final_smells_count": 0,
+      "smell_removal_rate": 100.0,
+      "edit_distance": 17,
+      "evaluation_time": "2025-11-01T15:29:24.797105",
+      "processing_time": 0.876487,
+      "error_message": null
+    },
+    {
+      "file_path": "data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "original_file": "data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "repaired_file": "data_repair_two_phase/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_two_phase_repaired.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 6,
+      "final_smells_count": 0,
+      "smell_removal_rate": 100.0,
+      "edit_distance": 34,
+      "evaluation_time": "2025-11-01T15:29:25.673646",
+      "processing_time": 0.653564,
+      "error_message": null
+    },
+    {
+      "file_path": "data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775",
+      "original_file": "data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775",
+      "repaired_file": "data_repair_two_phase/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_two_phase_repaired.yml",
+      "syntax_success": false,
+      "actionlint_errors": [
+        {
+          "message": "receiver of object dereference \"ref_name\" must be type of object but got \"string\"",
+          "filepath": "data_repair_two_phase/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_two_phase_repaired.yml",
+          "line": 18,
+          "column": 28,
+          "kind": "expression",
+          "snippet": "      BRANCH_REF_NAME: ${{ github.ref.ref_name }}\n                           ^~~~~~~~~~~~~~~~~~~",
+          "end_column": 46
+        }
+      ],
+      "initial_smells_count": 0,
+      "final_smells_count": 0,
+      "smell_removal_rate": 0.0,
+      "edit_distance": 11,
+      "evaluation_time": "2025-11-01T15:29:26.327275",
+      "processing_time": 0.006188,
+      "error_message": null
+    },
+    {
+      "file_path": "data_original/403e061e7d455aee0ef3748155dbfc98aed8796c74818d68e3ac0a6bd75a9df3",
+      "original_file": "data_original/403e061e7d455aee0ef3748155dbfc98aed8796c74818d68e3ac0a6bd75a9df3",
+      "repaired_file": "data_repair_two_phase/403e061e7d455aee0ef3748155dbfc98aed8796c74818d68e3ac0a6bd75a9df3_two_phase_repaired.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 0,
+      "final_smells_count": 0,
+      "smell_removal_rate": 100.0,
+      "edit_distance": 25,
+      "evaluation_time": "2025-11-01T15:29:26.333510",
+      "processing_time": 0.56737,
+      "error_message": null
+    },
+    {
+      "file_path": "data_original/ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "original_file": "data_original/ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "repaired_file": "data_repair_two_phase/ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449_two_phase_repaired.yml",
+      "syntax_success": true,
+      "actionlint_errors": [],
+      "initial_smells_count": 0,
+      "final_smells_count": 4,
+      "smell_removal_rate": 0.0,
+      "edit_distance": 28,
+      "evaluation_time": "2025-11-01T15:29:26.900922",
+      "processing_time": 0.584531,
+      "error_message": null
+    }
+  ],
+  "evaluation_time": "2025-11-01T15:29:27.485498"
+}
