@@ -420,6 +420,10 @@ def create_syntax_repair_prompt(yaml_content: str, actionlint_errors: list, use_
         str: 생성된 프롬프트
     """
     if use_guided_prompt:
+        # GHA-Repair 모드용 가이드 프롬프트
+        return create_guided_syntax_repair_prompt(yaml_content, actionlint_errors)
+    else:
+        # Two-phase Simple 모드용 기본 프롬프트
         prompt = f"""You are an expert GitHub Actions workflow developer. Please fix the syntax errors in the following YAML workflow file.
 
 **Original YAML:**
@@ -442,34 +446,51 @@ def create_syntax_repair_prompt(yaml_content: str, actionlint_errors: list, use_
 4. Return the complete corrected YAML workflow
 5. Ensure the output is valid YAML syntax
 
-**Fixed YAML:**
-```yaml"""
+**응답 형식:**
+```yaml
+# 수정된 워크플로우
+```
+"""
 
-    else:
-        # Baseline-level prompt for fair comparison
-        prompt = f"""GitHub Actions 워크플로우의 구문 오류를 수정해주세요.
+        return prompt
 
-**원본 워크플로우:**
+
+def create_guided_syntax_repair_prompt(yaml_content: str, actionlint_errors: list) -> str:
+    """
+    GHA-Repair 모드용 가이드 프롬프트 - 구문 오류 수정
+    
+    Args:
+        yaml_content: 원본 YAML 내용
+        actionlint_errors: actionlint 오류 목록
+        
+    Returns:
+        str: 생성된 가이드 프롬프트
+    """
+    prompt = f"""### 역할 ###
+너는 GitHub Actions YAML 파일의 구문 오류만을 전문적으로 수정하는 '정밀한 린터(Linter) 로봇'이다. 너의 유일한 임무는 주어진 오류 목록을 해결하는 것이다.
+
+엄격한 지시사항 (가장 중요)
+목표: 위에 나열된 '탐지된 구문 오류' 목록만을 수정하라.
+
+엄격한 금지사항 (Guardrail):
+- 오류 목록에서 언급되지 않은 그 어떤 코드도 절대 수정하거나 변경하지 마라.
+- 워크플로우의 로직, 스텝 순서, if 조건, run 스크립트 내용 등 의미론적인(semantic) 부분은 절대 건드리지 마라.
+- 새로운 스텝이나 잡(job)을 추가하거나 삭제하지 마라.
+- 주석이나 기존 포맷팅은 최대한 원본을 유지하라.
+
+**원본 YAML:**
 ```yaml
 {yaml_content}
 ```
 
-**발견된 구문 오류:**
+**탐지된 구문 오류:**
 """
-        for i, error in enumerate(actionlint_errors, 1):
-            prompt += f"{i}. {error.get('message', 'Unknown error')}\n"
-            if error.get('line'):
-                prompt += f"   라인 {error['line']}\n"
+    for i, error in enumerate(actionlint_errors, 1):
+        prompt += f"{i}. {error.get('message', 'Unknown error')}\n"
+        if error.get('line'):
+            prompt += f"   Line {error['line']}: {error.get('column', 'N/A')}\n"
 
-        prompt += """
-**수정 요청:**
-위의 구문 오류를 수정한 완전한 GitHub Actions 워크플로우를 제공해주세요.
-
-**수정 시 고려사항:**
-1. GitHub Actions의 올바른 문법을 따라주세요
-2. 기존 워크플로우의 의도와 기능을 유지해주세요
-3. 모든 구문 오류를 적절히 수정해주세요
-
+    prompt += """
 **응답 형식:**
 ```yaml
 # 수정된 워크플로우
@@ -492,6 +513,10 @@ def create_semantic_repair_prompt(yaml_content: str, smells: list, use_guided_pr
         str: 생성된 프롬프트
     """
     if use_guided_prompt:
+        # GHA-Repair 모드용 가이드 프롬프트
+        return create_guided_semantic_repair_prompt(yaml_content, smells)
+    else:
+        # Two-phase Simple 모드용 기본 프롬프트
         prompt = f"""You are an expert GitHub Actions workflow developer. Please fix the code smells and improve the quality of the following YAML workflow file.
 
 **Current YAML (syntax errors already fixed):**
@@ -516,42 +541,64 @@ def create_semantic_repair_prompt(yaml_content: str, smells: list, use_guided_pr
 4. Apply GitHub Actions best practices
 5. Return the complete improved YAML workflow
 
-**Improved YAML:**
-```yaml"""
+**응답 형식:**
+```yaml
+# 수정된 워크플로우
+```
+"""
 
-    else:
-        # Baseline-level prompt for fair comparison
-        prompt = f"""GitHub Actions 워크플로우의 의미론적 스멜을 수정해주세요.
+        return prompt
 
-**현재 워크플로우 (구문 오류는 이미 수정됨):**
+
+def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str:
+    """
+    GHA-Repair 모드용 가이드 프롬프트 - 스멜 수정
+    
+    Args:
+        yaml_content: Phase 1에서 구문 오류가 수정된 YAML 내용
+        smells: 감지된 스멜 목록
+        
+    Returns:
+        str: 생성된 가이드 프롬프트
+    """
+    prompt = f"""### 역할 ###
+너는 GitHub Actions 워크플로우의 '특정 코드 스멜(Smell) 목록'만을 모범 사례에 따라 수정하는 '전문 DevOps 엔지니어'이다.
+
+엄격한 지시사항 (가장 중요)
+목표: 위에 나열된 '탐지된 의미론적 스멜 목록'만을 GitHub 모범 사례에 따라 수정하라.
+
+엄격한 금지사항 (Guardrail):
+- 목록에 없는 스멜이나 다른 코드 품질 문제는 절대 수정하지 마라. (예: 효율성을 임의로 개선하려 하지 마라)
+- 스멜 수정과 직접적으로 관련 없는 코드는 절대 변경하지 마라. (예: timeout 스멜을 고치기 위해 permissions 키를 수정하지 마라)
+- 기존 워크플로우의 핵심 기능, 동작 순서, if 조건 등 구조적/논리적 흐름을 변경하지 않는 선에서 스멜을 수정하라
+
+**현재 YAML (구문 오류는 이미 수정됨):**
 ```yaml
 {yaml_content}
 ```
 
-**발견된 의미론적 스멜:**
+**수정해야 할 코드 스멜:**
 """
-        for i, smell in enumerate(smells, 1):
-            prompt += f"{i}. {smell.get('description', 'Unknown issue')}\n"
-            if smell.get('message'):
-                prompt += f"   세부사항: {smell.get('message')}\n"
+    for i, smell in enumerate(smells, 1):
+        prompt += f"{i}. **{smell.get('type', 'Unknown')}**: {smell.get('description', 'No description')}\n"
+        if smell.get('location'):
+            prompt += f"   Location: {smell['location']}\n"
+        if smell.get('suggestion'):
+            prompt += f"   Suggestion: {smell['suggestion']}\n"
 
-        prompt += """
-**수정 요청:**
-위의 의미론적 스멜을 수정하여 개선된 GitHub Actions 워크플로우를 제공해주세요.
-
-**수정 시 고려사항:**
-1. GitHub Actions의 모범 사례를 따라주세요
-2. 워크플로우의 효율성과 안전성을 개선해주세요
-3. 기존 워크플로우의 의도와 기능을 유지해주세요
-4. 모든 스멜을 적절히 수정해주세요
+    prompt += """
+각 스멜을 GitHub Actions 모범 사례에 따라 수정한 개선된 YAML을 제공하라:
 
 **응답 형식:**
 ```yaml
-# 개선된 워크플로우
+# 수정된 워크플로우
 ```
 """
 
     return prompt
+
+
+
 
 
 def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: list) -> str:

@@ -1,0 +1,23 @@
+{
+  "evaluation_date": "2025-11-02T06:41:15.338384",
+  "total_files": 3,
+  "original_directory": "data_original",
+  "repaired_directory": "data_repair_two_phase",
+  "syntax_success_rate": 100.0,
+  "average_smell_removal_rate": 100.0,
+  "average_edit_distance": 15.0,
+  "syntax_successes": 3,
+  "syntax_failures": 0,
+  "smell_removal_stats": {
+    "min": 100.0,
+    "max": 100.0,
+    "median": 100.0,
+    "stdev": 0.0
+  },
+  "edit_distance_stats": {
+    "min": 4,
+    "max": 33,
+    "median": 8,
+    "stdev": 15.716233645501712
+  }
+}

@@ -1,0 +1,149 @@
+2025-11-01 22:02:32,687 - __main__ - INFO - GHA-Repair 자동 복구 시작: 3개 파일
+2025-11-01 22:02:32,687 - __main__ - INFO - 입력 디렉토리: data_original
+2025-11-01 22:02:32,687 - __main__ - INFO - 출력 디렉토리: data_gha_repair
+2025-11-01 22:02:32,687 - __main__ - INFO - 프롬프트 모드: Guided (가이드 프롬프트 사용)
+2025-11-01 22:02:32,687 - __main__ - INFO - [1/3] 처리 중: 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-11-01 22:02:32,687 - __main__ - INFO - 입력 파일 경로: data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-11-01 22:02:32,687 - __main__ - INFO - 출력 파일 경로: data_gha_repair/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_gha_repaired.yml
+2025-11-01 22:02:32,687 - __main__ - INFO - === 파일 1/3 GHA-Repair 복구 시작 ===
+2025-11-01 22:02:32,687 - main - INFO - === 2단계 모드 시작 ===
+2025-11-01 22:02:32,687 - main - INFO - 1단계: 입력 파일 읽기
+2025-11-01 22:02:32,688 - main - INFO - 파일 크기: 2692 문자
+2025-11-01 22:02:32,688 - main - INFO - === Phase 1: 구문 오류 수정 ===
+2025-11-01 22:02:32,688 - main - INFO - 2단계: actionlint 구문 검사
+2025-11-01 22:02:32,688 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-11-01 22:02:32,688 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32
+2025-11-01 22:02:32,710 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.02초)
+2025-11-01 22:02:32,710 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-11-01 22:02:32,710 - main - INFO - actionlint에서 1개 오류 발견 (syntax-check 및 expression만)
+2025-11-01 22:02:32,710 - main - INFO - actionlint 오류 1개 발견
+2025-11-01 22:02:32,710 - main - INFO -   오류 1: could not parse as YAML: yaml: line 35: did not find expected key
+2025-11-01 22:02:32,710 - main - INFO - 3단계: 구문 오류 수정 프롬프트 생성
+2025-11-01 22:02:32,710 - main - INFO - 4단계: 구문 오류 수정 LLM 호출
+2025-11-01 22:02:32,747 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-11-01 22:02:48,705 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-01 22:02:48,713 - utils.llm_api - INFO - LLM API 호출 성공
+2025-11-01 22:02:48,713 - main - INFO - 5단계: 구문 수정된 YAML 추출
+2025-11-01 22:02:48,713 - main - INFO - Phase 1 완료, 수정된 YAML 크기: 2688 문자
+2025-11-01 22:02:48,713 - main - INFO - === Phase 2: 스멜 수정 ===
+2025-11-01 22:02:48,714 - main - INFO - 6단계: 임시 파일 생성 및 스멜 검사
+2025-11-01 22:02:48,714 - main - INFO - 7단계: smell detection 실행
+2025-11-01 22:02:48,715 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_temp_phase1.yml
+2025-11-01 22:02:49,334 - utils.process_runner - INFO - 총 1개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-11-01 22:02:49,334 - utils.process_runner - INFO - Smell detector 실행 완료: 1개 스멜 발견
+2025-11-01 22:02:49,334 - main - INFO - 스멜 1개 발견
+2025-11-01 22:02:49,334 - main - INFO -   스멜 1: Avoid jobs without timeouts (line: 29)
+2025-11-01 22:02:49,334 - main - INFO - 8단계: 스멜 수정 프롬프트 생성
+2025-11-01 22:02:49,334 - main - INFO - 9단계: 스멜 수정 LLM 호출
+2025-11-01 22:02:49,342 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-11-01 22:03:04,722 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-01 22:03:04,724 - utils.llm_api - INFO - LLM API 호출 성공
+2025-11-01 22:03:04,724 - main - INFO - 10단계: 최종 수정된 YAML 추출
+2025-11-01 22:03:04,725 - main - INFO - Phase 2 완료, 최종 YAML 크기: 2760 문자
+2025-11-01 22:03:04,725 - main - INFO - 11단계: 최종 결과 검증 및 저장
+2025-11-01 22:03:04,739 - main - INFO - 2단계 모드 복구 완료
+2025-11-01 22:03:04,739 - main - INFO - 최종 수정된 파일: data_gha_repair/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_gha_repaired.yml
+2025-11-01 22:03:04,739 - __main__ - INFO - === 파일 1/3 GHA-Repair 복구 완료 ===
+2025-11-01 22:03:04,739 - __main__ - INFO - ✅ 성공 (32.05초): 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32 -> 19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_gha_repaired.yml
+2025-11-01 22:03:04,739 - __main__ - INFO - [2/3] 처리 중: 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-11-01 22:03:04,739 - __main__ - INFO - 입력 파일 경로: data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-11-01 22:03:04,739 - __main__ - INFO - 출력 파일 경로: data_gha_repair/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_gha_repaired.yml
+2025-11-01 22:03:04,739 - __main__ - INFO - === 파일 2/3 GHA-Repair 복구 시작 ===
+2025-11-01 22:03:04,739 - main - INFO - === 2단계 모드 시작 ===
+2025-11-01 22:03:04,739 - main - INFO - 1단계: 입력 파일 읽기
+2025-11-01 22:03:04,740 - main - INFO - 파일 크기: 4982 문자
+2025-11-01 22:03:04,740 - main - INFO - === Phase 1: 구문 오류 수정 ===
+2025-11-01 22:03:04,740 - main - INFO - 2단계: actionlint 구문 검사
+2025-11-01 22:03:04,740 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-11-01 22:03:04,740 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428
+2025-11-01 22:03:04,771 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.03초)
+2025-11-01 22:03:04,771 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-11-01 22:03:04,771 - main - INFO - actionlint에서 3개 오류 발견 (syntax-check 및 expression만)
+2025-11-01 22:03:04,771 - main - INFO - actionlint 오류 3개 발견
+2025-11-01 22:03:04,771 - main - INFO -   오류 1: expected scalar node for string value but found sequence node with "!!seq" tag
+2025-11-01 22:03:04,771 - main - INFO -   오류 2: expected scalar node for string value but found sequence node with "!!seq" tag
+2025-11-01 22:03:04,771 - main - INFO -   오류 3: expected scalar node for string value but found sequence node with "!!seq" tag
+2025-11-01 22:03:04,771 - main - INFO - 3단계: 구문 오류 수정 프롬프트 생성
+2025-11-01 22:03:04,771 - main - INFO - 4단계: 구문 오류 수정 LLM 호출
+2025-11-01 22:03:04,779 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-11-01 22:03:28,088 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-01 22:03:28,092 - utils.llm_api - INFO - LLM API 호출 성공
+2025-11-01 22:03:28,092 - main - INFO - 5단계: 구문 수정된 YAML 추출
+2025-11-01 22:03:28,092 - main - INFO - Phase 1 완료, 수정된 YAML 크기: 4821 문자
+2025-11-01 22:03:28,092 - main - INFO - === Phase 2: 스멜 수정 ===
+2025-11-01 22:03:28,092 - main - INFO - 6단계: 임시 파일 생성 및 스멜 검사
+2025-11-01 22:03:28,093 - main - INFO - 7단계: smell detection 실행
+2025-11-01 22:03:28,093 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_temp_phase1.yml
+2025-11-01 22:03:28,657 - utils.process_runner - INFO - 총 6개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-11-01 22:03:28,657 - utils.process_runner - INFO - Smell detector 실행 완료: 6개 스멜 발견
+2025-11-01 22:03:28,657 - main - INFO - 스멜 6개 발견
+2025-11-01 22:03:28,657 - main - INFO -   스멜 1: Avoid jobs without timeouts (line: 16)
+2025-11-01 22:03:28,657 - main - INFO -   스멜 2: Avoid jobs without timeouts (line: 65)
+2025-11-01 22:03:28,657 - main - INFO -   스멜 3: Avoid jobs without timeouts (line: 118)
+2025-11-01 22:03:28,657 - main - INFO - 8단계: 스멜 수정 프롬프트 생성
+2025-11-01 22:03:28,657 - main - INFO - 9단계: 스멜 수정 LLM 호출
+2025-11-01 22:03:28,665 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-11-01 22:03:55,868 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-01 22:03:55,873 - utils.llm_api - INFO - LLM API 호출 성공
+2025-11-01 22:03:55,873 - main - INFO - 10단계: 최종 수정된 YAML 추출
+2025-11-01 22:03:55,873 - main - INFO - Phase 2 완료, 최종 YAML 크기: 5238 문자
+2025-11-01 22:03:55,874 - main - INFO - 11단계: 최종 결과 검증 및 저장
+2025-11-01 22:03:55,900 - main - INFO - 2단계 모드 복구 완료
+2025-11-01 22:03:55,900 - main - INFO - 최종 수정된 파일: data_gha_repair/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_gha_repaired.yml
+2025-11-01 22:03:55,900 - __main__ - INFO - === 파일 2/3 GHA-Repair 복구 완료 ===
+2025-11-01 22:03:55,900 - __main__ - INFO - ✅ 성공 (51.16초): 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428 -> 6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_gha_repaired.yml
+2025-11-01 22:03:55,900 - __main__ - INFO - [3/3] 처리 중: a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775
+2025-11-01 22:03:55,900 - __main__ - INFO - 입력 파일 경로: data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775
+2025-11-01 22:03:55,900 - __main__ - INFO - 출력 파일 경로: data_gha_repair/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_gha_repaired.yml
+2025-11-01 22:03:55,900 - __main__ - INFO - === 파일 3/3 GHA-Repair 복구 시작 ===
+2025-11-01 22:03:55,900 - main - INFO - === 2단계 모드 시작 ===
+2025-11-01 22:03:55,900 - main - INFO - 1단계: 입력 파일 읽기
+2025-11-01 22:03:55,901 - main - INFO - 파일 크기: 1695 문자
+2025-11-01 22:03:55,901 - main - INFO - === Phase 1: 구문 오류 수정 ===
+2025-11-01 22:03:55,901 - main - INFO - 2단계: actionlint 구문 검사
+2025-11-01 22:03:55,901 - utils.process_runner - INFO - actionlint 바이너리 발견: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac
+2025-11-01 22:03:55,901 - utils.process_runner - INFO - 명령어 실행: /Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac -format '{{json .}}' data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775
+2025-11-01 22:03:55,924 - utils.process_runner - WARNING - 명령어 실행 실패 (코드: 1, 시간: 0.02초)
+2025-11-01 22:03:55,924 - utils.process_runner - INFO - actionlint 실행 완료: 오류 발견됨 (코드: 1)
+2025-11-01 22:03:55,924 - main - INFO - actionlint에서 2개 오류 발견 (syntax-check 및 expression만)
+2025-11-01 22:03:55,924 - main - INFO - actionlint 오류 2개 발견
+2025-11-01 22:03:55,924 - main - INFO -   오류 1: expected "inputs" key for "workflow_dispatch" section but got "customSnap"
+2025-11-01 22:03:55,924 - main - INFO -   오류 2: property "customsnap" is not defined in object type {}
+2025-11-01 22:03:55,924 - main - INFO - 3단계: 구문 오류 수정 프롬프트 생성
+2025-11-01 22:03:55,924 - main - INFO - 4단계: 구문 오류 수정 LLM 호출
+2025-11-01 22:03:55,931 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-11-01 22:04:08,483 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-01 22:04:08,487 - utils.llm_api - INFO - LLM API 호출 성공
+2025-11-01 22:04:08,487 - main - INFO - 5단계: 구문 수정된 YAML 추출
+2025-11-01 22:04:08,487 - main - INFO - Phase 1 완료, 수정된 YAML 크기: 1700 문자
+2025-11-01 22:04:08,488 - main - INFO - === Phase 2: 스멜 수정 ===
+2025-11-01 22:04:08,488 - main - INFO - 6단계: 임시 파일 생성 및 스멜 검사
+2025-11-01 22:04:08,489 - main - INFO - 7단계: smell detection 실행
+2025-11-01 22:04:08,489 - utils.process_runner - INFO - 명령어 실행: cd /Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src && /Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python -m gha_ci_detector file /Users/nam/Desktop/repository/Catching-Smells/GHA-Autorepair/gha_repair_tool/data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_temp_phase1.yml
+2025-11-01 22:04:08,962 - utils.process_runner - INFO - 총 1개 대상 스멜 파싱됨 (1,4,5,10,11,15,16번만)
+2025-11-01 22:04:08,963 - utils.process_runner - INFO - Smell detector 실행 완료: 1개 스멜 발견
+2025-11-01 22:04:08,963 - main - INFO - 스멜 1개 발견
+2025-11-01 22:04:08,963 - main - INFO -   스멜 1: Avoid jobs without timeouts (line: 12)
+2025-11-01 22:04:08,963 - main - INFO - 8단계: 스멜 수정 프롬프트 생성
+2025-11-01 22:04:08,963 - main - INFO - 9단계: 스멜 수정 LLM 호출
+2025-11-01 22:04:08,970 - utils.llm_api - INFO - LLM API 호출 시작 (모델: gpt-4o-mini)
+2025-11-01 22:04:20,116 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-11-01 22:04:20,121 - utils.llm_api - INFO - LLM API 호출 성공
+2025-11-01 22:04:20,121 - main - INFO - 10단계: 최종 수정된 YAML 추출
+2025-11-01 22:04:20,122 - main - INFO - Phase 2 완료, 최종 YAML 크기: 1772 문자
+2025-11-01 22:04:20,122 - main - INFO - 11단계: 최종 결과 검증 및 저장
+2025-11-01 22:04:20,133 - main - INFO - 2단계 모드 복구 완료
+2025-11-01 22:04:20,133 - main - INFO - 최종 수정된 파일: data_gha_repair/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_gha_repaired.yml
+2025-11-01 22:04:20,134 - __main__ - INFO - === 파일 3/3 GHA-Repair 복구 완료 ===
+2025-11-01 22:04:20,134 - __main__ - INFO - ✅ 성공 (24.23초): a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775 -> a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_gha_repaired.yml
+2025-11-01 22:04:20,134 - __main__ - INFO - ============================================================
+2025-11-01 22:04:20,134 - __main__ - INFO - GHA-Repair 자동 복구 완료!
+2025-11-01 22:04:20,134 - __main__ - INFO - 총 처리 시간: 107.4초
+2025-11-01 22:04:20,134 - __main__ - INFO - 총 파일: 3
+2025-11-01 22:04:20,134 - __main__ - INFO - 성공: 3 (100.0%)
+2025-11-01 22:04:20,134 - __main__ - INFO - 실패: 0
+2025-11-01 22:04:20,134 - __main__ - INFO - 평균 처리 시간: 35.82초/파일
+2025-11-01 22:04:20,134 - __main__ - INFO - 출력 파일 위치: data_gha_repair
+2025-11-01 22:04:20,134 - __main__ - INFO - INFO 로그 파일: logs/gha_repair_test_3files_info.log
+2025-11-01 22:04:20,134 - __main__ - INFO - DEBUG 로그 파일: logs/gha_repair_test_3files_debug.log
+2025-11-01 22:04:20,134 - __main__ - INFO - ============================================================

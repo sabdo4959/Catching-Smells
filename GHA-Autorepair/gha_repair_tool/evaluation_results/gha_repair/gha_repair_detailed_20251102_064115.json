@@ -1,0 +1,44 @@
+[
+  {
+    "file_path": "data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32",
+    "original_file": "data_original/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32",
+    "repaired_file": "data_gha_repair/19258ed075aa8e803221bd5865d57c00efe95f8bef222797a0eebdfff6c2ec32_gha_repaired.yml",
+    "syntax_success": true,
+    "actionlint_errors": [],
+    "initial_smells_count": 0,
+    "final_smells_count": 0,
+    "smell_removal_rate": 100.0,
+    "edit_distance": 4,
+    "evaluation_time": "2025-11-02T06:41:13.184829",
+    "processing_time": 0.905674,
+    "error_message": null
+  },
+  {
+    "file_path": "data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+    "original_file": "data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+    "repaired_file": "data_gha_repair/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_gha_repaired.yml",
+    "syntax_success": true,
+    "actionlint_errors": [],
+    "initial_smells_count": 6,
+    "final_smells_count": 0,
+    "smell_removal_rate": 100.0,
+    "edit_distance": 33,
+    "evaluation_time": "2025-11-02T06:41:14.090554",
+    "processing_time": 0.638398,
+    "error_message": null
+  },
+  {
+    "file_path": "data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775",
+    "original_file": "data_original/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775",
+    "repaired_file": "data_gha_repair/a0e08fda76b7107570ffe6222be262eeac8ef4f2d9023dc2caef5cba9a20a775_gha_repaired.yml",
+    "syntax_success": true,
+    "actionlint_errors": [],
+    "initial_smells_count": 1,
+    "final_smells_count": 0,
+    "smell_removal_rate": 100.0,
+    "edit_distance": 8,
+    "evaluation_time": "2025-11-02T06:41:14.729025",
+    "processing_time": 0.609314,
+    "error_message": null
+  }
+]
