@@ -14,6 +14,37 @@ from enhanced_key_structure_verifier import verify_enhanced_structural_equivalen
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from parser import GHAWorkflowParser
 
+def debug_specific_file():
+    """특정 파일의 Steps 순서 변경 테스트 디버깅"""
+    
+    original_path = "../../data_original/eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
+    modified_path = "../../data_repair_baseline/eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520_baseline_repaired.yml"
+    
+    # 파싱 및 키 구조 분석
+    parser = GHAWorkflowParser()
+    ast_orig = parser.parse(Path(original_path))
+    ast_repaired = parser.parse(Path(modified_path))
+    
+    print("원본 AST steps (test_linux):")
+    orig_steps = ast_orig.get('jobs', {}).get('test_linux', {}).get('steps', [])
+    for i, step in enumerate(orig_steps):
+        print(f"  step[{i}]: {list(step.keys())}")
+        if 'name' in step:
+            print(f"    name: {step['name']}")
+    
+    print("\\n수정된 AST steps (test_linux):")
+    repaired_steps = ast_repaired.get('jobs', {}).get('test_linux', {}).get('steps', [])
+    for i, step in enumerate(repaired_steps):
+        print(f"  step[{i}]: {list(step.keys())}")
+        if 'name' in step:
+            print(f"    name: {step['name']}")
+    
+    # 전체 검증 실행
+    result = verify_enhanced_structural_equivalence(Path(original_path), Path(modified_path))
+    print(f"\\n검증 결과: {result['safe']}")
+    print(f"키 구조 문제: {result['key_structure_issues']}")
+    print(f"Steps 순서 문제: {result['steps_order_issues']}")
+
 def debug_steps_order():
     """Steps 순서 변경 테스트 디버깅"""
     
@@ -94,4 +125,6 @@ jobs:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 if __name__ == "__main__":
+    debug_specific_file()
+    print("\\n" + "="*50)
     debug_steps_order()

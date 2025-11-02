@@ -1,14 +1,12 @@
 """
-개선된 키 구조 검증 모듈 (v2.0)
+개선된 키 구조 검증 모듈 (v3.0)
 
-키 구조와 구조적 값(needs, matrix 등)을 모두 검증합니다.
-- 키 구조: 값은 블랙박스로 처리
-- 구조적 값: needs, matrix 등 워크플로우 동작에 영향을 주는 특수 값들 검증
-
-주요 개선사항:
-1. needs 값 변경 검증 추가
-2. matrix 전략 변경 검증 추가  
-3. 단계적 검증 결과 제공
+structural_verifier.md의 철학에 따른 체계적 검증:
+1. "키 구조" 기반 검증 - 값은 블랙박스로 처리
+2. "안전한 변경" vs "위험한 변경" 명확한 분류  
+3. Tier-1 스멜 수정으로 인한 허용된 변경 처리
+4. steps 순서 변경 엄격한 검증
+5. "값이 곧 구조"인 키들(needs, matrix)의 엄격한 검증
 """
 
 import sys
@@ -21,6 +19,45 @@ try:
 except ImportError:
     print("ERROR: 'parser.py'를 찾을 수 없습니다.", file=sys.stderr)
     sys.exit(1)
+
+# ===== 검증 규칙 정의 =====
+
+# ✅ 안전한 변경: 단순 메타데이터 및 논리 키 (값 변경 무시)
+SAFE_METADATA_KEYS = {
+    'name',      # UI 표시용 이름
+    'env',       # 환경 변수
+    'with',      # 액션 입력값
+    'on',        # 트리거 (논리적 검증 대상이므로 여기서는 무시)
+    'if'         # 조건 (논리적 검증 대상이므로 여기서는 무시)
+}
+
+# ✅ 허용된 스멜 수정으로 인한 키 추가/변경
+ALLOWED_SMELL_FIX_KEYS = {
+    'permissions',      # Smell 15: 권한 설정
+    'timeout-minutes',  # Smell 10: 타임아웃 설정
+    'concurrency',      # Smell 4, 5: 동시성 제어
+    'continue-on-error' # 에러 처리 개선
+}
+
+# ✅ 허용된 스멜 수정으로 인한 특정 값 변경 (조건부)
+ALLOWED_VALUE_CHANGE_CONTEXTS = {
+    'uses',  # Smell 24: 버전 업그레이드 (예: @v2 → @v4)
+    'run'    # Smell 25: 사용 중단된 명령어 수정 (예: set-output → GITHUB_OUTPUT)
+}
+
+# ❌ 위험한 변경: "값이 곧 구조"인 키들 (엄격한 검증)
+STRUCTURAL_VALUE_KEYS = {
+    'needs',           # 잡 의존성 - 실행 순서 정의
+    'strategy.matrix', # 매트릭스 전략 - 실행 개수/조합 정의
+    'jobs',           # 잡 목록 - 워크플로우 구성 정의
+    'steps'           # 스텝 목록 - 잡 내 실행 순서 정의
+}
+
+# ❌ 위험한 변경: 핵심 구조 식별자 (절대 변경 불가)
+CORE_IDENTITY_KEYS = {
+    'jobs.<job_id>',  # 잡 ID 이름
+    'steps.id'        # 스텝 ID 이름  
+}
 
 
 class EnhancedKeyStructureVerifier:
@@ -251,23 +288,192 @@ def _check_steps_order_changes(ast_orig, ast_repaired):
 
 
 def _is_steps_reordered(orig_steps, repaired_steps):
-    """Steps가 순서 변경되었는지 확인 (값 변경과 구별)"""
-    if len(orig_steps) != len(repaired_steps):
-        return False
+    """
+    Steps 순서 검증 상세 로직 (structural_verifier.md 5번 항목)
     
-    # 1. 위치별 비교: 같은 위치에서 서로 다른 step 타입이 나타나면 순서 변경
+    steps 리스트의 순서 변경은 치명적인 구조 변경이므로 
+    "지문(Fingerprint)" 비교를 통해 엄격하게 검증합니다.
+    
+    Returns:
+        bool: True if steps are reordered (UNSAFE), False if safe
+    """
+    # 1. 길이 확인 (다르면 UNSAFE)
+    if len(orig_steps) != len(repaired_steps):
+        return True
+    
+    # 2. 각 스텝의 "핵심 지문" 비교
     for i, (orig_step, repaired_step) in enumerate(zip(orig_steps, repaired_steps)):
-        orig_keys = tuple(sorted(orig_step.keys()))
-        repaired_keys = tuple(sorted(repaired_step.keys()))
+        orig_fingerprint = _extract_step_fingerprint(orig_step)
+        repaired_fingerprint = _extract_step_fingerprint(repaired_step)
         
-        # 키 구조가 다르면 순서가 바뀐 것
-        if orig_keys != repaired_keys:
+        # 3. 같은 위치(index)의 스텝이 다른 지문을 가지면 UNSAFE
+        if not _is_fingerprint_compatible(orig_fingerprint, repaired_fingerprint):
             return True
     
-    # 2. 모든 위치에서 키 구조가 같다면, 값만 변경된 것으로 간주
-    # (하지만 실제로는 step들이 섞였을 수도 있음)
+    # 4. 모든 스텝의 지문이 순서대로 일치하면 SAFE
+    return False
+
+
+def _normalize_whitespace(text):
+    """
+    텍스트의 줄바꿈과 공백을 정규화합니다.
     
-    # 3. Step 정체성 기반 검사: 각 step의 최소한의 식별 정보로 매칭
+    향상된 검증에서 의미 없는 포맷팅 차이는 무시하도록 합니다:
+    - 줄 끝 공백 제거
+    - 연속된 줄바꿈 정규화
+    - 마지막 줄바꿈 통일
+    """
+    if not isinstance(text, str):
+        return text
+    
+    # 1. 각 줄의 끝 공백 제거
+    lines = text.splitlines()
+    lines = [line.rstrip() for line in lines]
+    
+    # 2. 빈 줄들 정리 (연속된 빈 줄은 하나로)
+    normalized_lines = []
+    prev_empty = False
+    for line in lines:
+        if line.strip() == '':
+            if not prev_empty:
+                normalized_lines.append('')
+            prev_empty = True
+        else:
+            normalized_lines.append(line)
+            prev_empty = False
+    
+    # 3. 마지막 빈 줄 제거
+    while normalized_lines and normalized_lines[-1] == '':
+        normalized_lines.pop()
+    
+    return '\n'.join(normalized_lines)
+
+
+def _remove_comments(text):
+    """
+    텍스트에서 주석 라인을 제거합니다.
+    
+    Shell/Bash 스타일의 주석 (#로 시작하는 라인)을 제거하여
+    주석만 다른 경우를 허용된 변경으로 처리합니다.
+    """
+    if not isinstance(text, str):
+        return text
+    
+    lines = text.splitlines()
+    non_comment_lines = []
+    
+    for line in lines:
+        stripped_line = line.strip()
+        # 완전히 주석으로만 이루어진 라인은 제거
+        if stripped_line.startswith('#') or stripped_line == '':
+            continue
+        # 라인 끝의 주석은 제거 (단순 구현)
+        if '#' in line:
+            # 문자열 안의 #은 고려하지 않는 단순 구현
+            # 실제 명령어에서 #이 포함된 경우는 드물기 때문
+            comment_pos = line.find('#')
+            line_without_comment = line[:comment_pos].rstrip()
+            if line_without_comment:
+                non_comment_lines.append(line_without_comment)
+        else:
+            non_comment_lines.append(line)
+    
+    return '\n'.join(non_comment_lines)
+
+
+def _extract_step_fingerprint(step):
+    """
+    각 스텝의 핵심 지문 추출
+    
+    핵심 지문: uses 키의 값 또는 run 키의 값
+    (name 등 다른 키의 변경은 무시)
+    """
+    if 'uses' in step:
+        # uses step의 경우: action 이름 (버전 제외 가능)
+        uses_value = step['uses']
+        # 버전 업그레이드는 허용된 변경이므로 기본 action 이름만 추출
+        action_name = uses_value.split('@')[0] if '@' in uses_value else uses_value
+        return {'type': 'uses', 'action': action_name, 'full_uses': uses_value}
+    
+    elif 'run' in step:
+        # run step의 경우: run 명령어 내용 (줄바꿈 정규화 적용)
+        normalized_command = _normalize_whitespace(step['run'])
+        return {'type': 'run', 'command': normalized_command}
+    
+    else:
+        # 기타 step: 키 구조로 식별
+        keys = set(step.keys()) - SAFE_METADATA_KEYS - ALLOWED_SMELL_FIX_KEYS
+        return {'type': 'other', 'keys': frozenset(keys)}
+
+
+def _is_fingerprint_compatible(orig_fp, repaired_fp):
+    """
+    두 스텝의 지문이 호환되는지 확인
+    
+    허용되는 변경:
+    - uses: 버전 업그레이드 (Smell 24)
+    - run: 사용 중단된 명령어 수정 (Smell 25)
+    """
+    # 타입이 다르면 호환되지 않음
+    if orig_fp['type'] != repaired_fp['type']:
+        return False
+    
+    if orig_fp['type'] == 'uses':
+        # uses step: action 이름이 같으면 호환 (버전 업그레이드 허용)
+        if orig_fp['action'] == repaired_fp['action']:
+            return True
+        # action 이름이 다르면 호환되지 않음
+        return False
+    
+    elif orig_fp['type'] == 'run':
+        # run step: 명령어 내용이 같으면 호환
+        if orig_fp['command'] == repaired_fp['command']:
+            return True
+        # TODO: Smell 25 (사용 중단된 명령어 수정) 검증 로직 추가 가능
+        # 예: set-output → GITHUB_OUTPUT 변경은 허용
+        return _is_allowed_run_command_change(orig_fp['command'], repaired_fp['command'])
+    
+    else:
+        # 기타 step: 키 구조가 같으면 호환
+        return orig_fp['keys'] == repaired_fp['keys']
+
+
+def _is_allowed_run_command_change(orig_command, repaired_command):
+    """
+    허용된 run 명령어 변경인지 확인 (Smell 25 + 주석 제거)
+    
+    허용되는 변경:
+    - set-output → GITHUB_OUTPUT 등의 사용 중단된 명령어 수정
+    - 주석 제거 (# 로 시작하는 라인)
+    - 줄바꿈 및 공백 정규화
+    """
+    # 1. 줄바꿈 정규화 후 동일한지 확인
+    normalized_orig = _normalize_whitespace(orig_command)
+    normalized_repaired = _normalize_whitespace(repaired_command)
+    
+    if normalized_orig == normalized_repaired:
+        return True  # 줄바꿈 차이만 있는 경우 허용
+    
+    # 2. 주석 제거 확인
+    orig_without_comments = _remove_comments(normalized_orig)
+    repaired_without_comments = _remove_comments(normalized_repaired)
+    
+    if orig_without_comments == repaired_without_comments:
+        return True  # 주석만 제거된 경우 허용
+    
+    # 3. deprecated command patterns 확인
+    deprecated_patterns = [
+        ('set-output', 'GITHUB_OUTPUT'),
+        ('add-path', 'GITHUB_PATH'),
+        ('::set-env', 'GITHUB_ENV')
+    ]
+    
+    # 간단한 패턴 매칭 (실제로는 더 정교한 분석 필요)
+    for old_pattern, new_pattern in deprecated_patterns:
+        if old_pattern in normalized_orig and new_pattern in normalized_repaired:
+            return True
+    
+    return False
     orig_identities = _extract_step_identities(orig_steps)
     repaired_identities = _extract_step_identities(repaired_steps)
     
@@ -346,105 +552,132 @@ def _extract_key_structure(yaml_obj, path="root"):
 
 def _compare_key_structures(orig_structure, repaired_structure):
     """
-    두 키 구조를 비교하여 문제점을 찾습니다.
+    마크다운 철학에 따른 키 구조 비교
+    
+    핵심 원칙:
+    1. "값은 블랙박스" - 메타데이터 키의 값 변경은 무시
+    2. "허용된 스멜 수정" - Tier-1 스멜 수정으로 인한 키 추가는 허용
+    3. "핵심 구조 보호" - jobs, steps 등 워크플로우 뼈대는 엄격히 보호
     """
     issues = []
     
-    # 1. 키가 제거된 경우 (구조적 문제)
+    # 1. 제거된 키 검사 (핵심 구조 키 제거는 위험)
     removed_keys = set(orig_structure.keys()) - set(repaired_structure.keys())
     for key in removed_keys:
-        if not _is_allowed_key_removal(key):
-            issues.append(f"키가 제거됨: {key}")
+        if _is_critical_structural_key(key):
+            issues.append(f"핵심 구조 키 제거: {key}")
+        # 메타데이터 키 제거는 허용 (예: name, env 등)
     
-    # 2. 키가 추가된 경우 (smell 수정 관련은 허용)
+    # 2. 추가된 키 검사 (스멜 수정 관련 추가는 허용)
     added_keys = set(repaired_structure.keys()) - set(orig_structure.keys())
     for key in added_keys:
-        if not _is_allowed_key_addition(key):
+        if not _is_allowed_key_addition_for_smell_fix(key):
             issues.append(f"예상치 못한 키 추가: {key}")
     
-    # 3. 공통 키들의 구조 변경 검사
+    # 3. 공통 키의 구조 변경 검사
     common_keys = set(orig_structure.keys()) & set(repaired_structure.keys())
     for key in common_keys:
         orig_info = orig_structure[key]
         repaired_info = repaired_structure[key]
         
-        # 타입 변경 검사 (dict <-> list <-> value)
+        # 타입 변경 검사 (중요한 구조만)
         if orig_info["type"] != repaired_info["type"]:
-            issues.append(f"타입 변경: {key} ({orig_info['type']} → {repaired_info['type']})")
+            if _is_type_change_critical(key, orig_info["type"], repaired_info["type"]):
+                issues.append(f"중요 타입 변경: {key} ({orig_info['type']} → {repaired_info['type']})")
         
-        # dict의 경우 키 순서 변경 검사
-        elif orig_info["type"] == "dict":
-            orig_keys = orig_info.get("keys", [])
-            repaired_keys = repaired_info.get("keys", [])
-            
-            # 키 순서 중요한 경우만 체크 (jobs, steps)
-            if _is_order_critical_path(key) and orig_keys != repaired_keys:
-                issues.append(f"키 순서 변경: {key}")
-        
-        # list의 경우 길이 변경 검사
+        # 리스트 길이 변경 검사 (jobs, steps 등)
         elif orig_info["type"] == "list":
-            orig_length = orig_info.get("length", 0)
-            repaired_length = repaired_info.get("length", 0)
-            
-            # 스텝 리스트 등에서 길이 변경은 중요
-            if _is_length_critical_path(key) and orig_length != repaired_length:
-                issues.append(f"리스트 길이 변경: {key} ({orig_length} → {repaired_length})")
-            
-            # steps 리스트의 경우 순서 변경 검사는 별도 함수에서 처리
-            # (여기서는 길이 변경만 확인)
+            if _is_list_length_critical(key):
+                orig_length = orig_info.get("length", 0)
+                repaired_length = repaired_info.get("length", 0)
+                if orig_length != repaired_length:
+                    issues.append(f"핵심 리스트 길이 변경: {key} ({orig_length} → {repaired_length})")
+        
+        # 딕셔너리 키 순서 변경 검사 (jobs만)
+        elif orig_info["type"] == "dict":
+            if _is_dict_key_order_critical(key):
+                orig_keys = orig_info.get("keys", [])
+                repaired_keys = repaired_info.get("keys", [])
+                if orig_keys != repaired_keys:
+                    issues.append(f"핵심 딕셔너리 키 순서 변경: {key}")
     
     return issues
 
 
-def _is_allowed_key_removal(key_path):
-    """키 제거가 허용되는지 확인합니다."""
-    if "timeout-minutes" in key_path:
-        return True
-    return False
-
-
-def _is_allowed_key_addition(key_path):
-    """키 추가가 허용되는지 확인합니다."""
-    allowed_additions = [
-        "permissions",      # Smell 3: GITHUB_TOKEN permissions
-        "timeout-minutes",  # Smell 6: No job timeout
-        "concurrency",      # Smell 7: Duplicate action execution
-        "if",              # Smell 5: Forked PR action execution
+def _is_critical_structural_key(key_path):
+    """핵심 구조 키인지 판단 (제거되면 위험)"""
+    critical_patterns = [
+        'root.jobs',           # 전체 jobs 딕셔너리
+        'root.jobs.',          # 개별 job 정의
+        '.steps',             # steps 리스트
+        '.needs',             # 의존성 정의
+        '.strategy.matrix',   # 매트릭스 전략
+        '.runs-on'            # 실행 환경
     ]
     
-    for allowed in allowed_additions:
-        if allowed in key_path:
-            return True
-    
-    return False
+    return any(pattern in key_path for pattern in critical_patterns)
 
 
-def _is_order_critical_path(key_path):
-    """키 순서가 중요한 경로인지 확인합니다."""
-    order_critical = ["root.jobs"]
+def _is_allowed_key_addition_for_smell_fix(key_path):
+    """스멜 수정으로 인한 허용된 키 추가인지 판단"""
+    allowed_additions = [
+        '.permissions',        # Smell 15: 권한 설정 추가
+        '.timeout-minutes',    # Smell 10: 타임아웃 추가
+        '.concurrency',        # Smell 4, 5: 동시성 제어 추가
+        '.continue-on-error',  # 에러 처리 개선
+        '.if',                # Smell 9, 10: 조건부 실행 추가
+        '.on.',               # 트리거 조건 개선
+        '.paths',             # Smell 16: 경로 필터 추가
+        '.paths-ignore'       # Smell 16: 경로 무시 추가
+    ]
     
-    if ".steps" in key_path and key_path.endswith(".steps"):
+    return any(pattern in key_path for pattern in allowed_additions)
+
+
+def _is_type_change_critical(key_path, orig_type, repaired_type):
+    """타입 변경이 중요한 구조 변경인지 판단"""
+    # jobs, steps 등의 타입 변경은 치명적
+    critical_type_paths = [
+        'root.jobs',
+        '.steps',
+        '.needs',
+        '.strategy.matrix'
+    ]
+    
+    if any(pattern in key_path for pattern in critical_type_paths):
         return True
     
-    if key_path.startswith("root.jobs.") and key_path.count('.') == 2:
-        return False
+    # 스칼라 → 딕셔너리 변경은 구조적 개선일 수 있음 (예: permissions: read-all → permissions: {contents: read})
+    if orig_type in ['str', 'bool', 'int'] and repaired_type == 'dict':
+        if any(allowed in key_path for allowed in ['.permissions', '.with']):
+            return False  # 허용된 확장
     
-    for critical in order_critical:
-        if key_path == critical:
-            return True
-    
-    return False
+    return True  # 기본적으로 타입 변경은 중요
 
 
-def _is_length_critical_path(key_path):
-    """리스트 길이가 중요한 경로인지 확인합니다."""
-    length_critical = [".steps"]
+def _is_list_length_critical(key_path):
+    """리스트 길이 변경이 중요한지 판단"""
+    critical_list_paths = [
+        'root.jobs',          # jobs는 딕셔너리지만 순서 중요
+        '.steps',            # steps 리스트
+        '.needs',            # needs 리스트  
+        '.strategy.matrix'   # matrix 리스트
+    ]
     
-    for critical in length_critical:
-        if critical in key_path:
-            return True
+    return any(pattern in key_path for pattern in critical_list_paths)
+
+
+def _is_dict_key_order_critical(key_path):
+    """딕셔너리 키 순서가 중요한지 판단"""
+    # GitHub Actions에서는 일반적으로 키 순서가 의미 없음
+    # jobs는 needs에 의해 의존성이 결정되므로 딕셔너리 순서는 무관
+    # 마크다운 철학: "값이 곧 구조"인 키(needs, matrix)만 중요
+    order_critical_paths = [
+        # 현재는 키 순서가 중요한 경우가 없음
+        # jobs 딕셔너리 순서는 needs에 의해 실행 순서가 결정되므로 무관
+    ]
     
-    return False
+    return any(pattern in key_path for pattern in order_critical_paths)
 
 
 # 하위 호환성을 위한 기존 함수

@@ -1,12 +1,13 @@
 {
   "total_files": 100,
-  "safe_files": 3,
-  "unsafe_files": 97,
-  "error_files": 0,
-  "safe_rate": 3.0,
+  "safe_files": 4,
+  "unsafe_files": 95,
+  "error_files": 50,
+  "safe_rate": 4.0,
   "safe_details": [
     "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
     "56add205bfb4be370d1631df45087d23946aa511f571918ef9f11ac4b3ed3a98",
+    "6bf48b84932314f95b73d8dd2b3464ec9ec0ad5283f95c1977933b5fdcfc50ba",
     "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
   ],
   "unsafe_details": [
@@ -22,7 +23,6 @@
     "10aaf8a4de3f00b49f51bc3d3b6ac3aeb21c40af2ad924f7cb979872f2390c8b",
     "059363e8942e34fd0e18ff2dae53ea2a85f90c97152eaa9b6f38a8c5fac42216",
     "0b1c7e99bae99fed58b94401158300d16832ab782f0925e7f9534f4a7158132b",
-    "12bc3aaaf6a500edc9d5086c088dc050d1c60777879910668e066b3fb0862d11",
     "6839a86ccedd509bc8fc377d807994fce4dc678ab3b1f2e27fb526f2d3ac6677",
     "b060e5348656555b5cb0f91b38bbd13dbf55659bdf2a7812c623fda782024795",
     "9a9253152768f1b6acca5da7d94141212c3d1a2461c16b301739e2ce7c4f6a4f",
@@ -59,7 +59,6 @@
     "ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
     "6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
     "4c753eb1d5b7d1ec81d5e4b937fc038f5bab6e0e30a99b12ca152e074a19e312",
-    "6bf48b84932314f95b73d8dd2b3464ec9ec0ad5283f95c1977933b5fdcfc50ba",
     "3b0f4d26d3c262ab4ceb80fe3b383abd64fc981e08206b7ea81978d3d489443f",
     "6c2fdfc89dfe077900843eb80d51ed375995c10fba42543808e8ddffb0d2a9f0",
     "237625ec610710bfc796fc74793d673336749e99b80aeeb7555c8f8a65b82e6d",
@@ -107,5 +106,49 @@
     "04c3b5460edf81823ebd7d932ed2ded3dfe3ec017bfc5b0e2eb08aa0a89986bf",
     "2d873da37a245df5143ec6db45e3396a1277276dee2e1cb9c34a27e950498266",
     "ba3536671b0f0e3fac0a7994ebc43e286d6779df0f1c567bea518f83da2f45b5"
+  ],
+  "structural_value_issues": [
+    {
+      "file": "976bd50e7346f4a5df96b0b8c0354ebe760388bc927d04dfe51f49d323e154a5",
+      "issues": [
+        "구조적 값 제거: root.jobs.calculate-stats.test-latest-dev-deps.strategy.matrix (타입: matrix)",
+        "구조적 값 제거: root.jobs.calculate-stats.check-imports.strategy.matrix (타입: matrix)",
+        "예상치 못한 구조적 값 추가: root.jobs.check-imports.strategy.matrix (타입: matrix)",
+        "예상치 못한 구조적 값 추가: root.jobs.test-latest-dev-deps.strategy.matrix (타입: matrix)"
+      ]
+    },
+    {
+      "file": "f88fe224327093d5b7bb6c9a59a05ad1d2a6134a5020a513c2c2d4e5662f64a1",
+      "issues": [
+        "구조적 값 제거: root.jobs.publish-centos-8.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-ubuntu-focal.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-centos-7.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-macos-x86_64.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-debian-stretch.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-debian-buster.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-ubuntu-bionic.needs (타입: needs)",
+        "구조적 값 제거: root.jobs.publish-ubuntu-xenial.needs (타입: needs)"
+      ]
+    },
+    {
+      "file": "7ccd3e4d4e0943fecaf6cbadb17126d53209e3c344ef217cf05858c0933fde1c",
+      "issues": [
+        "needs 의존성 변경: root.jobs.repo_visualizer.needs (set() → {'check'})"
+      ]
+    },
+    {
+      "file": "d1cedac9aca8987e53482c3b60a64fa6785f0306dfcbcae279f6dda6fe7f715c",
+      "issues": [
+        "matrix 전략 변경: root.jobs.install_and_verify.strategy.matrix"
+      ]
+    },
+    {
+      "file": "b3d9c061128a7cc41dd723ebf0f64183a8a8bb9974685f4a1a8ae9df8e3b1dc4",
+      "issues": [
+        "구조적 값 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs (타입: needs)",
+        "예상치 못한 구조적 값 추가: root.jobs.deploy_to_dockerhub.needs (타입: needs)",
+        "matrix 전략 변경: root.jobs.test.strategy.matrix"
+      ]
+    }
   ]
 }

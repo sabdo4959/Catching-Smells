@@ -50,6 +50,7 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
         "basic_safe_files": 0,
         "basic_unsafe_files": 0,
         "basic_error_files": 0,
+        "basic_safe_details": [],
         "basic_unsafe_details": [],
         "basic_error_details": []
     }
@@ -59,6 +60,7 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
         "enhanced_safe_files": 0,
         "enhanced_unsafe_files": 0,
         "enhanced_error_files": 0,
+        "enhanced_safe_details": [],
         "enhanced_unsafe_details": [],
         "enhanced_error_details": [],
         "structural_value_issues": []
@@ -89,6 +91,7 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
             is_basic_safe = basic_verifier.verify_key_structure(original_path, repaired_path)
             if is_basic_safe:
                 basic_verification_results["basic_safe_files"] += 1
+                basic_verification_results["basic_safe_details"].append(original_filename)
                 print("   ✅ 기본 키 구조 안전")
             else:
                 basic_verification_results["basic_unsafe_files"] += 1
@@ -108,6 +111,7 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
             
             if enhanced_result["safe"]:
                 enhanced_verification_results["enhanced_safe_files"] += 1
+                enhanced_verification_results["enhanced_safe_details"].append(original_filename)
                 print("   ✅ 향상된 구조 안전")
             else:
                 enhanced_verification_results["enhanced_unsafe_files"] += 1
@@ -181,6 +185,7 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
         "unsafe_files": basic_verification_results["basic_unsafe_files"],
         "error_files": basic_verification_results["basic_error_files"],
         "safe_rate": basic_verification_results["basic_safe_files"] / basic_verification_results["total_files"] * 100,
+        "safe_details": basic_verification_results["basic_safe_details"],
         "unsafe_details": basic_verification_results["basic_unsafe_details"]
     }
     
@@ -194,6 +199,7 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
         "unsafe_files": enhanced_verification_results["enhanced_unsafe_files"],
         "error_files": enhanced_verification_results["enhanced_error_files"],
         "safe_rate": enhanced_verification_results["enhanced_safe_files"] / enhanced_verification_results["total_files"] * 100,
+        "safe_details": enhanced_verification_results["enhanced_safe_details"],
         "unsafe_details": enhanced_verification_results["enhanced_unsafe_details"],
         "structural_value_issues": enhanced_verification_results["structural_value_issues"]
     }
