@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "total_methods": 3,
+    "comparison_date": "2025-11-02"
+  },
+  "statistics": {
+    "baseline": {
+      "safe_files": 2,
+      "total_files": 99,
+      "safety_rate": 2.0
+    },
+    "gha_repair": {
+      "safe_files": 6,
+      "total_files": 100,
+      "safety_rate": 6.0
+    },
+    "two_phase": {
+      "safe_files": 3,
+      "total_files": 100,
+      "safety_rate": 3.0
+    }
+  },
+  "intersections": {
+    "all_methods_safe": [
+      "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
+      "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
+    ],
+    "baseline_gha_repair": [
+      "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
+      "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
+    ],
+    "baseline_two_phase": [
+      "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
+      "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
+    ],
+    "gha_repair_two_phase": [
+      "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
+      "56add205bfb4be370d1631df45087d23946aa511f571918ef9f11ac4b3ed3a98",
+      "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
+    ]
+  },
+  "unique_successes": {
+    "gha_repair_only": [
+      "1d128012d813f4c17507788c181106fee15d6590f438d998e726f3ed606d07f4",
+      "93f763fb4a84d29e77a6bf72349a0534feaee1862658e1807423e8900d015dcb",
+      "e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc"
+    ],
+    "two_phase_only": [],
+    "baseline_only": []
+  }
+}
