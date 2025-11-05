@@ -1,13 +1,16 @@
 """
 LLM API 호출 유틸리티 모듈
 
-OpenAI API 등을 이용한 LLM 호출 및 응답 처리를 담당합니다.
+OpenAI API와 Ollama API를 지원하여 다양한 LLM 모델을 사용할 수 있습니다.
 """
 
 import logging
+import os
+import re
 from typing import Optional, Dict, Any, List
 import json
 import time
+from enum import Enum
 
 try:
     from openai import OpenAI
@@ -16,21 +19,50 @@ except ImportError:
     OpenAI = None
     openai_available = False
 
+try:
+    import requests
+    requests_available = True
+except ImportError:
+    requests_available = False
+
+
+class LLMProvider(Enum):
+    """지원되는 LLM 제공자"""
+    OPENAI = "openai"
+    OLLAMA = "ollama"
+
+
+# Ollama 지원 모델 목록
+OLLAMA_MODELS = {
+    "llama3.1:8b": "llama3.1:8b-instruct-fp16",
+    "codegemma:7b": "codegemma:7b-instruct-v1.1-fp16",
+    "codellama:7b": "codellama:7b-instruct-fp16"
+}
+
+# OpenAI 지원 모델 목록
+OPENAI_MODELS = {
+    "gpt-4o-mini": "gpt-4o-mini",
+    "gpt-4o": "gpt-4o", 
+    "gpt-4-turbo": "gpt-4-turbo-preview",
+    "gpt-4": "gpt-4",
+    "gpt-3.5-turbo": "gpt-3.5-turbo"
+}
+
 
 class LLMAPIError(Exception):
     """LLM API 관련 예외"""
     pass
 
 
-def call_llm(
+def call_openai_api(
     prompt: str,
     model: str = "gpt-4o-mini",
     max_tokens: int = 2000,
     temperature: float = 0.1,
-    api_key: Optional[str] = None
+    api_key: Optional[str] = ""
 ) -> Optional[str]:
     """
-    LLM API를 호출하여 응답을 받습니다.
+    OpenAI API를 호출하여 응답을 받습니다.
     
     Args:
         prompt: 프롬프트
@@ -55,9 +87,9 @@ def call_llm(
         else:
             client = OpenAI()  # 환경변수에서 OPENAI_API_KEY 사용
         
-        logger.info(f"LLM API 호출 시작 (모델: {model})")
+        logger.info(f"OpenAI API 호출 시작 (모델: {model})")
         
-        # API 호출 (새로운 v1.0.0+ 형식)
+        # API 호출
         response = client.chat.completions.create(
             model=model,
             messages=[
@@ -71,14 +103,143 @@ def call_llm(
         # 응답 추출
         if response and response.choices:
             content = response.choices[0].message.content
-            logger.info("LLM API 호출 성공")
+            logger.info("OpenAI API 호출 성공")
             return content
         else:
-            logger.error("LLM API 응답이 비어있음")
+            logger.error("OpenAI API 응답이 비어있음")
             return None
             
     except Exception as e:
-        logger.error(f"LLM API 호출 중 오류: {e}")
+        logger.error(f"OpenAI API 호출 중 오류: {e}")
+        return None
+
+
+def call_ollama_api(
+    prompt: str,
+    model: str = "llama3.1:8b-instruct-fp16",
+    ollama_url: str = "http://115.145.178.160:11434/api/chat",
+    temperature: float = 0.1,
+    timeout: int = 300
+) -> Optional[str]:
+    """
+    Ollama API를 호출하여 응답을 받습니다.
+    
+    Args:
+        prompt: 프롬프트
+        model: 사용할 모델명
+        ollama_url: Ollama 서버 URL
+        temperature: 응답의 랜덤성 (0.0 ~ 1.0)
+        timeout: 요청 타임아웃 (초)
+        
+    Returns:
+        Optional[str]: LLM 응답 (실패 시 None)
+    """
+    logger = logging.getLogger(__name__)
+    
+    if not requests_available:
+        logger.error("requests 라이브러리가 설치되지 않음")
+        return None
+    
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user", 
+                "content": prompt
+            }
+        ],
+        "stream": False,
+        "options": {
+            "temperature": temperature
+        }
+    }
+    
+    try:
+        logger.info(f"Ollama API 호출 시작 (모델: {model}, URL: {ollama_url})")
+        
+        response = requests.post(ollama_url, json=payload, timeout=timeout)
+        response.raise_for_status()
+        
+        result = response.json()
+        content = result.get('message', {}).get('content', '').strip()
+        
+        # YAML 코드 블록이 있다면 제거
+        if content.startswith('```yaml'):
+            content = content[7:]
+        if content.startswith('```'):
+            content = content[3:]
+        if content.endswith('```'):
+            content = content[:-3]
+            
+        content = content.strip()
+        
+        logger.info("Ollama API 호출 성공")
+        return content
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ollama API 호출 중 네트워크 오류: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Ollama API 호출 중 오류: {e}")
+        return None
+
+
+def call_llm(
+    prompt: str,
+    provider: LLMProvider = LLMProvider.OPENAI,
+    model: Optional[str] = None,
+    max_tokens: int = 2000,
+    temperature: float = 0.1,
+    api_key: Optional[str] = None,
+    ollama_url: str = "http://115.145.178.160:11434/api/chat",
+    timeout: int = 300
+) -> Optional[str]:
+    """
+    LLM API를 호출하여 응답을 받습니다. (통합 인터페이스)
+    
+    Args:
+        prompt: 프롬프트
+        provider: LLM 제공자 (OPENAI 또는 OLLAMA)
+        model: 사용할 모델명 (None이면 기본값 사용)
+        max_tokens: 최대 토큰 수 (OpenAI만 해당)
+        temperature: 응답의 랜덤성 (0.0 ~ 1.0)
+        api_key: API 키 (OpenAI만 해당, None이면 환경변수 사용)
+        ollama_url: Ollama 서버 URL (Ollama만 해당)
+        timeout: 요청 타임아웃 (초)
+        
+    Returns:
+        Optional[str]: LLM 응답 (실패 시 None)
+    """
+    logger = logging.getLogger(__name__)
+    
+    # 기본 모델 설정
+    if model is None:
+        if provider == LLMProvider.OPENAI:
+            model = "gpt-4o-mini"
+        elif provider == LLMProvider.OLLAMA:
+            model = "llama3.1:8b-instruct-fp16"
+    
+    # 제공자별 API 호출
+    if provider == LLMProvider.OPENAI:
+        logger.info(f"OpenAI 제공자로 LLM 호출: {model}")
+        return call_openai_api(
+            prompt=prompt,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            api_key=api_key
+        )
+    elif provider == LLMProvider.OLLAMA:
+        logger.info(f"Ollama 제공자로 LLM 호출: {model}")
+        return call_ollama_api(
+            prompt=prompt,
+            model=model,
+            ollama_url=ollama_url,
+            temperature=temperature,
+            timeout=timeout
+        )
+    else:
+        logger.error(f"지원되지 않는 LLM 제공자: {provider}")
         return None
 
 
@@ -152,95 +313,76 @@ def call_llm_batch(
         batch = prompts[i:i + batch_size]
         batch_results = []
         
-        logger.info(f"배치 {i // batch_size + 1} 처리 중 ({len(batch)}개 프롬프트)")
+        logger.info(f"배치 {i//batch_size + 1} 처리 중: {len(batch)}개 프롬프트")
         
-        for prompt in batch:
-            result = call_llm_with_retry(prompt, **kwargs)
+        for j, prompt in enumerate(batch):
+            logger.debug(f"  프롬프트 {i + j + 1}/{total_prompts} 처리 중...")
+            result = call_llm(prompt, **kwargs)
             batch_results.append(result)
+            
+            # 배치 내 요청 간 지연 (API 레이트 제한 방지)
+            if j < len(batch) - 1:
+                time.sleep(0.1)
         
         results.extend(batch_results)
         
         # 배치 간 지연
         if i + batch_size < total_prompts:
+            logger.info(f"다음 배치 전 {delay_between_batches}초 대기...")
             time.sleep(delay_between_batches)
     
-    logger.info(f"배치 처리 완료: {len([r for r in results if r])}개 성공")
+    logger.info(f"배치 LLM 호출 완료: {len(results)}개 응답")
     return results
 
 
-def validate_llm_response(
-    response: str,
-    expected_format: str = "yaml"
-) -> Dict[str, Any]:
-    """
-    LLM 응답의 유효성을 검증합니다.
+# 하위 호환성을 위한 별칭 함수들
+def call_openai(prompt: str, **kwargs) -> Optional[str]:
+    """OpenAI API 호출 (하위 호환성)"""
+    return call_llm(prompt, provider=LLMProvider.OPENAI, **kwargs)
+
+
+def call_ollama(prompt: str, **kwargs) -> Optional[str]:
+    """Ollama API 호출 (하위 호환성)"""
+    return call_llm(prompt, provider=LLMProvider.OLLAMA, **kwargs)
+
+
+# 기존 함수명과의 호환성을 위한 별칭 (기존 코드가 이 함수를 사용할 수 있음)
+def call_llm_openai(prompt: str, **kwargs) -> Optional[str]:
+    """기존 코드 호환성을 위한 OpenAI 호출"""
+    return call_openai_api(prompt, **kwargs)
+
+
+def get_available_providers() -> List[str]:
+    """사용 가능한 LLM 제공자 목록을 반환합니다."""
+    providers = []
     
-    Args:
-        response: LLM 응답
-        expected_format: 예상 형식 ("yaml", "json", "text")
-        
-    Returns:
-        Dict: 검증 결과
-               {
-                   "is_valid": bool,
-                   "format_valid": bool,
-                   "content": str,
-                   "issues": List[str]
-               }
-    """
-    logger = logging.getLogger(__name__)
+    if openai_available:
+        providers.append("openai")
     
-    result = {
-        "is_valid": True,
-        "format_valid": False,
-        "content": response,
-        "issues": []
-    }
+    if requests_available:
+        providers.append("ollama")
     
-    try:
-        if not response or not response.strip():
-            result["is_valid"] = False
-            result["issues"].append("Empty response")
-            return result
-        
-        # 형식별 검증
-        if expected_format == "yaml":
-            try:
-                # yaml_parser 모듈 사용
-                from utils import yaml_parser
-                yaml_parser.validate_yaml(response)
-                result["format_valid"] = True
-            except Exception as e:
-                result["issues"].append(f"Invalid YAML format: {e}")
-                result["is_valid"] = False
-        
-        elif expected_format == "json":
-            try:
-                json.loads(response)
-                result["format_valid"] = True
-            except Exception as e:
-                result["issues"].append(f"Invalid JSON format: {e}")
-                result["is_valid"] = False
-        
-        elif expected_format == "text":
-            result["format_valid"] = True
-        
-        # 길이 검증
-        if len(response) < 10:
-            result["issues"].append("Response too short")
-            result["is_valid"] = False
-        
-        if len(response) > 10000:
-            result["issues"].append("Response too long")
-            # 너무 길어도 유효하다고 간주
-        
-        return result
-        
-    except Exception as e:
-        logger.error(f"응답 검증 중 오류: {e}")
-        result["is_valid"] = False
-        result["issues"].append(f"Validation error: {e}")
-        return result
+    return providers
+
+
+def create_workflow_repair_prompt(workflow_content: str) -> str:
+    """워크플로우 수리를 위한 표준 프롬프트를 생성합니다."""
+    return f"""
+You are an expert in GitHub Actions workflow optimization and security. Please analyze and improve the following GitHub Actions workflow file to fix common issues and smells.
+
+Focus on improving:
+1. Security issues (outdated actions, permissions)
+2. Performance issues (timeout settings, caching)
+3. Reliability issues (race conditions, resource limits)
+4. Best practices (concurrency, error handling)
+
+Original workflow:
+```yaml
+{workflow_content}
+```
+
+Please provide ONLY the improved YAML content without any explanations or markdown formatting. The output should be valid YAML that can be directly saved to a file.
+"""
 
 
 def extract_code_from_response(response: str, language: str = "yaml") -> Optional[str]:
@@ -248,182 +390,321 @@ def extract_code_from_response(response: str, language: str = "yaml") -> Optiona
     LLM 응답에서 코드 블록을 추출합니다.
     
     Args:
-        response: LLM 응답
-        language: 코드 언어 ("yaml", "json", "bash" 등)
+        response: LLM 응답 텍스트
+        language: 추출할 코드 언어 (yaml, python 등)
         
     Returns:
-        Optional[str]: 추출된 코드 (없으면 None)
+        Optional[str]: 추출된 코드 (실패 시 None)
     """
-    try:
-        import re
-        
-        # 언어별 코드 블록 패턴
-        patterns = [
-            rf'```{language}\s*\n(.*?)```',
-            r'```\s*\n(.*?)```',
-            rf'```{language}(.*?)```',
-            r'```(.*?)```'
-        ]
-        
-        for pattern in patterns:
-            matches = re.findall(pattern, response, re.DOTALL)
-            if matches:
-                extracted = matches[0].strip()
-                # 주석 줄 제거 (# 수정된 워크플로우 같은 줄)
-                lines = extracted.split('\n')
-                filtered_lines = []
-                for line in lines:
-                    # 첫 번째 라인이 주석이고 "수정된"이나 "repaired" 등의 키워드가 있으면 제거
-                    if (len(filtered_lines) == 0 and 
-                        line.strip().startswith('#') and 
-                        ('수정된' in line or 'repaired' in line.lower() or 'fixed' in line.lower())):
-                        continue
-                    filtered_lines.append(line)
-                return '\n'.join(filtered_lines).strip()
-        
-        # 코드 블록이 없으면 전체 응답에서 추출 시도
-        if language == "yaml":
-            # YAML 같은 패턴 찾기
-            yaml_pattern = r'(name:\s*.*?(?:\n.*?)*)'
-            match = re.search(yaml_pattern, response, re.MULTILINE)
-            if match:
-                return match.group(1).strip()
-        
+    if not response:
         return None
-        
-    except Exception as e:
-        logging.getLogger(__name__).error(f"코드 추출 중 오류: {e}")
-        return None
+    
+    # 언어별 코드 블록 패턴
+    patterns = [
+        f"```{language}\\s*\\n(.*?)\\n```",  # ```yaml ... ```
+        f"```\\s*\\n(.*?)\\n```",           # ``` ... ```
+        f"```{language}(.*?)```",           # ```yaml...```
+        f"```(.*?)```"                     # ```...```
+    ]
+    
+    for pattern in patterns:
+        matches = re.findall(pattern, response, re.DOTALL | re.IGNORECASE)
+        if matches:
+            # 가장 긴 매치를 선택 (더 완전할 가능성)
+            code = max(matches, key=len).strip()
+            return code
+    
+    # 코드 블록이 없으면 전체 응답 반환 (이미 코드일 수 있음)
+    return response.strip()
 
 
-def format_prompt_for_repair(
-    workflow_content: str,
-    error_info: Dict[str, Any],
-    repair_mode: str = "guided",
-    additional_context: str = ""
-) -> str:
+def validate_llm_response(response: str) -> bool:
     """
-    워크플로우 수정을 위한 표준화된 프롬프트를 생성합니다.
+    LLM 응답의 유효성을 검증합니다.
     
     Args:
-        workflow_content: 워크플로우 YAML 내용
-        error_info: 오류 정보
-        repair_mode: 수정 모드 ("guided" 또는 "simple")
-        additional_context: 추가 컨텍스트
+        response: 검증할 응답
         
     Returns:
-        str: 생성된 프롬프트
+        bool: 유효하면 True
     """
-    error_type = error_info.get('type', 'unknown')
-    error_message = error_info.get('message', '')
-    line_number = error_info.get('line', 0)
+    if not response or not response.strip():
+        return False
     
+    # 기본적인 유효성 검사
+    if len(response.strip()) < 10:
+        return False
+    
+    # 에러 메시지 패턴 검사
+    error_patterns = [
+        r"I cannot|I can't|I'm sorry|I apologize",
+        r"error|Error|ERROR",
+        r"invalid|Invalid|INVALID"
+    ]
+    
+    for pattern in error_patterns:
+        if re.search(pattern, response, re.IGNORECASE):
+            return False
+    
+    return True
+
+
+def format_prompt_for_repair(workflow_content: str, issues: List[str] = None) -> str:
+    """
+    워크플로우 수리를 위한 프롬프트를 포맷팅합니다.
+    
+    Args:
+        workflow_content: 워크플로우 내용
+        issues: 발견된 이슈 목록
+        
+    Returns:
+        str: 포맷팅된 프롬프트
+    """
     base_prompt = f"""
-GitHub Actions 워크플로우에서 오류가 발견되었습니다. 이를 수정해주세요.
+You are an expert in GitHub Actions workflow optimization and security. Please analyze and improve the following GitHub Actions workflow file to fix common issues and smells.
 
-**오류 정보:**
-- 타입: {error_type}
-- 메시지: {error_message}
-- 라인: {line_number}
+Focus on improving:
+1. Security issues (outdated actions, permissions)
+2. Performance issues (timeout settings, caching)
+3. Reliability issues (race conditions, resource limits)
+4. Best practices (concurrency, error handling)
+"""
+    
+    if issues:
+        issues_text = "\n".join(f"- {issue}" for issue in issues)
+        base_prompt += f"\n\nSpecific issues to address:\n{issues_text}"
+    
+    base_prompt += f"""
 
-**원본 워크플로우:**
+Original workflow:
 ```yaml
 {workflow_content}
 ```
-"""
-    
-    if additional_context:
-        base_prompt += f"\n**추가 컨텍스트:**\n{additional_context}\n"
-    
-    if repair_mode == "guided":
-        base_prompt += """
-**수정 요구사항:**
-1. 오류를 정확히 식별하고 수정하세요
-2. GitHub Actions의 모범 사례를 따르세요
-3. 기존 워크플로우의 의도를 유지하세요
-4. 수정된 전체 YAML을 제공하고, 변경사항을 설명하세요
 
-**응답 형식:**
-```yaml
-# 수정된 워크플로우
-```
-
-**변경사항 설명:**
-- [변경사항 설명]
-"""
-    else:  # simple mode
-        base_prompt += """
-**요청:**
-위 오류를 수정한 완전한 YAML 워크플로우를 제공해주세요.
-
-```yaml
-# 수정된 워크플로우
-```
+Please provide ONLY the improved YAML content without any explanations or markdown formatting. The output should be valid YAML that can be directly saved to a file.
 """
     
     return base_prompt
 
 
-def get_model_info(model: str) -> Dict[str, Any]:
+def get_model_info() -> Dict[str, Any]:
     """
-    모델 정보를 반환합니다.
+    현재 사용 중인 모델 정보를 반환합니다.
+    
+    Returns:
+        Dict[str, Any]: 모델 정보
+    """
+    provider = _get_current_provider()
+    
+    if provider == LLMProvider.OPENAI:
+        model_key = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        actual_model = OPENAI_MODELS.get(model_key, model_key)
+        return {
+            "provider": "openai",
+            "model_key": model_key,
+            "actual_model": actual_model,
+            "available": openai_available,
+            "supported_models": list(OPENAI_MODELS.keys())
+        }
+    elif provider == LLMProvider.OLLAMA:
+        model_key = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+        actual_model = OLLAMA_MODELS.get(model_key, model_key)
+        return {
+            "provider": "ollama",
+            "model_key": model_key,
+            "actual_model": actual_model,
+            "url": os.getenv("OLLAMA_URL", "http://115.145.178.160:11434/api/chat"),
+            "available": requests_available,
+            "supported_models": list(OLLAMA_MODELS.keys())
+        }
+    else:
+        return {"provider": "unknown", "available": False}
+
+
+def get_available_ollama_models() -> List[str]:
+    """
+    사용 가능한 Ollama 모델 목록을 반환합니다.
+    
+    Returns:
+        List[str]: 모델 키 목록
+    """
+    return list(OLLAMA_MODELS.keys())
+
+
+def get_available_openai_models() -> List[str]:
+    """
+    사용 가능한 OpenAI 모델 목록을 반환합니다.
+    
+    Returns:
+        List[str]: 모델 키 목록
+    """
+    return list(OPENAI_MODELS.keys())
+
+
+def validate_model_for_provider(provider: LLMProvider, model: str) -> bool:
+    """
+    특정 제공자에 대해 모델이 유효한지 검증합니다.
     
     Args:
-        model: 모델명
+        provider: LLM 제공자
+        model: 모델 키
         
     Returns:
-        Dict: 모델 정보
+        bool: 유효하면 True
     """
-    model_info = {
-        "gpt-3.5-turbo": {
-            "max_tokens": 4096,
-            "cost_per_1k_tokens": 0.002,
-            "good_for": ["syntax_repair", "simple_semantic_repair"]
-        },
-        "gpt-4": {
-            "max_tokens": 8192,
-            "cost_per_1k_tokens": 0.03,
-            "good_for": ["complex_semantic_repair", "guided_repair"]
-        },
-        "gpt-4-turbo": {
-            "max_tokens": 128000,
-            "cost_per_1k_tokens": 0.01,
-            "good_for": ["large_workflows", "complex_analysis"]
-        }
-    }
+    if provider == LLMProvider.OPENAI:
+        return model in OPENAI_MODELS
+    elif provider == LLMProvider.OLLAMA:
+        return model in OLLAMA_MODELS
+    return False
+
+
+def estimate_token_cost(prompt: str, max_tokens: int = 2000) -> Dict[str, float]:
+    """
+    토큰 비용을 추정합니다 (OpenAI 기준).
     
-    return model_info.get(model, {
-        "max_tokens": 4096,
-        "cost_per_1k_tokens": 0.002,
-        "good_for": ["general"]
-    })
-
-
-def estimate_token_cost(prompt: str, model: str = "gpt-3.5-turbo") -> Dict[str, Any]:
+    Args:
+        prompt: 입력 프롬프트
+        max_tokens: 최대 출력 토큰
+        
+    Returns:
+        Dict[str, float]: 예상 비용 정보
     """
-    토큰 수와 예상 비용을 계산합니다.
+    # 대략적인 토큰 계산 (1 토큰 ≈ 4글자)
+    input_tokens = len(prompt) // 4
+    output_tokens = max_tokens
+    
+    # GPT-4o-mini 가격 (2024년 기준, $0.00015/1K input, $0.0006/1K output)
+    input_cost = (input_tokens / 1000) * 0.00015
+    output_cost = (output_tokens / 1000) * 0.0006
+    total_cost = input_cost + output_cost
+    
+    return {
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "input_cost_usd": input_cost,
+        "output_cost_usd": output_cost,
+        "total_cost_usd": total_cost
+    }
+
+
+def _get_current_provider() -> LLMProvider:
+    """환경변수를 기반으로 현재 사용할 LLM 제공자를 결정합니다."""
+    provider_env = os.getenv("LLM_PROVIDER", "openai").lower()
+    
+    if provider_env == "ollama":
+        return LLMProvider.OLLAMA
+    else:
+        return LLMProvider.OPENAI
+
+
+def call_llm(
+    prompt: str,
+    model: str = None,
+    max_tokens: int = 2000,
+    temperature: float = 0.1,
+    api_key: Optional[str] = None
+) -> Optional[str]:
+    """
+    기존 main.py와 호환되는 LLM 호출 함수.
+    환경변수 LLM_PROVIDER로 제공자 선택 가능.
+    
+    환경변수 설정 예시:
+    - export LLM_PROVIDER=ollama
+    - export OLLAMA_MODEL=llama3.1:8b
+    - export OLLAMA_URL=http://115.145.178.160:11434/api/chat
     
     Args:
         prompt: 프롬프트
-        model: 모델명
+        model: 사용할 모델명 (환경변수로 재정의 가능)
+        max_tokens: 최대 토큰 수
+        temperature: 응답의 랜덤성
+        api_key: API 키
         
     Returns:
-        Dict: 토큰 정보
-               {
-                   "estimated_tokens": int,
-                   "estimated_cost": float,
-                   "model": str
-               }
+        Optional[str]: LLM 응답
     """
-    # 간단한 토큰 추정 (1 토큰 ≈ 4 characters)
-    estimated_tokens = len(prompt) // 4
+    logger = logging.getLogger(__name__)
+    provider = _get_current_provider()
     
-    model_info = get_model_info(model)
-    cost_per_1k = model_info.get("cost_per_1k_tokens", 0.002)
-    estimated_cost = (estimated_tokens / 1000) * cost_per_1k
+    # 환경변수에서 모델명 가져오기
+    if provider == LLMProvider.OPENAI:
+        if model is None:
+            model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        
+        logger.info(f"OpenAI 모델 사용: {model}")
+        
+        return call_openai_api(
+            prompt=prompt,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            api_key=api_key
+        )
     
-    return {
-        "estimated_tokens": estimated_tokens,
-        "estimated_cost": estimated_cost,
-        "model": model
-    }
+    elif provider == LLMProvider.OLLAMA:
+        if model is None:
+            model_key = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+        else:
+            model_key = model
+        
+        # 실제 모델명 가져오기
+        actual_model = OLLAMA_MODELS.get(model_key, model_key)
+        ollama_url = os.getenv("OLLAMA_URL", "http://115.145.178.160:11434/api/chat")
+        logger.info(f"Ollama 모델 사용: {model_key} -> {actual_model}")
+        
+        return call_ollama_api(
+            prompt=prompt,
+            model=actual_model,
+            ollama_url=ollama_url,
+            temperature=temperature,
+            timeout=300
+        )
+    
+    else:
+        logger.error(f"지원되지 않는 LLM 제공자: {provider}")
+        return None
+
+
+# 사용 예시 및 도움말
+if __name__ == "__main__":
+    # 예시 사용법
+    print("=" * 60)
+    print("🤖 LLM API 모듈 정보")
+    print("=" * 60)
+    
+    print("🔧 사용 가능한 LLM 제공자:", get_available_providers())
+    print("📊 현재 모델 정보:", get_model_info())
+    
+    print("\n📋 지원되는 Ollama 모델:")
+    for i, model in enumerate(get_available_ollama_models(), 1):
+        actual = OLLAMA_MODELS[model]
+        print(f"   {i:2d}. {model} -> {actual}")
+    
+    print("\n📋 지원되는 OpenAI 모델:")
+    for i, model in enumerate(get_available_openai_models(), 1):
+        print(f"   {i:2d}. {model}")
+    
+    print("\n🔧 환경변수 설정 예시:")
+    print("   # Ollama 사용")
+    print("   export LLM_PROVIDER=ollama")
+    print("   export OLLAMA_MODEL=llama3.1:8b")
+    print("   export OLLAMA_URL=http://115.145.178.160:11434/api/chat")
+    print()
+    print("   # OpenAI 사용")  
+    print("   export LLM_PROVIDER=openai")
+    print("   export OPENAI_MODEL=gpt-4o-mini")
+    print("   export OPENAI_API_KEY=your_api_key")
+    
+    print("\n📝 main.py 사용 예시:")
+    print("   # Ollama로 실행")
+    print("   LLM_PROVIDER=ollama OLLAMA_MODEL=llama3.1:8b python main.py --input file.yml --output . --mode baseline")
+    print()
+    print("   # 다른 모델로 실행")
+    print("   LLM_PROVIDER=ollama OLLAMA_MODEL=codegemma:7b python main.py --input file.yml --output . --mode baseline")
+    print("   LLM_PROVIDER=ollama OLLAMA_MODEL=codellama:7b python main.py --input file.yml --output . --mode baseline")
+    print()
+    print("   # OpenAI로 실행")  
+    print("   LLM_PROVIDER=openai OPENAI_MODEL=gpt-4o python main.py --input file.yml --output . --mode baseline")
+    
+    print("=" * 60)
