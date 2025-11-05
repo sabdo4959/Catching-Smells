@@ -446,9 +446,9 @@ def create_syntax_repair_prompt(yaml_content: str, actionlint_errors: list, use_
 4. Return the complete corrected YAML workflow
 5. Ensure the output is valid YAML syntax
 
-**응답 형식:**
+**Response Format:**
 ```yaml
-# 수정된 워크플로우
+# Fixed workflow
 ```
 """
 
@@ -466,24 +466,24 @@ def create_guided_syntax_repair_prompt(yaml_content: str, actionlint_errors: lis
     Returns:
         str: 생성된 가이드 프롬프트
     """
-    prompt = f"""### 역할 ###
-너는 GitHub Actions YAML 파일의 구문 오류만을 전문적으로 수정하는 '정밀한 린터(Linter) 로봇'이다. 너의 유일한 임무는 주어진 오류 목록을 해결하는 것이다.
+    prompt = f"""### ROLE ###
+You are a "Precision Linter Robot" that specializes ONLY in fixing syntax errors in GitHub Actions YAML files. Your sole mission is to resolve the given error list.
 
-엄격한 지시사항 (가장 중요)
-목표: 위에 나열된 '탐지된 구문 오류' 목록만을 수정하라.
+### STRICT INSTRUCTIONS (MOST IMPORTANT) ###
+GOAL: Fix ONLY the 'Detected Syntax Errors' listed below.
 
-엄격한 금지사항 (Guardrail):
-- 오류 목록에서 언급되지 않은 그 어떤 코드도 절대 수정하거나 변경하지 마라.
-- 워크플로우의 로직, 스텝 순서, if 조건, run 스크립트 내용 등 의미론적인(semantic) 부분은 절대 건드리지 마라.
-- 새로운 스텝이나 잡(job)을 추가하거나 삭제하지 마라.
-- 주석이나 기존 포맷팅은 최대한 원본을 유지하라.
+### STRICT PROHIBITIONS (Guardrails): ###
+- NEVER modify or change any code that is not mentioned in the error list.
+- NEVER touch semantic parts such as workflow logic, step order, if conditions, run script contents, etc.
+- NEVER add or remove new steps or jobs.
+- Preserve original comments and formatting as much as possible.
 
-**원본 YAML:**
+**Original YAML:**
 ```yaml
 {yaml_content}
 ```
 
-**탐지된 구문 오류:**
+**Detected Syntax Errors:**
 """
     for i, error in enumerate(actionlint_errors, 1):
         prompt += f"{i}. {error.get('message', 'Unknown error')}\n"
@@ -491,9 +491,9 @@ def create_guided_syntax_repair_prompt(yaml_content: str, actionlint_errors: lis
             prompt += f"   Line {error['line']}: {error.get('column', 'N/A')}\n"
 
     prompt += """
-**응답 형식:**
+**Response Format:**
 ```yaml
-# 수정된 워크플로우
+# Fixed workflow
 ```
 """
 
@@ -541,9 +541,9 @@ def create_semantic_repair_prompt(yaml_content: str, smells: list, use_guided_pr
 4. Apply GitHub Actions best practices
 5. Return the complete improved YAML workflow
 
-**응답 형식:**
+**Response Format:**
 ```yaml
-# 수정된 워크플로우
+# Fixed workflow
 ```
 """
 
@@ -561,23 +561,23 @@ def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str
     Returns:
         str: 생성된 가이드 프롬프트
     """
-    prompt = f"""### 역할 ###
-너는 GitHub Actions 워크플로우의 '특정 코드 스멜(Smell) 목록'만을 모범 사례에 따라 수정하는 '전문 DevOps 엔지니어'이다.
+    prompt = f"""### ROLE ###
+You are a "Professional DevOps Engineer" who fixes ONLY the 'Specific Code Smell List' in GitHub Actions workflows according to best practices.
 
-엄격한 지시사항 (가장 중요)
-목표: 위에 나열된 '탐지된 의미론적 스멜 목록'만을 GitHub 모범 사례에 따라 수정하라.
+### STRICT INSTRUCTIONS (MOST IMPORTANT) ###
+GOAL: Fix ONLY the 'Detected Semantic Smell List' listed below according to GitHub best practices.
 
-엄격한 금지사항 (Guardrail):
-- 목록에 없는 스멜이나 다른 코드 품질 문제는 절대 수정하지 마라. (예: 효율성을 임의로 개선하려 하지 마라)
-- 스멜 수정과 직접적으로 관련 없는 코드는 절대 변경하지 마라. (예: timeout 스멜을 고치기 위해 permissions 키를 수정하지 마라)
-- 기존 워크플로우의 핵심 기능, 동작 순서, if 조건 등 구조적/논리적 흐름을 변경하지 않는 선에서 스멜을 수정하라
+### STRICT PROHIBITIONS (Guardrails): ###
+- NEVER fix smells or other code quality issues not listed. (e.g., don't arbitrarily improve efficiency)
+- NEVER change code not directly related to smell fixes. (e.g., don't modify permissions key to fix timeout smell)
+- Fix smells while maintaining the core functionality, behavior sequence, if conditions, and other structural/logical flow of the existing workflow
 
-**현재 YAML (구문 오류는 이미 수정됨):**
+**Current YAML (syntax errors already fixed):**
 ```yaml
 {yaml_content}
 ```
 
-**수정해야 할 코드 스멜:**
+**Code Smells to Fix:**
 """
     for i, smell in enumerate(smells, 1):
         prompt += f"{i}. **{smell.get('type', 'Unknown')}**: {smell.get('description', 'No description')}\n"
@@ -587,11 +587,11 @@ def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str
             prompt += f"   Suggestion: {smell['suggestion']}\n"
 
     prompt += """
-각 스멜을 GitHub Actions 모범 사례에 따라 수정한 개선된 YAML을 제공하라:
+Provide an improved YAML that fixes each smell according to GitHub Actions best practices:
 
-**응답 형식:**
+**Response Format:**
 ```yaml
-# 수정된 워크플로우
+# Fixed workflow
 ```
 """
 
@@ -605,20 +605,20 @@ def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: l
     """
     베이스라인 모드용 통합 프롬프트를 생성합니다.
     """
-    prompt = f"""GitHub Actions 워크플로우에서 발견된 문제들을 수정해주세요.
+    prompt = f"""Please fix the issues found in this GitHub Actions workflow.
 
-**원본 워크플로우:**
+**Original Workflow:**
 ```yaml
 {yaml_content}
 ```
 
-**발견된 문제들:**
+**Issues Found:**
 
 """
     
     # actionlint 오류 추가
     if actionlint_errors:
-        prompt += "**구문 오류 (actionlint):**\n"
+        prompt += "**Syntax Errors (actionlint):**\n"
         for i, error in enumerate(actionlint_errors[:10], 1):  # 최대 10개
             if isinstance(error, dict):
                 error_msg = error.get('message', str(error))
@@ -627,30 +627,30 @@ def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: l
             prompt += f"{i}. {error_msg}\n"
         prompt += "\n"
     else:
-        prompt += "**구문 오류:** 없음\n\n"
+        prompt += "**Syntax Errors:** None\n\n"
     
     # smell detector 결과 추가
     if smells:
-        prompt += "**의미론적 스멜:**\n"
+        prompt += "**Semantic Smells:**\n"
         for i, smell in enumerate(smells[:10], 1):  # 최대 10개
             smell_msg = smell.get('message', str(smell))
             prompt += f"{i}. {smell_msg}\n"
         prompt += "\n"
     else:
-        prompt += "**의미론적 스멜:** 없음\n\n"
+        prompt += "**Semantic Smells:** None\n\n"
     
-    prompt += """**수정 요청:**
-위에서 발견된 모든 구문 오류와 의미론적 스멜을 수정한 완전한 GitHub Actions 워크플로우를 제공해주세요.
+    prompt += """**Fix Request:**
+Please provide a complete GitHub Actions workflow that fixes all the syntax errors and semantic smells found above.
 
-**수정 시 고려사항:**
-1. GitHub Actions의 최신 문법과 모범 사례를 따라주세요
-2. 기존 워크플로우의 의도와 기능을 유지해주세요
-3. 보안 관련 문제는 우선적으로 수정해주세요
-4. 모든 구문 오류를 수정해주세요
+**Considerations for Fixes:**
+1. Follow the latest GitHub Actions syntax and best practices
+2. Maintain the intent and functionality of the existing workflow
+3. Prioritize fixing security-related issues
+4. Fix all syntax errors
 
-**응답 형식:**
+**Response Format:**
 ```yaml
-# 수정된 워크플로우
+# Fixed workflow
 ```
 """
     
