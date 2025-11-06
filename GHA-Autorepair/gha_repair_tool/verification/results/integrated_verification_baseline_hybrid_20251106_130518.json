@@ -1,0 +1,126 @@
+{
+  "timestamp": "2025-11-06 13:05:18",
+  "configuration": {
+    "original_dir": "data_original",
+    "repaired_dir": "data_repair_baseline",
+    "repair_method": "baseline",
+    "verification_mode": "hybrid",
+    "max_files": 5
+  },
+  "statistics": {
+    "total_files": 5,
+    "verified_files": 5,
+    "safe_files": 0,
+    "unsafe_files": 5,
+    "error_files": 0,
+    "safety_rate": 0.0,
+    "elapsed_time": 0.131746
+  },
+  "verification_details": {
+    "structural_only_safe": 0,
+    "logical_only_safe": 0,
+    "both_safe": 0,
+    "both_unsafe": 1,
+    "mixed_results": 4,
+    "average_confidence": 0.32
+  },
+  "file_results": [
+    {
+      "file_id": "ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "6839a86ccedd509bc8fc377d807994fce4dc678ab3b1f2e27fb526f2d3ac6677",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "e41b62a551af6cb18015456463bc047af12251d324dac5e65729b0c02772b094",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "f78d03790f73ef888d1fdb4fd34cccb65abd258eb70136634492ccbbe18c0a7a",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    }
+  ]
+}

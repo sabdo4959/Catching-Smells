@@ -1,0 +1,12 @@
+
+name: Trigger Test
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo test

@@ -1,0 +1,633 @@
+{
+  "timestamp": "2025-11-06 13:01:46",
+  "configuration": {
+    "original_dir": "data_original",
+    "repaired_dir": "data_gha_repair",
+    "repair_method": "gha_repair",
+    "verification_mode": "hybrid",
+    "max_files": 10
+  },
+  "statistics": {
+    "total_files": 10,
+    "verified_files": 10,
+    "safe_files": 5,
+    "unsafe_files": 5,
+    "error_files": 0,
+    "safety_rate": 0.5,
+    "elapsed_time": 0.154182
+  },
+  "verification_details": {
+    "structural_only_safe": 0,
+    "logical_only_safe": 0,
+    "both_safe": 5,
+    "both_unsafe": 3,
+    "mixed_results": 2,
+    "average_confidence": 0.6
+  },
+  "file_results": [
+    {
+      "file_id": "e8ca5641cfb5535be2f08365991b955e25a7dded4349656fd1ad5fd7a4c6baca",
+      "is_safe": false,
+      "confidence_score": 0.6,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8].env",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8]",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8].env.NODE_AUTH_TOKEN",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8].env.NPM_CONFIG_PROVENANCE",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8].run",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8].name",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[7].run",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[8].if",
+          "핵심 구조 키 제거: root.jobs.release-pr.steps[7]",
+          "예상치 못한 키 추가: root.jobs.release-pr.steps[5].name",
+          "예상치 못한 키 추가: root.jobs.release-pr.steps[6].env.NPM_CONFIG_PROVENANCE",
+          "예상치 못한 키 추가: root.jobs.release-pr.steps[6].env.NODE_AUTH_TOKEN",
+          "예상치 못한 키 추가: root.jobs.release-pr.steps[6].env",
+          "예상치 못한 키 추가: root.jobs.release-pr.steps[6].run",
+          "예상치 못한 키 추가: root.jobs.release-pr.steps[4].run",
+          "핵심 리스트 길이 변경: root.jobs.release-pr.steps (9 → 7)"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8].env",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8]",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8].env.NODE_AUTH_TOKEN",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8].env.NPM_CONFIG_PROVENANCE",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8].run",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8].name",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[7].run",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[8].if",
+            "핵심 구조 키 제거: root.jobs.release-pr.steps[7]",
+            "예상치 못한 키 추가: root.jobs.release-pr.steps[5].name",
+            "예상치 못한 키 추가: root.jobs.release-pr.steps[6].env.NPM_CONFIG_PROVENANCE",
+            "예상치 못한 키 추가: root.jobs.release-pr.steps[6].env.NODE_AUTH_TOKEN",
+            "예상치 못한 키 추가: root.jobs.release-pr.steps[6].env",
+            "예상치 못한 키 추가: root.jobs.release-pr.steps[6].run",
+            "예상치 못한 키 추가: root.jobs.release-pr.steps[4].run",
+            "핵심 리스트 길이 변경: root.jobs.release-pr.steps (9 → 7)"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "d97a8ddc770b29c2b11ce6731366ef281f2f8bf1157f8ead13583a23b839c079",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "중요 타입 변경: root.on.push.tags (value → list)"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "중요 타입 변경: root.on.push.tags (value → list)"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "b3d9c061128a7cc41dd723ebf0f64183a8a8bb9974685f4a1a8ae9df8e3b1dc4",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[2].run",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs[0]",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].with.password",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.runs-on",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].uses",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].name",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[2].name",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[0].uses",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].with",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs[1]",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].with.username",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[0]",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.if",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1]",
+          "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[2]",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.needs[1]",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].uses",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1]",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].name",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[2].run",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[0]",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].with.username",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[2]",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[0].uses",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.runs-on",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.needs",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].with",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].with.password",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[2].name",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub",
+          "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.needs[0]",
+          "구조적 값 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs (타입: needs)",
+          "예상치 못한 구조적 값 추가: root.jobs.deploy_to_dockerhub.needs (타입: needs)"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.matrix_prep.outputs.matrix": {
+              "type": "matrix",
+              "value": "${{ steps.set-matrix.outputs.matrix }}"
+            },
+            "root.jobs.test.needs": {
+              "type": "needs",
+              "value": [
+                "matrix_prep"
+              ]
+            },
+            "root.jobs.test.strategy.matrix": {
+              "type": "matrix",
+              "value": "${{fromJson(needs.matrix_prep.outputs.matrix)}}"
+            },
+            "root.jobs.deploy_to_pypi.needs": {
+              "type": "needs",
+              "value": [
+                "test"
+              ]
+            },
+            "root.jobs.create_version_file.needs": {
+              "type": "needs",
+              "value": [
+                "test"
+              ]
+            },
+            "root.jobs.create_version_file.deploy_to_dockerhub.needs": {
+              "type": "needs",
+              "value": [
+                "deploy_to_pypi",
+                "create_version_file"
+              ]
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.matrix_prep.outputs.matrix": {
+              "type": "matrix",
+              "value": "${{ steps.set-matrix.outputs.matrix }}"
+            },
+            "root.jobs.test.needs": {
+              "type": "needs",
+              "value": [
+                "matrix_prep"
+              ]
+            },
+            "root.jobs.test.strategy.matrix": {
+              "type": "matrix",
+              "value": "${{fromJson(needs.matrix_prep.outputs.matrix)}}"
+            },
+            "root.jobs.deploy_to_pypi.needs": {
+              "type": "needs",
+              "value": [
+                "test"
+              ]
+            },
+            "root.jobs.create_version_file.needs": {
+              "type": "needs",
+              "value": [
+                "test"
+              ]
+            },
+            "root.jobs.deploy_to_dockerhub.needs": {
+              "type": "needs",
+              "value": [
+                "deploy_to_pypi",
+                "create_version_file"
+              ]
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[2].run",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs[0]",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].with.password",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.runs-on",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].uses",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].name",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[2].name",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[0].uses",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].with",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs[1]",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1].with.username",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[0]",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.if",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[1]",
+            "핵심 구조 키 제거: root.jobs.create_version_file.deploy_to_dockerhub.steps[2]",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.needs[1]",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].uses",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1]",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].name",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[2].run",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[0]",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].with.username",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[2]",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[0].uses",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.runs-on",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.needs",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].with",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[1].with.password",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.steps[2].name",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub",
+            "예상치 못한 키 추가: root.jobs.deploy_to_dockerhub.needs[0]",
+            "구조적 값 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs (타입: needs)",
+            "예상치 못한 구조적 값 추가: root.jobs.deploy_to_dockerhub.needs (타입: needs)"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.matrix_prep.outputs.matrix": {
+                "type": "matrix",
+                "value": "${{ steps.set-matrix.outputs.matrix }}"
+              },
+              "root.jobs.test.needs": {
+                "type": "needs",
+                "value": [
+                  "matrix_prep"
+                ]
+              },
+              "root.jobs.test.strategy.matrix": {
+                "type": "matrix",
+                "value": "${{fromJson(needs.matrix_prep.outputs.matrix)}}"
+              },
+              "root.jobs.deploy_to_pypi.needs": {
+                "type": "needs",
+                "value": [
+                  "test"
+                ]
+              },
+              "root.jobs.create_version_file.needs": {
+                "type": "needs",
+                "value": [
+                  "test"
+                ]
+              },
+              "root.jobs.create_version_file.deploy_to_dockerhub.needs": {
+                "type": "needs",
+                "value": [
+                  "deploy_to_pypi",
+                  "create_version_file"
+                ]
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.matrix_prep.outputs.matrix": {
+                "type": "matrix",
+                "value": "${{ steps.set-matrix.outputs.matrix }}"
+              },
+              "root.jobs.test.needs": {
+                "type": "needs",
+                "value": [
+                  "matrix_prep"
+                ]
+              },
+              "root.jobs.test.strategy.matrix": {
+                "type": "matrix",
+                "value": "${{fromJson(needs.matrix_prep.outputs.matrix)}}"
+              },
+              "root.jobs.deploy_to_pypi.needs": {
+                "type": "needs",
+                "value": [
+                  "test"
+                ]
+              },
+              "root.jobs.create_version_file.needs": {
+                "type": "needs",
+                "value": [
+                  "test"
+                ]
+              },
+              "root.jobs.deploy_to_dockerhub.needs": {
+                "type": "needs",
+                "value": [
+                  "deploy_to_pypi",
+                  "create_version_file"
+                ]
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "3b0f4d26d3c262ab4ceb80fe3b383abd64fc981e08206b7ea81978d3d489443f",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.update-dockerhub-latest.steps[1].run",
+          "예상치 못한 키 추가: root.jobs.update-dockerhub-latest.steps[1].with",
+          "예상치 못한 키 추가: root.jobs.update-dockerhub-latest.steps[1].with.version"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.update-dockerhub-latest.needs": {
+              "type": "needs",
+              "value": [
+                "update-cdn-latest"
+              ]
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.update-dockerhub-latest.needs": {
+              "type": "needs",
+              "value": [
+                "update-cdn-latest"
+              ]
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.update-dockerhub-latest.steps[1].run",
+            "예상치 못한 키 추가: root.jobs.update-dockerhub-latest.steps[1].with",
+            "예상치 못한 키 추가: root.jobs.update-dockerhub-latest.steps[1].with.version"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.update-dockerhub-latest.needs": {
+                "type": "needs",
+                "value": [
+                  "update-cdn-latest"
+                ]
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.update-dockerhub-latest.needs": {
+                "type": "needs",
+                "value": [
+                  "update-cdn-latest"
+                ]
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "e26f0a9f370f0c0a194eebdec1be57ead739237adc08fc60b71c5566627623f6",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn.RTDURL",
+          "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn",
+          "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn.TAGNAME",
+          "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn.RTDTOKEN",
+          "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env.RTDTOKEN",
+          "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env.RTDURL",
+          "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env",
+          "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env.TAGNAME"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.deploy-windows.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "python-version": [
+                  3.7
+                ]
+              }
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.deploy-windows.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "python-version": [
+                  3.7
+                ]
+              }
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn.RTDURL",
+            "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn",
+            "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn.TAGNAME",
+            "핵심 구조 키 제거: root.jobs.deploy-windows.steps[4].evn.RTDTOKEN",
+            "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env.RTDTOKEN",
+            "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env.RTDURL",
+            "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env",
+            "예상치 못한 키 추가: root.jobs.deploy-windows.steps[4].env.TAGNAME"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.deploy-windows.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "python-version": [
+                    3.7
+                  ]
+                }
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.deploy-windows.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "python-version": [
+                    3.7
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "42149135cb0e7ef51212fc5c943cb1ac604761289d817d9867f799d0bd7c1e9e",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "650df84b099666e3bc0d059f3a2492c42f2418652f3ff74a99766d7a045d3d4a",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "29bf497aa30bf874788443bc1d3a3006d2ecd4c01bc82f4d9b0305ad205923c8",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "93f763fb4a84d29e77a6bf72349a0534feaee1862658e1807423e8900d015dcb",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "Steps 순서 변경 감지: jobs.checks.steps"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "Steps 순서 변경 감지: jobs.checks.steps"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "12bc3aaaf6a500edc9d5086c088dc050d1c60777879910668e066b3fb0862d11",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    }
+  ]
+}

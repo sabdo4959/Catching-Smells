@@ -1,0 +1,1615 @@
+{
+  "timestamp": "2025-11-06 13:00:48",
+  "configuration": {
+    "original_dir": "data_original",
+    "repaired_dir": "data_repair_baseline",
+    "repair_method": "baseline",
+    "verification_mode": "hybrid",
+    "max_files": 10
+  },
+  "statistics": {
+    "total_files": 10,
+    "verified_files": 10,
+    "safe_files": 5,
+    "unsafe_files": 5,
+    "error_files": 0,
+    "safety_rate": 0.5,
+    "elapsed_time": 0.273328
+  },
+  "verification_details": {
+    "structural_only_safe": 0,
+    "logical_only_safe": 0,
+    "both_safe": 5,
+    "both_unsafe": 3,
+    "mixed_results": 2,
+    "average_confidence": 0.58
+  },
+  "file_results": [
+    {
+      "file_id": "ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "6839a86ccedd509bc8fc377d807994fce4dc678ab3b1f2e27fb526f2d3ac6677",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "e41b62a551af6cb18015456463bc047af12251d324dac5e65729b0c02772b094",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.deploy.steps[4].run[1]",
+          "핵심 구조 키 제거: root.jobs.deploy.steps[4].run[0]",
+          "중요 타입 변경: root.jobs.deploy.steps[4].run (list → value)",
+          "Steps 순서 변경 감지: jobs.deploy.steps"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.deploy.steps[4].run[1]",
+            "핵심 구조 키 제거: root.jobs.deploy.steps[4].run[0]",
+            "중요 타입 변경: root.jobs.deploy.steps[4].run (list → value)",
+            "Steps 순서 변경 감지: jobs.deploy.steps"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.build-backend.steps[7].with.platforms[0]",
+          "핵심 구조 키 제거: root.jobs.build-backend.steps[7].with.platforms[1]",
+          "핵심 구조 키 제거: root.jobs.build-omni.steps[7].with.platforms[0]",
+          "핵심 구조 키 제거: root.jobs.build-omni.steps[7].with.platforms[1]",
+          "핵심 구조 키 제거: root.jobs.build-frontend.steps[6].with.platforms[1]",
+          "핵심 구조 키 제거: root.jobs.build-frontend.steps[6].with.platforms[0]",
+          "중요 타입 변경: root.jobs.build-omni.steps[7].with.platforms (list → value)",
+          "중요 타입 변경: root.jobs.build-backend.steps[7].with.platforms (list → value)",
+          "중요 타입 변경: root.jobs.build-frontend.steps[6].with.platforms (list → value)"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.build-backend.steps[7].with.platforms[0]",
+            "핵심 구조 키 제거: root.jobs.build-backend.steps[7].with.platforms[1]",
+            "핵심 구조 키 제거: root.jobs.build-omni.steps[7].with.platforms[0]",
+            "핵심 구조 키 제거: root.jobs.build-omni.steps[7].with.platforms[1]",
+            "핵심 구조 키 제거: root.jobs.build-frontend.steps[6].with.platforms[1]",
+            "핵심 구조 키 제거: root.jobs.build-frontend.steps[6].with.platforms[0]",
+            "중요 타입 변경: root.jobs.build-omni.steps[7].with.platforms (list → value)",
+            "중요 타입 변경: root.jobs.build-backend.steps[7].with.platforms (list → value)",
+            "중요 타입 변경: root.jobs.build-frontend.steps[6].with.platforms (list → value)"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "f78d03790f73ef888d1fdb4fd34cccb65abd258eb70136634492ccbbe18c0a7a",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "7ccd3e4d4e0943fecaf6cbadb17126d53209e3c344ef217cf05858c0933fde1c",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "예상치 못한 키 추가: root.jobs.repo_visualizer.needs[0]",
+          "중요 타입 변경: root.on.pull_request (value → dict)",
+          "핵심 리스트 길이 변경: root.jobs.repo_visualizer.needs (0 → 1)",
+          "needs 의존성 변경: root.jobs.repo_visualizer.needs (set() → {'check'})"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.check.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "path": [
+                  "src",
+                  "include"
+                ]
+              }
+            },
+            "root.jobs.repo_visualizer.needs": {
+              "type": "needs",
+              "value": []
+            },
+            "root.jobs.build.needs": {
+              "type": "needs",
+              "value": [
+                "check"
+              ]
+            },
+            "root.jobs.build.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "config": [
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 14",
+                    "cc": "clang-14",
+                    "cxx": "clang++-14",
+                    "artifact": "ubuntu-clang-14",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 13",
+                    "cc": "clang-13",
+                    "cxx": "clang++-13",
+                    "artifact": "ubuntu-clang-13",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 12",
+                    "cc": "clang-12",
+                    "cxx": "clang++-12",
+                    "artifact": "ubuntu-clang-12",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 11",
+                    "cc": "clang-11",
+                    "cxx": "clang++-11",
+                    "artifact": "ubuntu-clang-11",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 11 (valgrind)",
+                    "cc": "clang-11",
+                    "cxx": "clang++-11",
+                    "artifact": "ubuntu-clang-11-valgrind",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 10",
+                    "cc": "clang-10",
+                    "cxx": "clang++-10",
+                    "artifact": "ubuntu-clang-10",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 9",
+                    "cc": "clang-9",
+                    "cxx": "clang++-9",
+                    "artifact": "ubuntu-clang-9",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 12",
+                    "cc": "gcc-12",
+                    "cxx": "g++-12",
+                    "artifact": "ubuntu-gcc-12",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 11",
+                    "cc": "gcc-11",
+                    "cxx": "g++-11",
+                    "artifact": "ubuntu-gcc-11",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 10",
+                    "cc": "gcc-10",
+                    "cxx": "g++-10",
+                    "artifact": "ubuntu-gcc-10",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 9",
+                    "cc": "gcc-9",
+                    "cxx": "g++-9",
+                    "artifact": "ubuntu-gcc-9",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu GCC 8",
+                    "cc": "gcc-8",
+                    "cxx": "g++-8",
+                    "artifact": "ubuntu-gcc-8",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2019",
+                    "cc": "cl",
+                    "cxx": "cl",
+                    "artifact": "windows-msvc-19",
+                    "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2017",
+                    "cc": "cl",
+                    "cxx": "cl",
+                    "artifact": "windows-msvc-17",
+                    "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "macos-latest",
+                    "name": "MacOS Clang 12",
+                    "cc": "clang",
+                    "cxx": "clang++",
+                    "artifact": "macos-clang-12",
+                    "sanitizers": "On",
+                    "preconfigure": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+                  }
+                ]
+              }
+            },
+            "root.jobs.tests.needs": {
+              "type": "needs",
+              "value": [
+                "build"
+              ]
+            },
+            "root.jobs.tests.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "config": [
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 14",
+                    "artifact": "ubuntu-clang-14"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 13",
+                    "artifact": "ubuntu-clang-13"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 12",
+                    "artifact": "ubuntu-clang-12"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 11",
+                    "artifact": "ubuntu-clang-11"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 10",
+                    "artifact": "ubuntu-clang-10"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 9",
+                    "artifact": "ubuntu-clang-9"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 12",
+                    "artifact": "ubuntu-gcc-12"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 11",
+                    "artifact": "ubuntu-gcc-11"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 10",
+                    "artifact": "ubuntu-gcc-10"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 9",
+                    "artifact": "ubuntu-gcc-9"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu GCC 8",
+                    "artifact": "ubuntu-gcc-8"
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2019",
+                    "artifact": "windows-msvc-19"
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2017",
+                    "artifact": "windows-msvc-17"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "name": "MacOS Clang 12",
+                    "artifact": "macos-clang-12"
+                  }
+                ]
+              }
+            },
+            "root.jobs.valgrind.needs": {
+              "type": "needs",
+              "value": [
+                "build"
+              ]
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.check.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "path": [
+                  "src",
+                  "include"
+                ]
+              }
+            },
+            "root.jobs.repo_visualizer.needs": {
+              "type": "needs",
+              "value": [
+                "check"
+              ]
+            },
+            "root.jobs.build.needs": {
+              "type": "needs",
+              "value": [
+                "check"
+              ]
+            },
+            "root.jobs.build.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "config": [
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 14",
+                    "cc": "clang-14",
+                    "cxx": "clang++-14",
+                    "artifact": "ubuntu-clang-14",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 13",
+                    "cc": "clang-13",
+                    "cxx": "clang++-13",
+                    "artifact": "ubuntu-clang-13",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 12",
+                    "cc": "clang-12",
+                    "cxx": "clang++-12",
+                    "artifact": "ubuntu-clang-12",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 11",
+                    "cc": "clang-11",
+                    "cxx": "clang++-11",
+                    "artifact": "ubuntu-clang-11",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 11 (valgrind)",
+                    "cc": "clang-11",
+                    "cxx": "clang++-11",
+                    "artifact": "ubuntu-clang-11-valgrind",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 10",
+                    "cc": "clang-10",
+                    "cxx": "clang++-10",
+                    "artifact": "ubuntu-clang-10",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 9",
+                    "cc": "clang-9",
+                    "cxx": "clang++-9",
+                    "artifact": "ubuntu-clang-9",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 12",
+                    "cc": "gcc-12",
+                    "cxx": "g++-12",
+                    "artifact": "ubuntu-gcc-12",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 11",
+                    "cc": "gcc-11",
+                    "cxx": "g++-11",
+                    "artifact": "ubuntu-gcc-11",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 10",
+                    "cc": "gcc-10",
+                    "cxx": "g++-10",
+                    "artifact": "ubuntu-gcc-10",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 9",
+                    "cc": "gcc-9",
+                    "cxx": "g++-9",
+                    "artifact": "ubuntu-gcc-9",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu GCC 8",
+                    "cc": "gcc-8",
+                    "cxx": "g++-8",
+                    "artifact": "ubuntu-gcc-8",
+                    "sanitizers": "Off",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2019",
+                    "cc": "cl",
+                    "cxx": "cl",
+                    "artifact": "windows-msvc-19",
+                    "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2017",
+                    "cc": "cl",
+                    "cxx": "cl",
+                    "artifact": "windows-msvc-17",
+                    "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                    "sanitizers": "On",
+                    "preconfigure": ""
+                  },
+                  {
+                    "os": "macos-latest",
+                    "name": "MacOS Clang 12",
+                    "cc": "clang",
+                    "cxx": "clang++",
+                    "artifact": "macos-clang-12",
+                    "sanitizers": "On",
+                    "preconfigure": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+                  }
+                ]
+              }
+            },
+            "root.jobs.tests.needs": {
+              "type": "needs",
+              "value": [
+                "build"
+              ]
+            },
+            "root.jobs.tests.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "config": [
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 14",
+                    "artifact": "ubuntu-clang-14"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 13",
+                    "artifact": "ubuntu-clang-13"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu Clang 12",
+                    "artifact": "ubuntu-clang-12"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 11",
+                    "artifact": "ubuntu-clang-11"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 10",
+                    "artifact": "ubuntu-clang-10"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu Clang 9",
+                    "artifact": "ubuntu-clang-9"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 12",
+                    "artifact": "ubuntu-gcc-12"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 11",
+                    "artifact": "ubuntu-gcc-11"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 10",
+                    "artifact": "ubuntu-gcc-10"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "name": "Ubuntu GCC 9",
+                    "artifact": "ubuntu-gcc-9"
+                  },
+                  {
+                    "os": "ubuntu-20.04",
+                    "name": "Ubuntu GCC 8",
+                    "artifact": "ubuntu-gcc-8"
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2019",
+                    "artifact": "windows-msvc-19"
+                  },
+                  {
+                    "os": "windows-latest",
+                    "name": "Windows VS 2017",
+                    "artifact": "windows-msvc-17"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "name": "MacOS Clang 12",
+                    "artifact": "macos-clang-12"
+                  }
+                ]
+              }
+            },
+            "root.jobs.valgrind.needs": {
+              "type": "needs",
+              "value": [
+                "build"
+              ]
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "예상치 못한 키 추가: root.jobs.repo_visualizer.needs[0]",
+            "중요 타입 변경: root.on.pull_request (value → dict)",
+            "핵심 리스트 길이 변경: root.jobs.repo_visualizer.needs (0 → 1)",
+            "needs 의존성 변경: root.jobs.repo_visualizer.needs (set() → {'check'})"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.check.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "path": [
+                    "src",
+                    "include"
+                  ]
+                }
+              },
+              "root.jobs.repo_visualizer.needs": {
+                "type": "needs",
+                "value": []
+              },
+              "root.jobs.build.needs": {
+                "type": "needs",
+                "value": [
+                  "check"
+                ]
+              },
+              "root.jobs.build.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "config": [
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 14",
+                      "cc": "clang-14",
+                      "cxx": "clang++-14",
+                      "artifact": "ubuntu-clang-14",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 13",
+                      "cc": "clang-13",
+                      "cxx": "clang++-13",
+                      "artifact": "ubuntu-clang-13",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 12",
+                      "cc": "clang-12",
+                      "cxx": "clang++-12",
+                      "artifact": "ubuntu-clang-12",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 11",
+                      "cc": "clang-11",
+                      "cxx": "clang++-11",
+                      "artifact": "ubuntu-clang-11",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 11 (valgrind)",
+                      "cc": "clang-11",
+                      "cxx": "clang++-11",
+                      "artifact": "ubuntu-clang-11-valgrind",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 10",
+                      "cc": "clang-10",
+                      "cxx": "clang++-10",
+                      "artifact": "ubuntu-clang-10",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 9",
+                      "cc": "clang-9",
+                      "cxx": "clang++-9",
+                      "artifact": "ubuntu-clang-9",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 12",
+                      "cc": "gcc-12",
+                      "cxx": "g++-12",
+                      "artifact": "ubuntu-gcc-12",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 11",
+                      "cc": "gcc-11",
+                      "cxx": "g++-11",
+                      "artifact": "ubuntu-gcc-11",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 10",
+                      "cc": "gcc-10",
+                      "cxx": "g++-10",
+                      "artifact": "ubuntu-gcc-10",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 9",
+                      "cc": "gcc-9",
+                      "cxx": "g++-9",
+                      "artifact": "ubuntu-gcc-9",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu GCC 8",
+                      "cc": "gcc-8",
+                      "cxx": "g++-8",
+                      "artifact": "ubuntu-gcc-8",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2019",
+                      "cc": "cl",
+                      "cxx": "cl",
+                      "artifact": "windows-msvc-19",
+                      "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2017",
+                      "cc": "cl",
+                      "cxx": "cl",
+                      "artifact": "windows-msvc-17",
+                      "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "macos-latest",
+                      "name": "MacOS Clang 12",
+                      "cc": "clang",
+                      "cxx": "clang++",
+                      "artifact": "macos-clang-12",
+                      "sanitizers": "On",
+                      "preconfigure": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+                    }
+                  ]
+                }
+              },
+              "root.jobs.tests.needs": {
+                "type": "needs",
+                "value": [
+                  "build"
+                ]
+              },
+              "root.jobs.tests.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "config": [
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 14",
+                      "artifact": "ubuntu-clang-14"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 13",
+                      "artifact": "ubuntu-clang-13"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 12",
+                      "artifact": "ubuntu-clang-12"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 11",
+                      "artifact": "ubuntu-clang-11"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 10",
+                      "artifact": "ubuntu-clang-10"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 9",
+                      "artifact": "ubuntu-clang-9"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 12",
+                      "artifact": "ubuntu-gcc-12"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 11",
+                      "artifact": "ubuntu-gcc-11"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 10",
+                      "artifact": "ubuntu-gcc-10"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 9",
+                      "artifact": "ubuntu-gcc-9"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu GCC 8",
+                      "artifact": "ubuntu-gcc-8"
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2019",
+                      "artifact": "windows-msvc-19"
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2017",
+                      "artifact": "windows-msvc-17"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "name": "MacOS Clang 12",
+                      "artifact": "macos-clang-12"
+                    }
+                  ]
+                }
+              },
+              "root.jobs.valgrind.needs": {
+                "type": "needs",
+                "value": [
+                  "build"
+                ]
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.check.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "path": [
+                    "src",
+                    "include"
+                  ]
+                }
+              },
+              "root.jobs.repo_visualizer.needs": {
+                "type": "needs",
+                "value": [
+                  "check"
+                ]
+              },
+              "root.jobs.build.needs": {
+                "type": "needs",
+                "value": [
+                  "check"
+                ]
+              },
+              "root.jobs.build.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "config": [
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 14",
+                      "cc": "clang-14",
+                      "cxx": "clang++-14",
+                      "artifact": "ubuntu-clang-14",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 13",
+                      "cc": "clang-13",
+                      "cxx": "clang++-13",
+                      "artifact": "ubuntu-clang-13",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 12",
+                      "cc": "clang-12",
+                      "cxx": "clang++-12",
+                      "artifact": "ubuntu-clang-12",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 11",
+                      "cc": "clang-11",
+                      "cxx": "clang++-11",
+                      "artifact": "ubuntu-clang-11",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 11 (valgrind)",
+                      "cc": "clang-11",
+                      "cxx": "clang++-11",
+                      "artifact": "ubuntu-clang-11-valgrind",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 10",
+                      "cc": "clang-10",
+                      "cxx": "clang++-10",
+                      "artifact": "ubuntu-clang-10",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 9",
+                      "cc": "clang-9",
+                      "cxx": "clang++-9",
+                      "artifact": "ubuntu-clang-9",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 12",
+                      "cc": "gcc-12",
+                      "cxx": "g++-12",
+                      "artifact": "ubuntu-gcc-12",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 11",
+                      "cc": "gcc-11",
+                      "cxx": "g++-11",
+                      "artifact": "ubuntu-gcc-11",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 10",
+                      "cc": "gcc-10",
+                      "cxx": "g++-10",
+                      "artifact": "ubuntu-gcc-10",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 9",
+                      "cc": "gcc-9",
+                      "cxx": "g++-9",
+                      "artifact": "ubuntu-gcc-9",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu GCC 8",
+                      "cc": "gcc-8",
+                      "cxx": "g++-8",
+                      "artifact": "ubuntu-gcc-8",
+                      "sanitizers": "Off",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2019",
+                      "cc": "cl",
+                      "cxx": "cl",
+                      "artifact": "windows-msvc-19",
+                      "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2017",
+                      "cc": "cl",
+                      "cxx": "cl",
+                      "artifact": "windows-msvc-17",
+                      "environment_script": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+                      "sanitizers": "On",
+                      "preconfigure": ""
+                    },
+                    {
+                      "os": "macos-latest",
+                      "name": "MacOS Clang 12",
+                      "cc": "clang",
+                      "cxx": "clang++",
+                      "artifact": "macos-clang-12",
+                      "sanitizers": "On",
+                      "preconfigure": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/"
+                    }
+                  ]
+                }
+              },
+              "root.jobs.tests.needs": {
+                "type": "needs",
+                "value": [
+                  "build"
+                ]
+              },
+              "root.jobs.tests.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "config": [
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 14",
+                      "artifact": "ubuntu-clang-14"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 13",
+                      "artifact": "ubuntu-clang-13"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu Clang 12",
+                      "artifact": "ubuntu-clang-12"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 11",
+                      "artifact": "ubuntu-clang-11"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 10",
+                      "artifact": "ubuntu-clang-10"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu Clang 9",
+                      "artifact": "ubuntu-clang-9"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 12",
+                      "artifact": "ubuntu-gcc-12"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 11",
+                      "artifact": "ubuntu-gcc-11"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 10",
+                      "artifact": "ubuntu-gcc-10"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "name": "Ubuntu GCC 9",
+                      "artifact": "ubuntu-gcc-9"
+                    },
+                    {
+                      "os": "ubuntu-20.04",
+                      "name": "Ubuntu GCC 8",
+                      "artifact": "ubuntu-gcc-8"
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2019",
+                      "artifact": "windows-msvc-19"
+                    },
+                    {
+                      "os": "windows-latest",
+                      "name": "Windows VS 2017",
+                      "artifact": "windows-msvc-17"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "name": "MacOS Clang 12",
+                      "artifact": "macos-clang-12"
+                    }
+                  ]
+                }
+              },
+              "root.jobs.valgrind.needs": {
+                "type": "needs",
+                "value": [
+                  "build"
+                ]
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "cf4ef4b007f79bfcdd9e26573047ba9ca56ceb220825f7f493688d5157182ea6",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.pex_build_publish.steps[1].with.python-version[1]",
+          "핵심 구조 키 제거: root.jobs.pex_build_publish.steps[1].with.python-version[2]",
+          "핵심 구조 키 제거: root.jobs.pex_build_publish.steps[1].with.python-version[0]",
+          "중요 타입 변경: root.jobs.pex_build_publish.steps[1].with.python-version (list → value)"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.pex_build_publish.steps[1].with.python-version[1]",
+            "핵심 구조 키 제거: root.jobs.pex_build_publish.steps[1].with.python-version[2]",
+            "핵심 구조 키 제거: root.jobs.pex_build_publish.steps[1].with.python-version[0]",
+            "중요 타입 변경: root.jobs.pex_build_publish.steps[1].with.python-version (list → value)"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "f9d87cc0f84699ac9f757b92171c78660575a8ac9c5d21c1a814746844c3ecab",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "1cbd95ab4fe02b538c7b196843e1e8e2b743155f492245768fea3b79590f1444",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "7a3696ef9f9da7c550829e65672f6109314cd961fab4c356b82ca02039697319",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.ci.steps[3].inputs",
+          "핵심 구조 키 제거: root.jobs.ci.steps[3].timeout-minutes",
+          "핵심 구조 키 제거: root.jobs.ci.steps[3].inputs.flags",
+          "핵심 구조 키 제거: root.jobs.ci.steps[2].timeout-minutes",
+          "예상치 못한 키 추가: root.jobs.ci.steps[3].with.flags",
+          "예상치 못한 키 추가: root.jobs.ci.steps[3].with"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.ci.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "language": [
+                  "cpp"
+                ],
+                "os": [
+                  "macos-latest",
+                  "macos-13",
+                  "ubuntu-latest",
+                  "windows-latest"
+                ],
+                "include": [
+                  {
+                    "os": "macos-latest",
+                    "language": "swift"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "objective-c"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "python"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "php"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "ruby"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "csharp"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "java"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "php"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "ruby"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "python"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "js"
+                  },
+                  {
+                    "os": "windows-latest",
+                    "language": "python"
+                  }
+                ]
+              }
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.ci.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "language": [
+                  "cpp"
+                ],
+                "os": [
+                  "macos-latest",
+                  "macos-13",
+                  "ubuntu-latest",
+                  "windows-latest"
+                ],
+                "include": [
+                  {
+                    "os": "macos-latest",
+                    "language": "swift"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "objective-c"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "python"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "php"
+                  },
+                  {
+                    "os": "macos-latest",
+                    "language": "ruby"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "csharp"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "java"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "php"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "ruby"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "python"
+                  },
+                  {
+                    "os": "ubuntu-latest",
+                    "language": "js"
+                  },
+                  {
+                    "os": "windows-latest",
+                    "language": "python"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.ci.steps[3].inputs",
+            "핵심 구조 키 제거: root.jobs.ci.steps[3].timeout-minutes",
+            "핵심 구조 키 제거: root.jobs.ci.steps[3].inputs.flags",
+            "핵심 구조 키 제거: root.jobs.ci.steps[2].timeout-minutes",
+            "예상치 못한 키 추가: root.jobs.ci.steps[3].with.flags",
+            "예상치 못한 키 추가: root.jobs.ci.steps[3].with"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.ci.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "language": [
+                    "cpp"
+                  ],
+                  "os": [
+                    "macos-latest",
+                    "macos-13",
+                    "ubuntu-latest",
+                    "windows-latest"
+                  ],
+                  "include": [
+                    {
+                      "os": "macos-latest",
+                      "language": "swift"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "objective-c"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "python"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "php"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "ruby"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "csharp"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "java"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "php"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "ruby"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "python"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "js"
+                    },
+                    {
+                      "os": "windows-latest",
+                      "language": "python"
+                    }
+                  ]
+                }
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.ci.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "language": [
+                    "cpp"
+                  ],
+                  "os": [
+                    "macos-latest",
+                    "macos-13",
+                    "ubuntu-latest",
+                    "windows-latest"
+                  ],
+                  "include": [
+                    {
+                      "os": "macos-latest",
+                      "language": "swift"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "objective-c"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "python"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "php"
+                    },
+                    {
+                      "os": "macos-latest",
+                      "language": "ruby"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "csharp"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "java"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "php"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "ruby"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "python"
+                    },
+                    {
+                      "os": "ubuntu-latest",
+                      "language": "js"
+                    },
+                    {
+                      "os": "windows-latest",
+                      "language": "python"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    }
+  ]
+}

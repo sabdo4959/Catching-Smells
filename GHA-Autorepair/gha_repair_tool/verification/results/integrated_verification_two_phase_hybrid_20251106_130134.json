@@ -1,0 +1,655 @@
+{
+  "timestamp": "2025-11-06 13:01:34",
+  "configuration": {
+    "original_dir": "data_original",
+    "repaired_dir": "data_repair_two_phase",
+    "repair_method": "two_phase",
+    "verification_mode": "hybrid",
+    "max_files": 10
+  },
+  "statistics": {
+    "total_files": 10,
+    "verified_files": 10,
+    "safe_files": 3,
+    "unsafe_files": 7,
+    "error_files": 0,
+    "safety_rate": 0.3,
+    "elapsed_time": 0.183042
+  },
+  "verification_details": {
+    "structural_only_safe": 0,
+    "logical_only_safe": 0,
+    "both_safe": 3,
+    "both_unsafe": 4,
+    "mixed_results": 3,
+    "average_confidence": 0.44000000000000006
+  },
+  "file_results": [
+    {
+      "file_id": "ac73e56b5832a4873cb18b231809321eba3c4e479e4ea7300b6395de71dc5d98",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "c1c0e4be03d4ce342a92742185c22f0b2ecc3d22833b2b14794c60ead997d10c",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "c3ba4c7fbc5a3dcdbd6d1d067441a7f5745524b48d52cc8d08475feb38dea36a",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc",
+      "is_safe": false,
+      "confidence_score": 0.6,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.instructions.steps[1].uses",
+          "핵심 구조 키 제거: root.jobs.instructions.steps[1].with.github-token",
+          "핵심 구조 키 제거: root.jobs.instructions.steps[1].with",
+          "핵심 구조 키 제거: root.jobs.instructions.steps[1].if",
+          "핵심 구조 키 제거: root.jobs.instructions.steps[1].with.script",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[2].with.github-token",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[1].id",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[1].run",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[2]",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[2].with",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[2].with.script",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[2].uses",
+          "예상치 못한 키 추가: root.jobs.instructions.steps[2].name",
+          "핵심 리스트 길이 변경: root.jobs.instructions.steps (2 → 3)"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.instructions.steps[1].uses",
+            "핵심 구조 키 제거: root.jobs.instructions.steps[1].with.github-token",
+            "핵심 구조 키 제거: root.jobs.instructions.steps[1].with",
+            "핵심 구조 키 제거: root.jobs.instructions.steps[1].if",
+            "핵심 구조 키 제거: root.jobs.instructions.steps[1].with.script",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[2].with.github-token",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[1].id",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[1].run",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[2]",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[2].with",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[2].with.script",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[2].uses",
+            "예상치 못한 키 추가: root.jobs.instructions.steps[2].name",
+            "핵심 리스트 길이 변경: root.jobs.instructions.steps (2 → 3)"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "f78d03790f73ef888d1fdb4fd34cccb65abd258eb70136634492ccbbe18c0a7a",
+      "is_safe": false,
+      "confidence_score": 0.4,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": true,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반"
+      ]
+    },
+    {
+      "file_id": "a124def77a2cd5e0d503639071b5896ed50e97a4df3f31e3b3724274555bbc60",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "d1a6bfe3a463366d95aca475e72ba21b8ec2c909dadc9fb318a8ec0fa41999cb",
+      "is_safe": false,
+      "confidence_score": 0.0,
+      "verification_method": "hybrid",
+      "structural_safe": false,
+      "logical_safe": false,
+      "summary": {
+        "structural_safe": false,
+        "logical_safe": false,
+        "both_safe": false,
+        "failure_reasons": [
+          "구조적 안전성 위반",
+          "논리적 동치성 위반"
+        ]
+      },
+      "failure_reasons": [
+        "구조적 안전성 위반",
+        "논리적 동치성 위반"
+      ]
+    },
+    {
+      "file_id": "93f763fb4a84d29e77a6bf72349a0534feaee1862658e1807423e8900d015dcb",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.checks.steps[4].run",
+          "핵심 구조 키 제거: root.jobs.checks.steps[1].with.username",
+          "핵심 구조 키 제거: root.jobs.checks.steps[1].with.password",
+          "핵심 구조 키 제거: root.jobs.checks.steps[4].env",
+          "핵심 구조 키 제거: root.jobs.checks.steps[4].env.DEPLOY_GITHUB_TOKEN",
+          "핵심 구조 키 제거: root.jobs.checks.steps[2].run",
+          "핵심 구조 키 제거: root.jobs.checks.steps[1].with",
+          "핵심 구조 키 제거: root.jobs.checks.steps[0].run",
+          "핵심 구조 키 제거: root.jobs.checks.steps[3].with",
+          "핵심 구조 키 제거: root.jobs.checks.steps[1].uses",
+          "핵심 구조 키 제거: root.jobs.checks.steps[3].uses",
+          "핵심 구조 키 제거: root.jobs.checks.steps[3].with.args",
+          "예상치 못한 키 추가: root.jobs.checks.steps[0].with.fetch-depth",
+          "예상치 못한 키 추가: root.jobs.checks.steps[8].name",
+          "예상치 못한 키 추가: root.jobs.checks.steps[5].env.DEPLOY_GITHUB_TOKEN",
+          "예상치 못한 키 추가: root.jobs.checks.steps[4].with.args",
+          "예상치 못한 키 추가: root.jobs.checks.steps[8]",
+          "예상치 못한 키 추가: root.jobs.checks.steps[3].run",
+          "예상치 못한 키 추가: root.jobs.checks.steps[2].uses",
+          "예상치 못한 키 추가: root.jobs.checks.steps[4].with",
+          "예상치 못한 키 추가: root.jobs.checks.steps[0].with",
+          "예상치 못한 키 추가: root.jobs.checks.steps[2].with",
+          "예상치 못한 키 추가: root.jobs.checks.steps[5].env",
+          "예상치 못한 키 추가: root.jobs.checks.steps[1].run",
+          "예상치 못한 키 추가: root.jobs.checks.steps[4].uses",
+          "예상치 못한 키 추가: root.jobs.checks.steps[1].id",
+          "예상치 못한 키 추가: root.jobs.checks.steps[2].with.username",
+          "예상치 못한 키 추가: root.jobs.checks.steps[8].run",
+          "예상치 못한 키 추가: root.jobs.checks.steps[2].with.password",
+          "핵심 리스트 길이 변경: root.jobs.checks.steps (8 → 9)"
+        ],
+        "details": {
+          "original_structural_values": {},
+          "repaired_structural_values": {}
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.checks.steps[4].run",
+            "핵심 구조 키 제거: root.jobs.checks.steps[1].with.username",
+            "핵심 구조 키 제거: root.jobs.checks.steps[1].with.password",
+            "핵심 구조 키 제거: root.jobs.checks.steps[4].env",
+            "핵심 구조 키 제거: root.jobs.checks.steps[4].env.DEPLOY_GITHUB_TOKEN",
+            "핵심 구조 키 제거: root.jobs.checks.steps[2].run",
+            "핵심 구조 키 제거: root.jobs.checks.steps[1].with",
+            "핵심 구조 키 제거: root.jobs.checks.steps[0].run",
+            "핵심 구조 키 제거: root.jobs.checks.steps[3].with",
+            "핵심 구조 키 제거: root.jobs.checks.steps[1].uses",
+            "핵심 구조 키 제거: root.jobs.checks.steps[3].uses",
+            "핵심 구조 키 제거: root.jobs.checks.steps[3].with.args",
+            "예상치 못한 키 추가: root.jobs.checks.steps[0].with.fetch-depth",
+            "예상치 못한 키 추가: root.jobs.checks.steps[8].name",
+            "예상치 못한 키 추가: root.jobs.checks.steps[5].env.DEPLOY_GITHUB_TOKEN",
+            "예상치 못한 키 추가: root.jobs.checks.steps[4].with.args",
+            "예상치 못한 키 추가: root.jobs.checks.steps[8]",
+            "예상치 못한 키 추가: root.jobs.checks.steps[3].run",
+            "예상치 못한 키 추가: root.jobs.checks.steps[2].uses",
+            "예상치 못한 키 추가: root.jobs.checks.steps[4].with",
+            "예상치 못한 키 추가: root.jobs.checks.steps[0].with",
+            "예상치 못한 키 추가: root.jobs.checks.steps[2].with",
+            "예상치 못한 키 추가: root.jobs.checks.steps[5].env",
+            "예상치 못한 키 추가: root.jobs.checks.steps[1].run",
+            "예상치 못한 키 추가: root.jobs.checks.steps[4].uses",
+            "예상치 못한 키 추가: root.jobs.checks.steps[1].id",
+            "예상치 못한 키 추가: root.jobs.checks.steps[2].with.username",
+            "예상치 못한 키 추가: root.jobs.checks.steps[8].run",
+            "예상치 못한 키 추가: root.jobs.checks.steps[2].with.password",
+            "핵심 리스트 길이 변경: root.jobs.checks.steps (8 → 9)"
+          ],
+          "details": {
+            "original_structural_values": {},
+            "repaired_structural_values": {}
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "2a3390951b4141affd15e532f4025c780f9205e852e4b0b2b49dc8813009b23e",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.build.steps[4].env",
+          "핵심 구조 키 제거: root.jobs.build.steps[5]",
+          "핵심 구조 키 제거: root.jobs.build.steps[5].uses",
+          "핵심 구조 키 제거: root.jobs.build.steps[4].env.CC",
+          "핵심 구조 키 제거: root.jobs.build.steps[4].env.DISPLAY",
+          "핵심 구조 키 제거: root.jobs.build.steps[5].with",
+          "핵심 구조 키 제거: root.jobs.build.steps[4].env.HUSKY_SKIP_INSTALL",
+          "핵심 구조 키 제거: root.jobs.build.steps[4].run",
+          "핵심 구조 키 제거: root.jobs.build.steps[4].env.CXX",
+          "핵심 구조 키 제거: root.jobs.build.steps[5].with.token",
+          "예상치 못한 키 추가: root.jobs.build.steps[3].env.DISPLAY",
+          "예상치 못한 키 추가: root.jobs.build.steps[4].uses",
+          "예상치 못한 키 추가: root.jobs.build.steps[3].run",
+          "예상치 못한 키 추가: root.jobs.build.steps[3].env.CC",
+          "예상치 못한 키 추가: root.jobs.build.steps[4].with.token",
+          "예상치 못한 키 추가: root.jobs.build.steps[3].env",
+          "예상치 못한 키 추가: root.jobs.build.steps[4].name",
+          "예상치 못한 키 추가: root.jobs.build.steps[2].name",
+          "예상치 못한 키 추가: root.jobs.build.steps[3].env.CXX",
+          "예상치 못한 키 추가: root.jobs.build.steps[4].with",
+          "예상치 못한 키 추가: root.jobs.build.steps[3].env.HUSKY_SKIP_INSTALL",
+          "핵심 리스트 길이 변경: root.jobs.build.steps (6 → 5)"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.build.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "node-version": [
+                  "10.x"
+                ]
+              }
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.build.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "node-version": [
+                  "10.x"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.build.steps[4].env",
+            "핵심 구조 키 제거: root.jobs.build.steps[5]",
+            "핵심 구조 키 제거: root.jobs.build.steps[5].uses",
+            "핵심 구조 키 제거: root.jobs.build.steps[4].env.CC",
+            "핵심 구조 키 제거: root.jobs.build.steps[4].env.DISPLAY",
+            "핵심 구조 키 제거: root.jobs.build.steps[5].with",
+            "핵심 구조 키 제거: root.jobs.build.steps[4].env.HUSKY_SKIP_INSTALL",
+            "핵심 구조 키 제거: root.jobs.build.steps[4].run",
+            "핵심 구조 키 제거: root.jobs.build.steps[4].env.CXX",
+            "핵심 구조 키 제거: root.jobs.build.steps[5].with.token",
+            "예상치 못한 키 추가: root.jobs.build.steps[3].env.DISPLAY",
+            "예상치 못한 키 추가: root.jobs.build.steps[4].uses",
+            "예상치 못한 키 추가: root.jobs.build.steps[3].run",
+            "예상치 못한 키 추가: root.jobs.build.steps[3].env.CC",
+            "예상치 못한 키 추가: root.jobs.build.steps[4].with.token",
+            "예상치 못한 키 추가: root.jobs.build.steps[3].env",
+            "예상치 못한 키 추가: root.jobs.build.steps[4].name",
+            "예상치 못한 키 추가: root.jobs.build.steps[2].name",
+            "예상치 못한 키 추가: root.jobs.build.steps[3].env.CXX",
+            "예상치 못한 키 추가: root.jobs.build.steps[4].with",
+            "예상치 못한 키 추가: root.jobs.build.steps[3].env.HUSKY_SKIP_INSTALL",
+            "핵심 리스트 길이 변경: root.jobs.build.steps (6 → 5)"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.build.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "node-version": [
+                    "10.x"
+                  ]
+                }
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.build.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "node-version": [
+                    "10.x"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    },
+    {
+      "file_id": "10aaf8a4de3f00b49f51bc3d3b6ac3aeb21c40af2ad924f7cb979872f2390c8b",
+      "is_safe": true,
+      "confidence_score": 1.0,
+      "verification_method": "hybrid",
+      "structural_safe": {
+        "is_safe": false,
+        "issues": [
+          "핵심 구조 키 제거: root.jobs.test.steps[1].command",
+          "예상치 못한 키 추가: root.jobs.test.steps[1].run",
+          "예상치 못한 키 추가: root.jobs.publish.steps[0].with.fetch-depth",
+          "예상치 못한 키 추가: root.jobs.publish.steps[0].with",
+          "예상치 못한 키 추가: root.jobs.rebuild.steps[1].with",
+          "예상치 못한 키 추가: root.jobs.rebuild.steps[1].with.fetch-depth",
+          "중요 타입 변경: root.on.push (value → dict)",
+          "Steps 순서 변경 감지: jobs.test.steps"
+        ],
+        "details": {
+          "original_structural_values": {
+            "root.jobs.rebuild.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "packagesystem": [
+                  "apt"
+                ]
+              }
+            },
+            "root.jobs.publish.needs": {
+              "type": "needs",
+              "value": [
+                "rebuild"
+              ]
+            },
+            "root.jobs.publish.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "hosting": [
+                  "backblaze",
+                  "ioperf",
+                  "mwt",
+                  "github",
+                  "sourceforge"
+                ],
+                "packagesystem": [
+                  "apt"
+                ]
+              }
+            },
+            "root.jobs.test.needs": {
+              "type": "needs",
+              "value": [
+                "publish"
+              ]
+            },
+            "root.jobs.test.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "hosting": [
+                  "backblaze",
+                  "ioperf",
+                  "mwt",
+                  "github",
+                  "sourceforge"
+                ]
+              }
+            }
+          },
+          "repaired_structural_values": {
+            "root.jobs.rebuild.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "packagesystem": [
+                  "apt"
+                ]
+              }
+            },
+            "root.jobs.publish.needs": {
+              "type": "needs",
+              "value": [
+                "rebuild"
+              ]
+            },
+            "root.jobs.publish.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "hosting": [
+                  "backblaze",
+                  "ioperf",
+                  "mwt",
+                  "github",
+                  "sourceforge"
+                ],
+                "packagesystem": [
+                  "apt"
+                ]
+              }
+            },
+            "root.jobs.test.needs": {
+              "type": "needs",
+              "value": [
+                "publish"
+              ]
+            },
+            "root.jobs.test.strategy.matrix": {
+              "type": "matrix",
+              "value": {
+                "hosting": [
+                  "backblaze",
+                  "ioperf",
+                  "mwt",
+                  "github",
+                  "sourceforge"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "logical_safe": true,
+      "summary": {
+        "structural_safe": {
+          "is_safe": false,
+          "issues": [
+            "핵심 구조 키 제거: root.jobs.test.steps[1].command",
+            "예상치 못한 키 추가: root.jobs.test.steps[1].run",
+            "예상치 못한 키 추가: root.jobs.publish.steps[0].with.fetch-depth",
+            "예상치 못한 키 추가: root.jobs.publish.steps[0].with",
+            "예상치 못한 키 추가: root.jobs.rebuild.steps[1].with",
+            "예상치 못한 키 추가: root.jobs.rebuild.steps[1].with.fetch-depth",
+            "중요 타입 변경: root.on.push (value → dict)",
+            "Steps 순서 변경 감지: jobs.test.steps"
+          ],
+          "details": {
+            "original_structural_values": {
+              "root.jobs.rebuild.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "packagesystem": [
+                    "apt"
+                  ]
+                }
+              },
+              "root.jobs.publish.needs": {
+                "type": "needs",
+                "value": [
+                  "rebuild"
+                ]
+              },
+              "root.jobs.publish.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "hosting": [
+                    "backblaze",
+                    "ioperf",
+                    "mwt",
+                    "github",
+                    "sourceforge"
+                  ],
+                  "packagesystem": [
+                    "apt"
+                  ]
+                }
+              },
+              "root.jobs.test.needs": {
+                "type": "needs",
+                "value": [
+                  "publish"
+                ]
+              },
+              "root.jobs.test.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "hosting": [
+                    "backblaze",
+                    "ioperf",
+                    "mwt",
+                    "github",
+                    "sourceforge"
+                  ]
+                }
+              }
+            },
+            "repaired_structural_values": {
+              "root.jobs.rebuild.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "packagesystem": [
+                    "apt"
+                  ]
+                }
+              },
+              "root.jobs.publish.needs": {
+                "type": "needs",
+                "value": [
+                  "rebuild"
+                ]
+              },
+              "root.jobs.publish.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "hosting": [
+                    "backblaze",
+                    "ioperf",
+                    "mwt",
+                    "github",
+                    "sourceforge"
+                  ],
+                  "packagesystem": [
+                    "apt"
+                  ]
+                }
+              },
+              "root.jobs.test.needs": {
+                "type": "needs",
+                "value": [
+                  "publish"
+                ]
+              },
+              "root.jobs.test.strategy.matrix": {
+                "type": "matrix",
+                "value": {
+                  "hosting": [
+                    "backblaze",
+                    "ioperf",
+                    "mwt",
+                    "github",
+                    "sourceforge"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "logical_safe": true,
+        "both_safe": true,
+        "failure_reasons": []
+      },
+      "failure_reasons": []
+    }
+  ]
+}

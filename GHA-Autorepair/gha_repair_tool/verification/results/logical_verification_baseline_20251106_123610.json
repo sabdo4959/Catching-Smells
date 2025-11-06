@@ -1,0 +1,1046 @@
+{
+  "timestamp": "2025-11-06 12:36:10",
+  "configuration": {
+    "original_dir": "data_original",
+    "repaired_dir": "data_repair_baseline",
+    "repair_method": "baseline",
+    "max_files": 30,
+    "strict_mode": false
+  },
+  "statistics": {
+    "total_files": 30,
+    "verified_files": 30,
+    "safe_files": 18,
+    "unsafe_files": 12,
+    "error_files": 0,
+    "safety_rate": 0.6,
+    "elapsed_time": 0.17340326309204102
+  },
+  "logical_analysis": {
+    "total_logical_mismatches": 1,
+    "trigger_mismatches": 0,
+    "if_mismatches": 1,
+    "concurrency_mismatches": 0,
+    "yaml_parsing_errors": 11,
+    "logical_mismatch_files": [
+      "e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc"
+    ],
+    "trigger_mismatch_files": [],
+    "if_mismatch_files": [
+      "e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc"
+    ],
+    "concurrency_mismatch_files": [],
+    "yaml_error_files": [
+      "ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "f9d87cc0f84699ac9f757b92171c78660575a8ac9c5d21c1a814746844c3ecab",
+      "1cbd95ab4fe02b538c7b196843e1e8e2b743155f492245768fea3b79590f1444",
+      "9627b8e6eed8da545073e7f5d57ec2098d6564dcb5f10f55cd476c1d04619f40",
+      "cc69608239b6a2f9fdf8a4486f0bd1b5d18ecfd451ec6d376cf3e3337a4808a8",
+      "e61b6d0c3cb744490941f74132cce54ea3f4ef8153a165ef293f9d1fb534ca52",
+      "c729bfb550300a7ac04c8dbf8ac3660f87132b11c8da948094bb5bbcfb20c7fc",
+      "a124def77a2cd5e0d503639071b5896ed50e97a4df3f31e3b3724274555bbc60",
+      "4247c12c6c5616647a866bb7b76cfbd6c08fc4eb52d9441f7430e93ad81b7566",
+      "ef9e4315ee04c206bb28ede6b87929a1f230be46aa2e70586d09af99e447047a",
+      "c3ba4c7fbc5a3dcdbd6d1d067441a7f5745524b48d52cc8d08475feb38dea36a"
+    ]
+  },
+  "results": [
+    {
+      "file_id": "ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "original_path": "data_original/ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
+      "repaired_path": "data_repair_baseline/ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: mapping values are not allowed here\n  in \"<unicode string>\", line 17, column 12:\n            run: mkdir build && cd build && cma ... \n               ^",
+        "timestamp": "2025-11-06T12:36:10.166523"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "6839a86ccedd509bc8fc377d807994fce4dc678ab3b1f2e27fb526f2d3ac6677",
+      "original_path": "data_original/6839a86ccedd509bc8fc377d807994fce4dc678ab3b1f2e27fb526f2d3ac6677",
+      "repaired_path": "data_repair_baseline/6839a86ccedd509bc8fc377d807994fce4dc678ab3b1f2e27fb526f2d3ac6677_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.172846"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.172861"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.172866"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "e41b62a551af6cb18015456463bc047af12251d324dac5e65729b0c02772b094",
+      "original_path": "data_original/e41b62a551af6cb18015456463bc047af12251d324dac5e65729b0c02772b094",
+      "repaired_path": "data_repair_baseline/e41b62a551af6cb18015456463bc047af12251d324dac5e65729b0c02772b094_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.175388"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.204758"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.204770"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "original_path": "data_original/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428",
+      "repaired_path": "data_repair_baseline/6a773a0afa8ae0733cfa99439fda052b8eae0e937096a39f3c13b9a1c0804428_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.215264"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.215274"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.215276"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "f78d03790f73ef888d1fdb4fd34cccb65abd258eb70136634492ccbbe18c0a7a",
+      "original_path": "data_original/f78d03790f73ef888d1fdb4fd34cccb65abd258eb70136634492ccbbe18c0a7a",
+      "repaired_path": "data_repair_baseline/f78d03790f73ef888d1fdb4fd34cccb65abd258eb70136634492ccbbe18c0a7a_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.223123"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.226611"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.226619"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "7ccd3e4d4e0943fecaf6cbadb17126d53209e3c344ef217cf05858c0933fde1c",
+      "original_path": "data_original/7ccd3e4d4e0943fecaf6cbadb17126d53209e3c344ef217cf05858c0933fde1c",
+      "repaired_path": "data_repair_baseline/7ccd3e4d4e0943fecaf6cbadb17126d53209e3c344ef217cf05858c0933fde1c_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.247875"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.247893"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.247896"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "cf4ef4b007f79bfcdd9e26573047ba9ca56ceb220825f7f493688d5157182ea6",
+      "original_path": "data_original/cf4ef4b007f79bfcdd9e26573047ba9ca56ceb220825f7f493688d5157182ea6",
+      "repaired_path": "data_repair_baseline/cf4ef4b007f79bfcdd9e26573047ba9ca56ceb220825f7f493688d5157182ea6_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.250994"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.251003"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.251006"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "f9d87cc0f84699ac9f757b92171c78660575a8ac9c5d21c1a814746844c3ecab",
+      "original_path": "data_original/f9d87cc0f84699ac9f757b92171c78660575a8ac9c5d21c1a814746844c3ecab",
+      "repaired_path": "data_repair_baseline/f9d87cc0f84699ac9f757b92171c78660575a8ac9c5d21c1a814746844c3ecab_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: while scanning a simple key\n  in \"<unicode string>\", line 22, column 1:\n    <<<<<<< Updated upstream\n    ^\ncould not find expected ':'\n  in \"<unicode string>\", line 24, column 1:\n    =======\n    ^",
+        "timestamp": "2025-11-06T12:36:10.252011"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "1cbd95ab4fe02b538c7b196843e1e8e2b743155f492245768fea3b79590f1444",
+      "original_path": "data_original/1cbd95ab4fe02b538c7b196843e1e8e2b743155f492245768fea3b79590f1444",
+      "repaired_path": "data_repair_baseline/1cbd95ab4fe02b538c7b196843e1e8e2b743155f492245768fea3b79590f1444_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: while parsing a block mapping\n  in \"<unicode string>\", line 40, column 9:\n          - name: Build and Install zlib\n            ^\nexpected <block end>, but found '<scalar>'\n  in \"<unicode string>\", line 44, column 13:\n                cd zlib-ng\n                ^",
+        "timestamp": "2025-11-06T12:36:10.253774"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "7a3696ef9f9da7c550829e65672f6109314cd961fab4c356b82ca02039697319",
+      "original_path": "data_original/7a3696ef9f9da7c550829e65672f6109314cd961fab4c356b82ca02039697319",
+      "repaired_path": "data_repair_baseline/7a3696ef9f9da7c550829e65672f6109314cd961fab4c356b82ca02039697319_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.258526"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.258534"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.258539"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "6577c314974254177b414e27d469c3a4c0251686ae719a717a2da2beb89712ea",
+      "original_path": "data_original/6577c314974254177b414e27d469c3a4c0251686ae719a717a2da2beb89712ea",
+      "repaired_path": "data_repair_baseline/6577c314974254177b414e27d469c3a4c0251686ae719a717a2da2beb89712ea_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.262073"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.262080"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.262082"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc",
+      "original_path": "data_original/e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc",
+      "repaired_path": "data_repair_baseline/e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.263760"
+          },
+          "if_verification": {
+            "is_safe": false,
+            "message": "if 조건 불일치: ['Job instructions Step 1 if condition mismatch']",
+            "timestamp": "2025-11-06T12:36:10.287944"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.287954"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 2,
+          "pass_rate": 0.6666666666666666,
+          "failed_checks": [
+            "if_verification"
+          ]
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "9627b8e6eed8da545073e7f5d57ec2098d6564dcb5f10f55cd476c1d04619f40",
+      "original_path": "data_original/9627b8e6eed8da545073e7f5d57ec2098d6564dcb5f10f55cd476c1d04619f40",
+      "repaired_path": "data_repair_baseline/9627b8e6eed8da545073e7f5d57ec2098d6564dcb5f10f55cd476c1d04619f40_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: while scanning a simple key\n  in \"<unicode string>\", line 25, column 9:\n            curl https://mise.jdx.dev/instal ... \n            ^\ncould not find expected ':'\n  in \"<unicode string>\", line 26, column 9:\n            echo \"$HOME/.local/share/mise/bi ... \n            ^",
+        "timestamp": "2025-11-06T12:36:10.289220"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "cc69608239b6a2f9fdf8a4486f0bd1b5d18ecfd451ec6d376cf3e3337a4808a8",
+      "original_path": "data_original/cc69608239b6a2f9fdf8a4486f0bd1b5d18ecfd451ec6d376cf3e3337a4808a8",
+      "repaired_path": "data_repair_baseline/cc69608239b6a2f9fdf8a4486f0bd1b5d18ecfd451ec6d376cf3e3337a4808a8_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: while scanning a simple key\n  in \"<unicode string>\", line 35, column 1:\n    t\n    ^\ncould not find expected ':'\n  in \"<unicode string>\", line 36, column 1:\n    \n    ^",
+        "timestamp": "2025-11-06T12:36:10.290537"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "e61b6d0c3cb744490941f74132cce54ea3f4ef8153a165ef293f9d1fb534ca52",
+      "original_path": "data_original/e61b6d0c3cb744490941f74132cce54ea3f4ef8153a165ef293f9d1fb534ca52",
+      "repaired_path": "data_repair_baseline/e61b6d0c3cb744490941f74132cce54ea3f4ef8153a165ef293f9d1fb534ca52_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: mapping values are not allowed here\n  in \"<unicode string>\", line 16, column 9:\n        name: Build and Deploy\n            ^",
+        "timestamp": "2025-11-06T12:36:10.291266"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "2a3390951b4141affd15e532f4025c780f9205e852e4b0b2b49dc8813009b23e",
+      "original_path": "data_original/2a3390951b4141affd15e532f4025c780f9205e852e4b0b2b49dc8813009b23e",
+      "repaired_path": "data_repair_baseline/2a3390951b4141affd15e532f4025c780f9205e852e4b0b2b49dc8813009b23e_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.293885"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.293890"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.293893"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "059363e8942e34fd0e18ff2dae53ea2a85f90c97152eaa9b6f38a8c5fac42216",
+      "original_path": "data_original/059363e8942e34fd0e18ff2dae53ea2a85f90c97152eaa9b6f38a8c5fac42216",
+      "repaired_path": "data_repair_baseline/059363e8942e34fd0e18ff2dae53ea2a85f90c97152eaa9b6f38a8c5fac42216_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.296852"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.296860"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.296863"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "b3d9c061128a7cc41dd723ebf0f64183a8a8bb9974685f4a1a8ae9df8e3b1dc4",
+      "original_path": "data_original/b3d9c061128a7cc41dd723ebf0f64183a8a8bb9974685f4a1a8ae9df8e3b1dc4",
+      "repaired_path": "data_repair_baseline/b3d9c061128a7cc41dd723ebf0f64183a8a8bb9974685f4a1a8ae9df8e3b1dc4_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.306551"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.307129"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.307135"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "c729bfb550300a7ac04c8dbf8ac3660f87132b11c8da948094bb5bbcfb20c7fc",
+      "original_path": "data_original/c729bfb550300a7ac04c8dbf8ac3660f87132b11c8da948094bb5bbcfb20c7fc",
+      "repaired_path": "data_repair_baseline/c729bfb550300a7ac04c8dbf8ac3660f87132b11c8da948094bb5bbcfb20c7fc_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: while scanning for the next token\nfound character '\\t' that cannot start any token\n  in \"<unicode string>\", line 26, column 1:\n    \t\t# The minimum version should b ... \n    ^",
+        "timestamp": "2025-11-06T12:36:10.308087"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "a124def77a2cd5e0d503639071b5896ed50e97a4df3f31e3b3724274555bbc60",
+      "original_path": "data_original/a124def77a2cd5e0d503639071b5896ed50e97a4df3f31e3b3724274555bbc60",
+      "repaired_path": "data_repair_baseline/a124def77a2cd5e0d503639071b5896ed50e97a4df3f31e3b3724274555bbc60_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: mapping values are not allowed here\n  in \"<unicode string>\", line 27, column 14:\n              run: |\n                 ^",
+        "timestamp": "2025-11-06T12:36:10.309061"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "d1cedac9aca8987e53482c3b60a64fa6785f0306dfcbcae279f6dda6fe7f715c",
+      "original_path": "data_original/d1cedac9aca8987e53482c3b60a64fa6785f0306dfcbcae279f6dda6fe7f715c",
+      "repaired_path": "data_repair_baseline/d1cedac9aca8987e53482c3b60a64fa6785f0306dfcbcae279f6dda6fe7f715c_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.312894"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.312900"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.312902"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "4247c12c6c5616647a866bb7b76cfbd6c08fc4eb52d9441f7430e93ad81b7566",
+      "original_path": "data_original/4247c12c6c5616647a866bb7b76cfbd6c08fc4eb52d9441f7430e93ad81b7566",
+      "repaired_path": "data_repair_baseline/4247c12c6c5616647a866bb7b76cfbd6c08fc4eb52d9441f7430e93ad81b7566_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: mapping values are not allowed here\n  in \"<unicode string>\", line 17, column 90:\n     ... vent.head_commit.message, 'chore: next version release')\n                                         ^",
+        "timestamp": "2025-11-06T12:36:10.313690"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "cd472e0a7564ad53d9395a1d3a352e55eb6a73e196f38dc04cff0451c8cf4a7b",
+      "original_path": "data_original/cd472e0a7564ad53d9395a1d3a352e55eb6a73e196f38dc04cff0451c8cf4a7b",
+      "repaired_path": "data_repair_baseline/cd472e0a7564ad53d9395a1d3a352e55eb6a73e196f38dc04cff0451c8cf4a7b_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.316589"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.316594"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.316597"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "3a0d2b022ada8a95d378853cd75b3cce1f44328cd15ebc14342b485814560752",
+      "original_path": "data_original/3a0d2b022ada8a95d378853cd75b3cce1f44328cd15ebc14342b485814560752",
+      "repaired_path": "data_repair_baseline/3a0d2b022ada8a95d378853cd75b3cce1f44328cd15ebc14342b485814560752_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.318419"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.318423"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.318426"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "af13e1b7be290b82d4dfc725984acf1448dca440de6bdb9c61d933bebf14b937",
+      "original_path": "data_original/af13e1b7be290b82d4dfc725984acf1448dca440de6bdb9c61d933bebf14b937",
+      "repaired_path": "data_repair_baseline/af13e1b7be290b82d4dfc725984acf1448dca440de6bdb9c61d933bebf14b937_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.320701"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.320706"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.320707"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "ef9e4315ee04c206bb28ede6b87929a1f230be46aa2e70586d09af99e447047a",
+      "original_path": "data_original/ef9e4315ee04c206bb28ede6b87929a1f230be46aa2e70586d09af99e447047a",
+      "repaired_path": "data_repair_baseline/ef9e4315ee04c206bb28ede6b87929a1f230be46aa2e70586d09af99e447047a_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: mapping values are not allowed here\n  in \"<unicode string>\", line 71, column 15:\n              uses: actions/upload-artifact@v3\n                  ^",
+        "timestamp": "2025-11-06T12:36:10.322583"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "29bf497aa30bf874788443bc1d3a3006d2ecd4c01bc82f4d9b0305ad205923c8",
+      "original_path": "data_original/29bf497aa30bf874788443bc1d3a3006d2ecd4c01bc82f4d9b0305ad205923c8",
+      "repaired_path": "data_repair_baseline/29bf497aa30bf874788443bc1d3a3006d2ecd4c01bc82f4d9b0305ad205923c8_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.324623"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.324628"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.324630"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "c3ba4c7fbc5a3dcdbd6d1d067441a7f5745524b48d52cc8d08475feb38dea36a",
+      "original_path": "data_original/c3ba4c7fbc5a3dcdbd6d1d067441a7f5745524b48d52cc8d08475feb38dea36a",
+      "repaired_path": "data_repair_baseline/c3ba4c7fbc5a3dcdbd6d1d067441a7f5745524b48d52cc8d08475feb38dea36a_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": false,
+        "message": "검증 오류: while scanning a simple key\n  in \"<unicode string>\", line 55, column 9:\n            mvn clean -Punit-tests release:c ... \n            ^\ncould not find expected ':'\n  in \"<unicode string>\", line 56, column 9:\n            #        run: mvn clean deploy - ... \n            ^",
+        "timestamp": "2025-11-06T12:36:10.326468"
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "2eb901a8f6562dcfc1a9c48e775149177410dd0db3948ca1536e6282c06e0573",
+      "original_path": "data_original/2eb901a8f6562dcfc1a9c48e775149177410dd0db3948ca1536e6282c06e0573",
+      "repaired_path": "data_repair_baseline/2eb901a8f6562dcfc1a9c48e775149177410dd0db3948ca1536e6282c06e0573_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.335664"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.335671"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.335673"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    },
+    {
+      "file_id": "8dfefd52bd9f80757355b579f7f940433ca03f18e45b454d35b08295dfe0fd04",
+      "original_path": "data_original/8dfefd52bd9f80757355b579f7f940433ca03f18e45b454d35b08295dfe0fd04",
+      "repaired_path": "data_repair_baseline/8dfefd52bd9f80757355b579f7f940433ca03f18e45b454d35b08295dfe0fd04_baseline_repaired.yml",
+      "verification_result": {
+        "is_safe": true,
+        "verification_method": "logical_smt",
+        "results": {
+          "trigger_verification": {
+            "is_safe": true,
+            "message": "트리거 조건 동일",
+            "timestamp": "2025-11-06T12:36:10.338824"
+          },
+          "if_verification": {
+            "is_safe": true,
+            "message": "모든 if 조건 검증 통과",
+            "timestamp": "2025-11-06T12:36:10.338829"
+          },
+          "concurrency_verification": {
+            "is_safe": true,
+            "message": "동시성 제어 동일",
+            "timestamp": "2025-11-06T12:36:10.338831"
+          }
+        },
+        "summary": {
+          "total_checks": 3,
+          "passed_checks": 3,
+          "pass_rate": 1.0,
+          "failed_checks": []
+        },
+        "z3_available": true,
+        "mode_info": {
+          "strict_mode": false,
+          "effective_smells": [
+            "smell_6",
+            "smell_7",
+            "smell_8",
+            "smell_9",
+            "smell_10",
+            "smell_12"
+          ],
+          "total_allowed_smells": 6
+        }
+      },
+      "status": "success"
+    }
+  ]
+}

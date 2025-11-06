@@ -1,11 +1,13 @@
 {
   "total_files": 99,
-  "safe_files": 1,
-  "unsafe_files": 97,
-  "error_files": 51,
-  "safe_rate": 1.0101010101010102,
+  "safe_files": 3,
+  "unsafe_files": 95,
+  "error_files": 53,
+  "safe_rate": 3.0303030303030303,
   "safe_details": [
-    "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520"
+    "6577c314974254177b414e27d469c3a4c0251686ae719a717a2da2beb89712ea",
+    "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
+    "592898bb812e32f57d8062d81dd6b9bd9c6c9b9218b741b0e2afb18a3256dfd6"
   ],
   "unsafe_details": [
     "ac606821bdac58d2ba7a3c72244842d4ab331a384d052362ec49014e9c8b6449",
@@ -18,7 +20,6 @@
     "f9d87cc0f84699ac9f757b92171c78660575a8ac9c5d21c1a814746844c3ecab",
     "1cbd95ab4fe02b538c7b196843e1e8e2b743155f492245768fea3b79590f1444",
     "7a3696ef9f9da7c550829e65672f6109314cd961fab4c356b82ca02039697319",
-    "6577c314974254177b414e27d469c3a4c0251686ae719a717a2da2beb89712ea",
     "e413f663053377e00614f72f1bc34979d48f84e925fbc0bb453c196612f281dc",
     "9627b8e6eed8da545073e7f5d57ec2098d6564dcb5f10f55cd476c1d04619f40",
     "cc69608239b6a2f9fdf8a4486f0bd1b5d18ecfd451ec6d376cf3e3337a4808a8",
@@ -33,22 +34,20 @@
     "cd472e0a7564ad53d9395a1d3a352e55eb6a73e196f38dc04cff0451c8cf4a7b",
     "3a0d2b022ada8a95d378853cd75b3cce1f44328cd15ebc14342b485814560752",
     "af13e1b7be290b82d4dfc725984acf1448dca440de6bdb9c61d933bebf14b937",
+    "f88fe224327093d5b7bb6c9a59a05ad1d2a6134a5020a513c2c2d4e5662f64a1",
     "ef9e4315ee04c206bb28ede6b87929a1f230be46aa2e70586d09af99e447047a",
     "29bf497aa30bf874788443bc1d3a3006d2ecd4c01bc82f4d9b0305ad205923c8",
     "c3ba4c7fbc5a3dcdbd6d1d067441a7f5745524b48d52cc8d08475feb38dea36a",
     "2eb901a8f6562dcfc1a9c48e775149177410dd0db3948ca1536e6282c06e0573",
     "8dfefd52bd9f80757355b579f7f940433ca03f18e45b454d35b08295dfe0fd04",
     "87767ca3df3a86284d0cb17b0eebcea4c021e41aaeddf405158c2fe717bf6805",
-    "9bd0752796d4ea61059d7f28e322bf8a6e214924a032dd29e2b4f7c6150f5438",
     "4c753eb1d5b7d1ec81d5e4b937fc038f5bab6e0e30a99b12ca152e074a19e312",
     "04c3b5460edf81823ebd7d932ed2ded3dfe3ec017bfc5b0e2eb08aa0a89986bf",
     "d409830f98d1f96f527654390ce9be4fb2ef8a13af9f4e50b42f2e6e27e613e2",
     "237625ec610710bfc796fc74793d673336749e99b80aeeb7555c8f8a65b82e6d",
-    "01a4c66498480a201e67a8e18ea4bab86b04d9fad745a5ff405dec5417221b93",
     "6a8345ef99da64d41fe33ac6c7ace04dc774154abce0ad41ad1fc75eac46b9e0",
     "559bef9be7983db753626eb1054ac097d11d061a858b1b94ace648b158a0fb3c",
     "d1a6bfe3a463366d95aca475e72ba21b8ec2c909dadc9fb318a8ec0fa41999cb",
-    "592898bb812e32f57d8062d81dd6b9bd9c6c9b9218b741b0e2afb18a3256dfd6",
     "b060e5348656555b5cb0f91b38bbd13dbf55659bdf2a7812c623fda782024795",
     "f8adfd22e84677e622dff6ef4045e23218ce2d8b9cc953d9e07f3eaf1295d857",
     "9a9253152768f1b6acca5da7d94141212c3d1a2461c16b301739e2ce7c4f6a4f",
@@ -101,6 +100,7 @@
     "312964b76b6d0222be3e5d8e9c9a9f2cdfb7680ab1a0228160efad2d0a8979b3",
     "56add205bfb4be370d1631df45087d23946aa511f571918ef9f11ac4b3ed3a98",
     "978a6c83884cef6e7e466796662727a9d223c0b9a8ad605e4e0c99ab54204c7a",
+    "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520",
     "1aefc86068bf97c0cf9af77278cea9b2bceb4aabbe5db0dfbbd0ef2b598ac44c",
     "da9343dc717d8a21646916aa8587d0565f2a0353ee6cb953b8bcc3fb639401ec",
     "01134889164d5b3ee1f2e294c189be5fda4e35834c0950116b8e8d90d59244a7",
@@ -110,21 +110,51 @@
     {
       "file": "7ccd3e4d4e0943fecaf6cbadb17126d53209e3c344ef217cf05858c0933fde1c",
       "issues": [
-        "needs 의존성 변경: root.jobs.repo_visualizer.needs (set() → {'check'})"
+        "needs 의존성 변경: root.jobs.repo_visualizer.needs (set() → {'check'})",
+        "needs 의존성 변경: root.jobs.tests.needs ({'build'} → {'check'})",
+        "matrix 전략 변경: root.jobs.build.strategy.matrix"
       ]
     },
     {
       "file": "b3d9c061128a7cc41dd723ebf0f64183a8a8bb9974685f4a1a8ae9df8e3b1dc4",
       "issues": [
         "구조적 값 제거: root.jobs.create_version_file.deploy_to_dockerhub.needs (타입: needs)",
-        "예상치 못한 구조적 값 추가: root.jobs.deploy_to_dockerhub.needs (타입: needs)",
-        "matrix 전략 변경: root.jobs.test.strategy.matrix"
+        "예상치 못한 구조적 값 추가: root.jobs.deploy_to_dockerhub.needs (타입: needs)"
       ]
     },
     {
       "file": "d1cedac9aca8987e53482c3b60a64fa6785f0306dfcbcae279f6dda6fe7f715c",
       "issues": [
         "matrix 전략 변경: root.jobs.install_and_verify.strategy.matrix"
+      ]
+    },
+    {
+      "file": "6a8345ef99da64d41fe33ac6c7ace04dc774154abce0ad41ad1fc75eac46b9e0",
+      "issues": [
+        "needs 의존성 변경: root.jobs.benchmark.needs ({'unit-tests', 'orm-sqlite', 'orm-mysql', 'orm-postgres', 'orm-mongo'} → {'orm-mysql', 'orm-sqlite', 'orm-postgres', 'orm-mongo'})",
+        "matrix 전략 변경: root.jobs.orm-mongo.strategy.matrix"
+      ]
+    },
+    {
+      "file": "6bf48b84932314f95b73d8dd2b3464ec9ec0ad5283f95c1977933b5fdcfc50ba",
+      "issues": [
+        "구조적 값 제거: root.jobs.deploy-unstable-packagecloud.needs (타입: needs)",
+        "예상치 못한 구조적 값 추가: root.jobs.deploy-packagecloud.needs (타입: needs)"
+      ]
+    },
+    {
+      "file": "eda4becd286010436a22854c03c251fe68585622868a4c32b2674bbe2fb3f520",
+      "issues": [
+        "matrix 전략 변경: root.jobs.test_linux.strategy.matrix"
+      ]
+    },
+    {
+      "file": "976bd50e7346f4a5df96b0b8c0354ebe760388bc927d04dfe51f49d323e154a5",
+      "issues": [
+        "구조적 값 제거: root.jobs.calculate-stats.check-imports.strategy.matrix (타입: matrix)",
+        "구조적 값 제거: root.jobs.calculate-stats.test-latest-dev-deps.strategy.matrix (타입: matrix)",
+        "예상치 못한 구조적 값 추가: root.jobs.check-imports.strategy.matrix (타입: matrix)",
+        "예상치 못한 구조적 값 추가: root.jobs.test-latest-dev-deps.strategy.matrix (타입: matrix)"
       ]
     }
   ]
