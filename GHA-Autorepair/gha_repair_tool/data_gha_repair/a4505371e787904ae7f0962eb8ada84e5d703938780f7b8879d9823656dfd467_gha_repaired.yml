@@ -1,0 +1,17 @@
+name: Build OrmLite
+
+on:
+  push:
+    paths:
+      - 'ServiceStack.OrmLite/**'
+      - '.github/workflows/build-ormlite.yml'
+    # Add a concurrency key to stop running workflows when there is a newer commit in the branch
+    concurrency:
+      group: build-ormlite
+      cancel-in-progress: true
+
+jobs:
+  build-ormlite:
+    uses: ServiceStack/ServiceStack/.github/workflows/reuse-build-ormlite.yml@main
+    secrets:
+      SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}

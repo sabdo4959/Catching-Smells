@@ -1,0 +1,114 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: 'Release id to upload artifacts to'
+        default: ''
+      python_package_version:
+        description: 'Version to use for creating the Python package'
+        default: ''
+
+jobs:
+  build_linux:
+    name: Manylinux Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # 타임아웃 추가
+    steps:
+    - name: Get torch-mlir
+      uses: actions/checkout@v2
+      with:
+        submodules: 'true'
+    - uses: ./.github/actions/setup-build
+      with:
+        cache-suffix: ''
+    - name: Build Python wheels and smoke test.
+      run: |
+        cd $GITHUB_WORKSPACE
+        python -m pip install wheel
+        TM_PACKAGE_VERSION=${{ github.event.inputs.python_package_version }}
+        printf "TORCH_MLIR_PYTHON_PACKAGE_VERSION=%s\n" $TM_PACKAGE_VERSION > ./torch_mlir_package_version
+        ./build_tools/python_deploy/build_linux_packages.sh
+              
+    # If we were given a release_id, then upload the package we just built
+    # to the github releases page.
+    - name: Upload Release Assets (if requested)
+      if: github.event.inputs.release_id != '' && github.event.repository.full_name != 'forked/repo'  # 포크에서 업로드 방지
+      id: upload-release-assets
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.WORKFLOW_INVOCATION_TOKEN }}
+      with:
+        release_id: ${{ github.event.inputs.release_id }}
+        assets_path: ./build_tools/python_deploy/wheelhouse/torch*.whl
+    # Publishing is necessary to make the release visible to `pip`
+    # on the github releases page.
+    - name: Publish Release (if requested)
+      if: github.event.inputs.release_id != '' && github.event.repository.full_name != 'forked/repo'  # 포크에서 업로드 방지
+      id: publish_release
+      uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.WORKFLOW_INVOCATION_TOKEN }}
+      with:
+        release_id: ${{ github.event.inputs.release_id }}
+
+  build_macos:
+    name: MacOS Build
+    runs-on: macos-12
+    timeout-minutes: 60  # 타임아웃 추가
+    steps:
+    - name: Get torch-mlir
+      uses: actions/checkout@v2
+      with:
+        submodules: 'true'
+    - uses: ./.github/actions/setup-build
+      with:
+        cache-suffix: ''
+    - name: Build Python wheels and smoke test.
+      run: |
+        cd $GITHUB_WORKSPACE
+        python -m pip install wheel
+        TM_PACKAGE_VERSION=${{ github.event.inputs.python_package_version }}
+        printf "TORCH_MLIR_PYTHON_PACKAGE_VERSION=%s\n" $TM_PACKAGE_VERSION > ./torch_mlir_package_version
+        sudo ./build_tools/python_deploy/install_macos_deps.sh
+        TORCH_MLIR_PYTHON_VERSIONS="3.10" ./build_tools/python_deploy/build_macos_packages.sh
+
+    # If we were given a release_id, then upload the package we just built
+    # to the github releases page.
+    - name: Upload Release Assets (if requested)
+      if: github.event.inputs.release_id != '' && github.event.repository.full_name != 'forked/repo'  # 포크에서 업로드 방지
+      id: upload-release-assets
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.WORKFLOW_INVOCATION_TOKEN }}
+      with:
+        release_id: ${{ github.event.inputs.release_id }}
+        assets_path: ./build_tools/python_deploy/wheelhouse/torch*.whl
+    # Publishing is necessary to make the release visible to `pip`
+    # on the github releases page.
+    - name: Publish Release (if requested)
+      if: github.event.inputs.release_id != '' && github.event.repository.full_name != 'forked/repo'  # 포크에서 업로드 방지
+      id: publish_release
+      uses: eregon/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.WORKFLOW_INVOCATION_TOKEN }}
+      with:
+        release_id: ${{ github.event.inputs.release_id }}
+
+  publish_releases:
+    needs:
+    - build_linux
+    - build_macos
+    runs-on: ubuntu-latest  # runs-on 추가
+
+    # Publish even if one of the builds failed
+    if: ${{ always() }}
+
+    steps:
+    - name: Invoke Publish Releases Page
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: Publish releases page
+        token: ${{ secrets.WORKFLOW_INVOCATION_TOKEN }}
+        ref: "${{ env.tag_name }}"

@@ -1,0 +1,87 @@
+name: Seed Chain
+
+on:
+  workflow_call:
+    inputs:
+      chain-api-url:
+        required: true
+        type: string
+      chain-id:
+        required: true
+        type: string
+      seed-script-filename:
+        required: true
+        type: string
+      erc20-deployer-network-name:
+        required: true
+        type: string
+      genesis_validator_addresses:
+        required: true
+        type: string
+      kava_version_filepath:
+        required: true
+        type: string
+    secrets:
+      DEV_WALLET_MNEMONIC:
+        required: true
+
+jobs:
+  seed-chain-state:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo from master
+        uses: actions/checkout@v3
+        with:
+          ref: master
+      - name: Checkout version of Kava used by network
+        run: |
+          git pull -p
+          git checkout $(cat ${KAVA_VERSION_FILEPATH})
+        env:
+          KAVA_VERSION_FILEPATH: ${{ inputs.kava_version_filepath }}
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.19"
+          check-latest: true
+          cache: true
+      - name: Build Kava binary
+        run: make install
+      - name: Checkout Go EVM tools repo
+        uses: actions/checkout@v3
+        with:
+          repository: ethereum/go-ethereum
+          path: go-ethereum
+          ref: v1.10.26
+      - name: Install Go EVM tools
+        run: |
+          make
+          make devtools
+        working-directory: go-ethereum
+      - name: Checkout Kava bridge repo for deploying EVM contracts
+        uses: actions/checkout@v3
+        with:
+          repository: Kava-Labs/kava-bridge
+          path: kava-bridge
+          ref: main
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 18
+          cache-dependency-path: kava-bridge/contract/package.json
+      - name: Install ERC20 contract deployment dependencies
+        run: npm install
+        working-directory: kava-bridge/contract
+      - name: Compile default ERC20 contracts
+        run: make compile-contracts
+        working-directory: kava-bridge
+      - name: Run seed scripts
+        run: bash ${GITHUB_WORKSPACE}/.github/scripts/${{ inputs.seed-script-filename }}
+        working-directory: kava-bridge/contract
+        env:
+          CHAIN_API_URL: ${{ inputs.chain-api-url }}
+          CHAIN_ID: ${{ inputs.chain-id }}
+          DEV_WALLET_MNEMONIC: ${{ secrets.DEV_WALLET_MNEMONIC }}
+          ERC20_DEPLOYER_NETWORK_NAME: ${{ inputs.erc20-deployer-network-name }}
+          GENESIS_VALIDATOR_ADDRESSES: ${{ inputs.genesis_validator_addresses }}

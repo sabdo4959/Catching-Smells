@@ -1,0 +1,60 @@
+name: Dart
+
+on:
+  push:
+    branches: [ master ]
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    if: github.event.head_commit.timestamp == github.event.before
+  pull_request:
+    branches: [ master ]
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    if: github.event.head_commit.timestamp == github.event.before
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업에 대한 타임아웃 설정
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.0.3'
+
+      - name: Install facebook_auth dependencies 
+        run: |
+          cd facebook_auth
+          flutter pub get
+
+      - name: Run facebook_auth tests --coverage
+        run: |
+          cd facebook_auth
+          flutter test --coverage
+      
+      - name: Install facebook_auth_platform_interface dependencies 
+        run: |
+          cd facebook_auth_platform_interface
+          flutter pub get
+
+      - name: Run facebook_auth_platform_interface tests --coverage
+        run: |
+          cd facebook_auth_platform_interface
+          flutter test --coverage
+
+      - name: Install facebook_auth_web dependencies 
+        run: |
+          cd facebook_auth_web
+          flutter pub get
+
+      - name: Run facebook_auth_web tests --coverage
+        run: |
+          cd facebook_auth_web
+          flutter test --platform chrome --coverage
+
+      - name: Upload coverage to Codecov 
+        uses: codecov/codecov-action@v1 
+        with: 
+          file: facebook_auth_platform_interface/coverage/lcov.info

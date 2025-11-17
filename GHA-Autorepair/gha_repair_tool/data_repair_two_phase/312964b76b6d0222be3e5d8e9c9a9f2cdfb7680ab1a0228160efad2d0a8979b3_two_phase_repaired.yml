@@ -1,0 +1,39 @@
+# 개선된 워크플로우
+name: Main Workflow
+on: [push]
+jobs:
+  build-py2:
+    name: Build Python 2.7
+    runs-on: ubuntu-latest
+    container: python:2.7
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v1
+      - run: python --version
+      - run: pip install -r requirements.txt
+      - run: pip install -r extra.txt
+      - run: ADAPTER=tiny HTTPBIN=httpbin.bemisc.com python setup.py test
+
+  build-py3-6:
+    name: Build Python 3.6
+    runs-on: ubuntu-latest
+    container: python:3.6
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v1
+      - run: python3 --version
+      - run: pip install -r requirements.txt  # pip3 대신 pip 사용
+      - run: pip install -r extra.txt  # pip3 대신 pip 사용
+      - run: ADAPTER=tiny HTTPBIN=httpbin.bemisc.com python3 setup.py test
+
+  build-py3-7:
+    name: Build Python 3.7
+    runs-on: ubuntu-latest
+    container: python:3.7
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v1
+      - run: python3 --version
+      - run: pip install -r requirements.txt  # pip3 대신 pip 사용
+      - run: pip install -r extra.txt  # pip3 대신 pip 사용
+      - run: ADAPTER=tiny HTTPBIN=httpbin.bemisc.com python3 setup.py test

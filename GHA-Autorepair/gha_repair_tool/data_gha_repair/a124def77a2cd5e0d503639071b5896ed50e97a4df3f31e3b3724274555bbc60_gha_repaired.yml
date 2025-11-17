@@ -1,0 +1,46 @@
+name: JS - generate docs
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+    paths: [js]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  makeDocs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Added timeout to avoid jobs without timeouts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Generate docs
+        working-directory: js
+        run: |
+          yarn
+          yarn run build
+          yarn run make-docs
+      - name: Commit
+        run: |
+          git config --local user.email "invernizzi.l@gmail.com"
+          git config --local user.name "Luca Invernizzi"
+          git commit -m "Update docs" -a
+          git push
+
+  # Added a job to stop running workflows when there is a newer commit in branch
+  cancelPreviousRuns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,38 @@
+name: SDKs
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+jobs:
+  sdk:
+    if: github.repository == 'argoproj/argo-workflows'
+    runs-on: ubuntu-latest
+    name: Publish SDK
+    permissions:
+      packages: write # for publishing packages
+    strategy:
+      matrix:
+        name:
+          - java
+          - python
+    timeout-minutes: 10 # 타임아웃 설정
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1 # 최신 커밋만 가져오기
+          
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code HEAD^ HEAD -- sdks/${{ matrix.name }} || echo "Changes detected"
+          
+      - name: Publish SDK
+        if: steps.check_changes.outputs.changed == 'true' # 변경 사항이 있을 때만 실행
+        run: make --directory sdks/${{ matrix.name }} publish -B
+        env:
+          JAVA_SDK_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

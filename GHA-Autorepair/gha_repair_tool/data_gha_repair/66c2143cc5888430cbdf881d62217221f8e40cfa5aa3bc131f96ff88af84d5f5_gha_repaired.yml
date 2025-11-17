@@ -1,0 +1,51 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Dart
+
+on:
+  push:
+    branches: [ master ]
+    # Stop running workflows when there is a newer commit in branch
+    # This prevents unnecessary runs for new commits
+    if: github.event.head_commit.id == github.event.before
+  pull_request:
+    branches: [ master ]
+    # Stop running workflows when there is a newer commit in PR
+    # This prevents unnecessary runs for new commits in PRs
+    if: github.event.pull_request.head.sha == github.event.before
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.0.3'
+      - name: Install facebook_auth dependencies 
+        run: cd facebook_auth && flutter pub get
+
+      - name: Run facebook_auth tests --coverage
+        run: cd facebook_auth && flutter test
+      
+      - name: Install facebook_auth_platform_interface dependencies 
+        run: cd facebook_auth_platform_interface && flutter pub get
+
+      - name: Run facebook_auth_platform_interface tests --coverage
+        run: cd facebook_auth_platform_interface && flutter test
+
+      - name: Install facebook_auth_web dependencies 
+        run: cd facebook_auth_web && flutter pub get
+
+      - name: Run facebook_auth_web tests --coverage
+        run: cd facebook_auth_web && flutter test --platform chrome
+
+      - name: Upload coverage to Codecov 
+        uses: codecov/codecov-action@v1 
+        with: 
+          file: facebook_auth_platform_interface/coverage/lcov.info

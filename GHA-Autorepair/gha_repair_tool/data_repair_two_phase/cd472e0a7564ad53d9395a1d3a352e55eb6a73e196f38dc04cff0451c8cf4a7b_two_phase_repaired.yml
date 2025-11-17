@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    # 최신 커밋이 있을 경우 워크플로우를 중단하도록 설정
+    if: github.event.head_commit.id == github.sha
+  pull_request:
+    types: [opened, synchronize]
+    # PR에 최신 커밋이 있을 경우 워크플로우를 중단하도록 설정
+    if: github.event.pull_request.head.sha == github.sha
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업에 대한 타임아웃 설정
+    steps:
+      - name: Checkout 🚪
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm 🌸
+        uses: pnpm/action-setup@v2.2.4
+
+      - name: Setup node 🍀
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Bootstrap 📦
+        run: script/bootstrap
+
+      - name: Check for changes 🔍
+        id: check_changes
+        run: |
+          git diff --exit-code || echo "changes"
+      
+      - name: Typecheck 🔡
+        if: steps.check_changes.outputs.changes == 'changes'  # 변경 사항이 있을 경우에만 실행
+        run: pnpm typecheck:affected
+
+      - name: Lint 🪩
+        if: steps.check_changes.outputs.changes == 'changes'  # 변경 사항이 있을 경우에만 실행
+        run: pnpm lint:affected
+
+      - name: Prettier ✨
+        if: steps.check_changes.outputs.changes == 'changes'  # 변경 사항이 있을 경우에만 실행
+        run: pnpm prettier:affected
+
+      - name: Build 🎁
+        if: steps.check_changes.outputs.changes == 'changes'  # 변경 사항이 있을 경우에만 실행
+        run: pnpm build
+
+      - name: Run Tests 🧪
+        if: steps.check_changes.outputs.changes == 'changes'  # 변경 사항이 있을 경우에만 실행
+        run: pnpm test:dev
+        env: {}  # env 필드를 빈 객체로 유지

@@ -1,0 +1,48 @@
+# 개선된 워크플로우
+name: Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30  # 타임아웃 추가
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        pip install -r requirements.txt
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.AMULET_CORE_PYPI_PASSWORD }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+    - name: Build Docs
+      shell: bash
+      env:
+        RTDTOKEN: ${{ secrets.RTDTOKEN }}
+        RTDURL: ${{ secrets.RTDURL }}
+        TAGNAME: ${{ github.event.release.tag_name }}
+      run: |
+        release_regex_version='^([0-9]+\.[0-9]+(\.[0-9]+)?\.)([0-9]+)$'
+        if [[ $TAGNAME =~ $release_regex_version ]]; then
+          # if it is a full release trigger the stable docs build
+          curl -X POST -d "branches=stable" -d "token=$RTDTOKEN" $RTDURL
+        else
+          # if it is a beta release trigger the beta docs build
+          curl -X POST -d "branches=latest" -d "token=$RTDTOKEN" $RTDURL
+        fi

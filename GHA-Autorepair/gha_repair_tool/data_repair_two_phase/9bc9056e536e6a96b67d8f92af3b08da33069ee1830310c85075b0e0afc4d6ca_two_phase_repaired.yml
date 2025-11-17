@@ -1,0 +1,23 @@
+# 개선된 워크플로우
+name: Update Pact Ruby Standalone
+
+on:
+  repository_dispatch:
+    types:
+      - pact-ruby-standalone-released
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 타임아웃 추가
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: |
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_ACTOR}"
+
+      - run: script/create-pr-to-update-pact-ruby-standalone.sh ${{ github.event.client_payload.version }}
+        env:  # 환경 변수를 명시적으로 설정
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub API 호출을 위한 토큰

@@ -1,0 +1,109 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - v[0-9]+.*
+    paths-ignore:
+      - '**.md'  # Avoid running CI related actions when no source code has changed
+
+jobs:
+  release-linux-musl-amd64:
+    name: Release for Linux/amd64/musl
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+    - uses: actions/checkout@v4
+      with:
+         fetch-depth: 0
+
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+         targets: x86_64-unknown-linux-musl
+
+    - run: cargo build --release --target x86_64-unknown-linux-musl
+    
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref }}
+        file: target/release/x86_64-unknown-linux-musl/dash-mpd-cli
+        asset_name: dash-mpd-cli-linux-amd64
+
+
+  release-linux-aarch64:
+    name: Release for Linux/aarch64
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+    - uses: actions/checkout@v4
+      with:
+         fetch-depth: 0
+
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+         targets: aarch64-unknown-linux-gnu
+
+    - run: cargo build --release --target aarch64-unknown-linux-gnu
+    
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref }}
+        file: target/release/aarch64-unknown-linux-gnu/dash-mpd-cli
+        asset_name: dash-mpd-cli-linux-aarch64
+
+
+  # TODO: generate a universal binary
+  release-macos:
+    name: Release for MacOS/aarch64
+    runs-on: macos-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+    - uses: actions/checkout@v4
+      with:
+         fetch-depth: 0
+
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+         targets: aarch64-apple-darwin
+
+    - run: cargo build --release --target aarch64-apple-darwin
+    
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref }}
+        file: target/release/aarch64-apple-darwin/dash-mpd-cli
+        asset_name: dash-mpd-cli-macos-aarch64
+
+
+  release-windows:
+    name: Release for Windows/amd64
+    runs-on: windows-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+    - uses: actions/checkout@v4
+      with:
+         fetch-depth: 0
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        install: base-devel autotools mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-rust mingw-w64-ucrt-x86_64-gcc
+
+    - run: cargo build --release
+      shell: msys2 {0}
+    
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref }}
+        file: target/release/dash-mpd-cli.exe
+        asset_name: dash-mpd-cli-windows.exe

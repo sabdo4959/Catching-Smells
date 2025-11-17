@@ -1,0 +1,16 @@
+name: "Notification regarding New Pull Request via Slack"
+on:
+  issue_comment:
+    types: [created]  # 수정: sequence node를 mapping node로 변경
+
+jobs:
+  notifyViaSlack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 수정: 작업에 대한 타임아웃 추가
+    steps:
+      - uses: denolib/setup-deno@v2
+        with:
+          deno-version: v1.x
+      - run: deno run --allow-net https://deno.land/x/cicd/notify-via-slack.ts ${{ secrets.SLACK_WEBHOOK_URL }} ${{ github.repository }} "Pull Request Created - ${{ github.event.comment.html_url }}"  # 수정: pull_request.html_url 대신 comment.html_url 사용
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # 보안 관련: 환경 변수로 SLACK_WEBHOOK_URL 전달

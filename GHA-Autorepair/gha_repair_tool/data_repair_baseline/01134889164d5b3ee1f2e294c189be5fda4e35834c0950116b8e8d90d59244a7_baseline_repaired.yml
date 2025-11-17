@@ -1,0 +1,174 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  analyze-tags:
+    runs-on: ubuntu-latest
+    outputs:
+      previous-tag: ${{ steps.previoustag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v2.3.3
+        with:
+          fetch-depth: 0
+      - name: Get previous tag
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+  publish:
+    name: Publish for ${{ matrix.job.target }}
+    needs: analyze-tags
+    runs-on: ${{ matrix.job.os }}
+    strategy:
+      matrix:
+        rust: [stable]
+        job:
+          - os: ubuntu-latest
+            os-name: linux
+            target: x86_64-unknown-linux-gnu
+            architecture: x86_64
+            artifact_name: qsv*
+            use-cross: false
+            strip: true
+            addl-build-args: --features=apply,generate,lua,foreach,python
+          - os: ubuntu-latest
+            os-name: linux
+            target: x86_64-unknown-linux-musl
+            architecture: x86_64
+            artifact_name: qsv*
+            use-cross: false
+            strip: true
+            addl-build-args: --features=apply,generate,lua,foreach,python            
+          - os: ubuntu-latest
+            os-name: linux
+            target: i686-unknown-linux-gnu
+            architecture: i686
+            artifact_name: qsv*
+            use-cross: true
+            strip: true
+            addl-build-args: --features=apply,generate,lua,foreach
+          - os: windows-latest
+            os-name: windows
+            target: x86_64-pc-windows-msvc
+            architecture: x86_64
+            artifact_name: qsv*.exe
+            use-cross: false
+            strip: false
+            addl-build-args: --features=apply,generate,lua,python
+          - os: windows-latest
+            os-name: windows
+            target: i686-pc-windows-msvc
+            architecture: i686
+            artifact_name: qsv*.exe
+            use-cross: true
+            strip: false
+            addl-build-args: --features=apply,generate,lua
+          - os: windows-latest
+            os-name: windows
+            target: x86_64-pc-windows-gnu
+            architecture: x86_64
+            artifact_name: qsv*.exe
+            use-cross: false
+            strip: false
+            addl-build-args: --features=apply,generate,lua,python
+          - os: macos-latest
+            os-name: macos
+            target: x86_64-apple-darwin
+            architecture: x86_64
+            artifact_name: qsv*
+            use-cross: false
+            strip: true
+            addl-build-args: --features=apply,generate,lua,foreach,python
+          - os: macos-latest
+            os-name: macos
+            target: aarch64-apple-darwin
+            architecture: aarch64
+            artifact_name: qsv*
+            build-prep: true
+            use-cross: true
+            strip: true
+            addl-build-args: --features=apply,generate,lua,foreach
+          - os: ubuntu-latest
+            os-name: linux
+            target: aarch64-unknown-linux-gnu
+            architecture: aarch64
+            artifact_name: qsv*
+            use-cross: true
+            strip: false
+            addl-build-args: --features=apply,generate,lua,foreach
+          - os: ubuntu-latest
+            os-name: linux
+            target: arm-unknown-linux-gnueabihf
+            architecture: arm
+            artifact_name: qsv*
+            use-cross: true
+            strip: false
+            addl-build-args: --features=apply,generate,lua,foreach
+          - os: ubuntu-latest
+            os-name: linux
+            target: arm-unknown-linux-musleabihf
+            architecture: arm
+            artifact_name: qsv*
+            use-cross: true
+            strip: false
+            addl-build-args: --features=apply,generate,lua,foreach
+
+    steps:
+      - name: Set binary zip file name
+        env:
+          binary_zip: qsv-${{ needs.analyze-tags.outputs.previous-tag }}-${{ matrix.job.target }}.zip
+        run: echo "binary zip: ${{ env.binary_zip }}"
+      - name: Installing Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          target: ${{ matrix.job.target }}
+          override: true
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          ref: ${{ needs.analyze-tags.outputs.previous-tag }}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: build prep for aarch64-apple-darwin
+        if: ${{ matrix.job.build-prep }}
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_12.5.1.app"
+          sudo rm -Rf /Library/Developer/CommandLineTools/SDKs/*
+      - name: Set rust strip environment variable
+        run: |
+          echo "CARGO_BUILD_RUSTFLAGS='-C strip'" >> $GITHUB_ENV
+      - name: Cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          use-cross: ${{ matrix.job.use-cross }}
+          toolchain: ${{ matrix.rust }}
+          args: --release --locked --target ${{ matrix.job.target }} ${{ matrix.job.addl-build-args }}
+      - name: strip binary on *nix environments
+        if: ${{ matrix.job.strip }}
+        run: |
+          rm target/${{ matrix.job.target }}/release/*.d
+          strip target/${{ matrix.job.target }}/release/${{ matrix.job.artifact_name }}
+      - name: Copy binaries to working dir
+        shell: bash
+        run: |
+          mkdir qsv-${{ needs.analyze-tags.outputs.previous-tag }}
+          cp target/${{ matrix.job.target }}/release/${{ matrix.job.artifact_name }} qsv-${{ needs.analyze-tags.outputs.previous-tag }}        
+      - name: zip up binaries
+        run: 7z a -tzip ${{ env.binary_zip }} ./qsv-${{ needs.analyze-tags.outputs.previous-tag }}/${{ matrix.job.artifact_name }} -mx=9 -mmt=on -mpass=7
+      - name: Upload zipped binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.binary_zip }}
+          asset_name: ${{ env.binary_zip }}
+          overwrite: true
+          tag: ${{ needs.analyze-tags.outputs.previous-tag }}

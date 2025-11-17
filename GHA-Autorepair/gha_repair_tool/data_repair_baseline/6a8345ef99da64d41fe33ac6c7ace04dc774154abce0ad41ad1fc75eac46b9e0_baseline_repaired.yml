@@ -1,0 +1,310 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - develop
+    # Stop running workflows when there is a newer commit in branch
+    paths-ignore:
+      - '**.md'  # Ignore markdown files for changes
+
+jobs:
+
+  unit-tests:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [14.x]
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-all-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: npm install
+        run: npm install
+      - name: Lerna bootstrap
+        run: |
+          npm run bootstrap -- \
+            --ignore @deepkit/mongo \
+            --ignore @deepkit/example-app \
+            --ignore @deepkit/fs \
+            --ignore @deepkit/framework-examples \
+            --ignore @deepkit/benchmark \
+            --ignore @deepkit/mysql --ignore @deepkit/postgres
+      - name: Build
+        run: |
+          ./node_modules/.bin/tsc --build \
+            packages/angular-universal/tsconfig.json \
+            packages/broker/tsconfig.json \
+            packages/bson/tsconfig.json \
+            packages/core/tsconfig.json \
+            packages/core-rxjs/tsconfig.json \
+            packages/crypto/tsconfig.json \
+            packages/framework/tsconfig.json \
+            packages/framework-debug-shared/tsconfig.json \
+            packages/framework-integration/tsconfig.json \
+            packages/rpc/tsconfig.json \
+            packages/orm/tsconfig.json \
+            packages/sql/tsconfig.json \
+            packages/sqlite/tsconfig.json \
+            packages/topsort/tsconfig.json \
+            packages/type/tsconfig.json \
+            packages/type-angular/tsconfig.json
+      - name: Test
+        run: |
+          npm run test \
+            packages/angular-universal/ \
+            packages/broker/ \
+            packages/bson/ \
+            packages/core/ \
+            packages/core-rxjs/ \
+            packages/crypto/ \
+            packages/framework/ \
+            packages/framework-debug-shared/ \
+            packages/framework-integration/ \
+            packages/rpc/ \
+            packages/topsort/ \
+            packages/type/ \
+            packages/type-angular/
+      - name: Send coverage
+        run: ./node_modules/.bin/codecov -f coverage/*.json
+
+  orm-postgres:
+    needs: unit-tests
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [14.x]
+        postgres-version: [10.10]
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres-version }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - "5432:5432"
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-postgres-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: npm install
+        run: npm install
+      - name: Lerna bootstrap
+        run: |
+          npm run bootstrap -- \
+            --scope @deepkit/postgres --scope @deepkit/orm --scope @deepkit/sql \
+            --scope @deepkit/orm-integration --scope @deepkit/topsort \
+            --scope @deepkit/type --scope @deepkit/core
+      - name: Build
+        run: ./node_modules/.bin/tsc --build packages/postgres/tsconfig.json
+      - name: Test
+        run: npm run test packages/postgres/
+      - name: Send coverage
+        run: ./node_modules/.bin/codecov -f coverage/*.json
+
+  orm-mysql:
+    needs: unit-tests
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [14.x]
+        mysql-version: [8.0]
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    services:
+      mysql:
+        image: "mysql:${{ matrix.mysql-version }}"
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          -e MYSQL_ALLOW_EMPTY_PASSWORD=yes
+          -e MYSQL_DATABASE=default
+        ports:
+          - "3306:3306"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-mysql-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: npm install
+        run: npm install
+      - name: Lerna bootstrap
+        run: |
+          npm run bootstrap -- \
+            --scope @deepkit/mysql --scope @deepkit/orm --scope @deepkit/sql \
+            --scope @deepkit/orm-integration --scope @deepkit/topsort \
+            --scope @deepkit/type --scope @deepkit/core
+      - name: Build
+        run: ./node_modules/.bin/tsc --build packages/mysql/tsconfig.json
+      - name: Test
+        run: npm run test packages/mysql/
+      - name: Send coverage
+        run: ./node_modules/.bin/codecov -f coverage/*.json
+
+  orm-sqlite:
+    needs: unit-tests
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [14.x]
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-sqlite-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: npm install
+        run: npm install
+      - name: Lerna bootstrap
+        run: |
+          npm run bootstrap -- \
+            --scope @deepkit/sqlite --scope @deepkit/orm --scope @deepkit/sql \
+            --scope @deepkit/orm-integration --scope @deepkit/topsort \
+            --scope @deepkit/type --scope @deepkit/core
+      - name: Build
+        run: ./node_modules/.bin/tsc --build packages/sqlite/tsconfig.json
+      - name: Test
+        run: npm run test packages/sqlite/
+      - name: Send coverage
+        run: ./node_modules/.bin/codecov -f coverage/*.json
+
+  orm-mongo:
+    needs: unit-tests
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [14.x]
+        mongo-version: [4.0]
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    services:
+      mongo:
+        image: "mongo:${{ matrix.mongo-version }}"
+        ports:
+          - "27017:27017"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-mongo-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: npm install
+        run: npm install
+      - name: Lerna bootstrap
+        run: |
+          npm run bootstrap -- \
+            --scope @deepkit/mongo --scope @deepkit/bson \
+            --scope @deepkit/orm --scope @deepkit/sql \
+            --scope @deepkit/orm-integration --scope @deepkit/topsort \
+            --scope @deepkit/type --scope @deepkit/core
+      - name: Build
+        run: ./node_modules/.bin/tsc --build packages/mongo/tsconfig.json
+      - name: Test
+        run: npm run test packages/mongo/
+      - name: Send coverage
+        run: ./node_modules/.bin/codecov -f coverage/*.json
+
+  benchmark:
+    runs-on: self-hosted
+    needs:
+      - unit-tests
+      - orm-postgres
+      - orm-mysql
+      - orm-sqlite
+      - orm-mongo
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    services:
+      mongo:
+        image: "mongo:4.2"
+        ports:
+          - "27017:27017"
+      mysql:
+        image: "mysql:8.0"
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          -e MYSQL_ALLOW_EMPTY_PASSWORD=yes
+          -e MYSQL_DATABASE=default
+        ports:
+          - "3306:3306"
+      postgres:
+        image: postgres:10.10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - "5432:5432"
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-all-node_modules-${{ hashFiles('**/package-lock.json') }}
+      - name: npm install
+        run: npm install
+      - name: Lerna bootstrap
+        run: |
+          npm run bootstrap -- \
+          --ignore @deepkit/example-app \
+          --ignore @deepkit/fs \
+          --ignore @deepkit/framework-examples
+      - name: Build
+        run: |
+          ./node_modules/.bin/tsc --build \
+            packages/broker/tsconfig.json \
+            packages/bson/tsconfig.json \
+            packages/core/tsconfig.json \
+            packages/core-rxjs/tsconfig.json \
+            packages/crypto/tsconfig.json \
+            packages/framework/tsconfig.json \
+            packages/framework-debug-shared/tsconfig.json \
+            packages/rpc/tsconfig.json \
+            packages/mongo/tsconfig.json \
+            packages/sqlite/tsconfig.json \
+            packages/mysql/tsconfig.json \
+            packages/postgres/tsconfig.json \
+            packages/orm/tsconfig.json \
+            packages/sql/tsconfig.json \
+            packages/topsort/tsconfig.json \
+            packages/type/tsconfig.json
+      - name: Benchmark setup
+        run: cd packages/benchmark && . setup.sh
+      - name: Benchmark run
+        run: cd packages/benchmark && npm run benchmark

@@ -1,0 +1,42 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+    # 최신 커밋이 있을 경우 워크플로우 중지
+    if: github.event.head_commit.timestamp == github.event.repository.pushed_at
+  pull_request:
+    branches: [main]
+    # 최신 커밋이 있을 경우 워크플로우 중지
+    if: github.event.pull_request.updated_at == github.event.repository.pushed_at
+
+jobs:
+  Cypress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업 타임아웃 설정
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        uses: cypress-io/github-action@v2
+        with:
+          install-command: yarn --frozen-lockfile --silent
+          runTests: false
+
+      - name: Lint
+        run: yarn lint  # run 섹션 추가
+
+      - name: Run e2e tests
+        uses: cypress-io/github-action@v2
+        with:
+          build: yarn build --mode test
+          command: yarn test:headless
+          install: false
+          working-directory: e2e
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true

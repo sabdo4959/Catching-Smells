@@ -1,0 +1,39 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+    # Stop running workflows when there is a newer commit in branch
+    # This can be achieved by using the `concurrency` feature
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Use permissions whenever using Github Token
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install pnpm
+        run: npm i -g pnpm
+      - name: Install & Build
+        run: |
+          pnpm install
+          pnpm run docs:build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist
+          # cname: example.com # if wanna deploy to custom domain
+    # Avoid jobs without timeouts
+    timeout-minutes: 10

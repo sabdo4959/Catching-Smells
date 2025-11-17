@@ -1,0 +1,51 @@
+name: Automated test suite
+on:
+  push:
+    branches: [ master ]
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    if: github.event.head_commit.id == github.event.before
+  pull_request:
+    branches: [ master ]
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    if: github.event.pull_request.head.sha == github.event.before
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 작업에 대한 타임아웃 설정
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Get poetry
+      run: |
+        pip install poetry
+    # See pyproject.toml for details
+    - name: Setup master tracked dependencies
+      run: |
+        git clone --recurse-submodules https://github.com/tradingstrategy-ai/eth-hentai.git ../eth-hentai
+        git clone --recurse-submodules https://github.com/tradingstrategy-ai/client.git ../client
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: Run test scripts
+      run: |
+        poetry run pytest
+      env:
+        TRADING_STRATEGY_API_KEY: ${{ secrets.TRADING_STRATEGY_API_KEY }}
+
+    # 소스 코드 변경이 없을 경우 CI 관련 작업 중단
+    - name: Check for code changes
+      id: check_changes
+      run: |
+        git diff --exit-code || echo "Code changes detected"
+    
+    - name: Run tests if changes detected
+      if: steps.check_changes.outputs.exit_code == '0'
+      run: |
+        poetry run pytest
+      env:
+        TRADING_STRATEGY_API_KEY: ${{ secrets.TRADING_STRATEGY_API_KEY }}

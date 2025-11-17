@@ -1,0 +1,49 @@
+name: Site
+
+on:
+  push:
+    branches:
+      - main
+      - site
+    # 최신 커밋이 있을 경우 워크플로우를 중단하도록 설정
+    paths-ignore:
+      - '**.md'  # 예시로 md 파일 변경 시에는 워크플로우를 실행하지 않도록 설정
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업 타임아웃 설정
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    - uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: latest
+
+    - run: npm install
+      working-directory: crates/rune-wasm
+
+    - run: npm run build
+      working-directory: crates/rune-wasm
+
+    - run: cargo run --bin rune -- doc --output target/site/docs
+      env:
+        RUST_LOG: rune=info
+
+    - run: cargo run --manifest-path tools/site/Cargo.toml -- -r site build -o target/site
+      env:
+        ZOLA_URL: "https://github.com/getzola/zola/releases/download/v0.17.2/zola-v0.17.2-x86_64-unknown-linux-gnu.tar.gz"
+
+    - run: mdbook build -d ../target/site/book book
+
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        external_repository: rune-rs/rune-rs.github.io
+        publish_branch: main
+        publish_dir: target/site

@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:10
+        env:
+          POSTGRES_DB: accent_test
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      MIX_ENV: test
+      DATABASE_URL: postgres://postgres:password@localhost/accent_test
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-elixir@v1
+        with:
+          otp-version: '22.x'
+          elixir-version: '1.9.x'
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.14.x'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc libyaml-dev python-yaml
+
+      - name: Install Elixir Dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+          mix deps.compile
+
+      - name: Install NodeJS Dependencies
+        run: |
+          npm config set spin false
+          npm install --no-audit --no-color
+          npm install --prefix webapp --no-audit --no-color
+          npm install --prefix cli --no-audit --no-color
+          npm install --prefix jipt --no-audit --no-color
+
+      - name: Build webapp production
+        run: npm run build-production-inline --prefix webapp
+
+      - name: Run Tests
+        run: |
+          mix ecto.setup
+          ./priv/scripts/ci-check.sh
+
+      - name: Build CLI
+        run: npm --prefix cli run build
+
+      - name: Build JIPT
+        run: npm --prefix jipt run build-production-inline
+
+      - name: Coverage report
+        run: mix coveralls.post --token ${{ secrets.COVERALLS_REPO_TOKEN }} --name 'github-actions' --branch ${{ github.ref }} --committer ${{ github.actor }} --sha ${{ github.sha }}

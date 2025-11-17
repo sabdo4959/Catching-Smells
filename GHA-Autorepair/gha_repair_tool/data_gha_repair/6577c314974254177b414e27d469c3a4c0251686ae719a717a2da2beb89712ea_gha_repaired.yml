@@ -1,0 +1,34 @@
+name: 🍹Sponsor video generator
+on:
+  workflow_dispatch:
+    inputs:
+      companyName:
+        description: "What is the name of the sponsor company?"
+        required: true
+        default: "Example"
+      backgroundImg:
+        description: "If you want to use custom image for background"
+        required: false
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Added timeout to avoid jobs without timeouts
+    steps:
+      - run: sudo apt update
+      - run: sudo apt install ffmpeg
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@main
+      - uses: pnpm/action-setup@v2.0.1
+        name: Install pnpm
+        with:
+          version: 7
+          run_install: true
+      - run: echo $WORKFLOW_INPUT > input-props.json
+        env:
+          WORKFLOW_INPUT: ${{ toJson(github.event.inputs) }}
+      - run: pnpm remotion render src/index.tsx Sponsor out/sponsor-${{github.event.inputs.companyName}}.mp4 --props="./input-props.json"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: sponsor-${{github.event.inputs.companyName}}
+          path: out

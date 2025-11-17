@@ -1,0 +1,33 @@
+name: Black code formatting
+
+on:
+  push:
+    branches: [ main ]
+    # Stop running workflows when there is a newer commit in branch
+    # This prevents unnecessary runs for the latest commit
+    if: github.event.head_commit.id == github.sha
+  pull_request:
+    branches: [ main ]
+    # Stop running workflows when there is a newer commit in PR
+    # This prevents unnecessary runs for the latest commit in the PR
+    if: github.event.pull_request.head.sha == github.sha
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Avoid jobs without timeouts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Black
+        uses: psf/black@stable
+
+      - name: Commit
+        run: |
+          git add dist/*
+          git config --local user.email "42198152+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Black code changes"
+        # Avoid running CI related actions when no source code has changed
+        if: steps.checkout.outputs.changed == 'true'

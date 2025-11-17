@@ -1,0 +1,27 @@
+name: crates-index
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch: # 수동 실행을 위한 트리거 추가
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # 작업 타임아웃 설정
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Fetch branches
+        run: |
+          git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+
+      - name: Download crates.io dumped database
+        run: |
+          mkdir -p /data
+          wget -v https://static.crates.io/db-dump.tar.gz -O /data/db-dump.tar.gz
+
+      - name: Deploy crates index
+        run: ./scripts/deploy-crates-index.sh

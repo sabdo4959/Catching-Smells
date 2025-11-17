@@ -1,0 +1,36 @@
+# 개선된 워크플로우
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+    # 최신 커밋이 있을 경우 워크플로우 중지
+    if: github.event.head_commit.timestamp > github.event.before
+  pull_request:
+    branches: [ master ]
+    # 최신 커밋이 있을 경우 워크플로우 중지
+    if: github.event.pull_request.updated_at > github.event.pull_request.created_at
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 작업 타임아웃 설정
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1.66.0
+        with:
+          ruby-version: 3.0.0
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code HEAD^ HEAD || echo "Changes detected"
+      - name: make
+        if: steps.check_changes.outputs.changes_detected == 'true'  # 변경 사항이 있을 때만 실행
+        run: make
+      - name: make check
+        if: steps.check_changes.outputs.changes_detected == 'true'  # 변경 사항이 있을 때만 실행
+        run: make check

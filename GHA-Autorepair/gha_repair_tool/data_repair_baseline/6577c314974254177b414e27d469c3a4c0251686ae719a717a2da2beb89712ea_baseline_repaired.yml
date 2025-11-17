@@ -1,0 +1,47 @@
+name: 🍹Sponsor video generator
+on:
+  workflow_dispatch:
+    inputs:
+      companyName:
+        description: "What is the name of the sponsor company?"
+        required: true
+        default: "Example"
+      backgroundImg:
+        description: "If you want to use custom image for background"
+        required: false
+
+jobs:
+  render:
+    name: Render video
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업 타임아웃 추가
+    steps:
+      - name: Update package list
+        run: sudo apt update
+      
+      - name: Install ffmpeg
+        run: sudo apt install -y ffmpeg  # -y 플래그 추가로 자동 설치
+      
+      - name: Checkout repository
+        uses: actions/checkout@v2  # 안정적인 버전으로 변경
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3  # 최신 버전으로 변경
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7
+          run_install: true
+      
+      - name: Create input properties JSON
+        run: echo "${{ toJson(github.event.inputs) }}" > input-props.json
+      
+      - name: Render video
+        run: pnpm remotion render src/index.tsx Sponsor out/sponsor-${{ github.event.inputs.companyName }}.mp4 --props="./input-props.json"
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3  # 최신 버전으로 변경
+        with:
+          name: sponsor-${{ github.event.inputs.companyName }}
+          path: out

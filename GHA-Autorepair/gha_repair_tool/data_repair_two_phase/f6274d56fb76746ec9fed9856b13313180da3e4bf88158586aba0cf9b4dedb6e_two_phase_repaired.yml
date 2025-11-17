@@ -1,0 +1,36 @@
+name: Black code formatting
+
+on:
+  push:
+    branches: [ main ]
+    # 최신 커밋이 있을 경우 워크플로우를 중단
+    if: github.event.head_commit.id == github.event.before
+  pull_request:
+    branches: [ main ]
+    # 최신 커밋이 있을 경우 워크플로우를 중단
+    if: github.event.pull_request.head.sha == github.event.before
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 작업에 대한 타임아웃 설정
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code || echo "changes"
+
+      - name: Black
+        if: steps.check_changes.outputs.changes == 'changes'  # 소스 코드 변경이 있을 때만 실행
+        uses: psf/black@stable
+
+      - name: Commit
+        if: steps.check_changes.outputs.changes == 'changes'  # 소스 코드 변경이 있을 때만 실행
+        run: |
+          git add dist/*
+          git config --local user.email "42198152+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Black code changes"

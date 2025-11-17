@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    # 최신 커밋이 있을 때만 워크플로우 실행
+    paths-ignore:
+      - '**.md'  # 예시: 문서 파일 변경 시 CI 실행 방지
+
+jobs:
+  test:
+    name: Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업 타임아웃 설정
+    steps:
+      - uses: actions/checkout@v2  # 최신 버전으로 업데이트
+      - name: Install, Build, Test
+        run: |
+          npm install
+          npm run build
+      - name: Publish
+        uses: actions/npm@1.0.0
+        with:  # 'args' 대신 'with' 사용
+          args: "publish --access public"
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GITHUB_TOKEN 활성화
+
+      # 주석 처리된 부분은 필요 시 활성화 가능
+      # - name: npm version
+      #   run: |
+      #     npm version patch
+      #     git commit -m "Release"
+      #     git push
+      # - name: npm publish
+      #   run: npm publish

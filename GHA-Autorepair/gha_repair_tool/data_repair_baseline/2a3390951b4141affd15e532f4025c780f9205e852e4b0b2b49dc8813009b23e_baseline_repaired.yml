@@ -1,0 +1,47 @@
+name: Node CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Timeout 설정 추가
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v2  # v1에서 v2로 업데이트
+      with:
+        ref: ${{ github.ref }}
+        
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2  # v1에서 v2로 업데이트
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      env:
+        HUSKY_SKIP_INSTALL: "true"
+        CXX: "g++-4.9"
+        CC: "gcc-4.9"
+        DISPLAY: ":99.0"
+      run: |
+        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        yarn install  # yarn 대신 yarn install 사용
+
+    - name: Run tests and build
+      env:
+        HUSKY_SKIP_INSTALL: "true"
+        CXX: "g++-4.9"
+        CC: "gcc-4.9"
+        DISPLAY: ":99.0"
+      run: |
+        yarn test:older --no-coverage
+        yarn test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2  # v1.0.2에서 v2로 업데이트
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}  # required

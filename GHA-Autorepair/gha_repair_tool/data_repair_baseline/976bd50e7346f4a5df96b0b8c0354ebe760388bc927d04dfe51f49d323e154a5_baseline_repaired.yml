@@ -1,0 +1,110 @@
+name: Dependency and link scanner
+
+on:
+  schedule:
+    # Triggers the workflow every day at 0130 UTC
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  # Repo usage stats
+  calculate-stats:
+    runs-on: ubuntu-22.04
+    environment: "analytics"
+    steps:
+      - uses: jgehrcke/github-repo-stats@HEAD
+        with:
+          ghtoken: ${{ secrets.GH_TOKEN_ANALYTICS }}
+
+  # Checks imports using latest versions of dependencies for the core package.
+  check-imports:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ "ubuntu-latest", "windows-latest", "macos-latest" ]
+        python-version: ["3.8"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install latest versions of core dependencies.
+        run: |
+          python3 -m pip install --upgrade pip-tools
+          python3 -m pip install .
+
+      # smoke-tests that check imports
+      - name: Check imports
+        run: |
+          python -m superduperdb.db.base.db
+          python -m superduperdb.db.base.backends
+          python -m superduperdb.container.model 
+
+  # Run tests using latest versions of dependencies for the dev environment.
+  test-latest-dev-deps:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ "ubuntu-latest" ]  # TODO: add "windows-latest", "macos-latest" when Docker removed
+        python-version: ["3.8"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install latest versions of developer dependencies
+        run: |
+          python3 -m pip install --upgrade pip-tools
+          python3 -m pip install .[dev]
+
+      - name: Run tests
+        run: make test
+
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create configuration for handling relative paths
+        run: |
+          cat <<EOF > mlc_config.json
+          {
+            "replacementPatterns": [
+              {
+                "pattern": "^[./]",
+                "replacement": "{{BASEURL}}/"
+              }
+            ]
+          }
+          EOF
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: 'mlc_config.json'
+
+# Timeout 설정 추가
+jobs:
+  calculate-stats:
+    timeout-minutes: 10
+  check-imports:
+    timeout-minutes: 10
+  test-latest-dev-deps:
+    timeout-minutes: 10
+  markdown-link-check:
+    timeout-minutes: 10

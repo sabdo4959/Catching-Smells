@@ -1,0 +1,143 @@
+name: Wheels
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+  release:
+    types:
+      - published
+
+# Ensures Surelog/wheels are compatible with macOS 10.15+
+env:
+  MACOSX_DEPLOYMENT_TARGET: "10.15"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_wheel:
+    name: Wheel siliconcompiler
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: hynek/build-and-inspect-python-package@v2
+
+  test_wheel:
+    needs: build_wheel
+    name: Test wheels on ${{ matrix.platform.os }} ${{ matrix.platform.arch }} ${{ matrix.python-version }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        platform:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: macos-13
+            arch: x86_64
+          - os: windows-latest
+            arch: x86_64
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: sc
+
+    - name: Setup env (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y graphviz wget xvfb
+        sc/setup/ubuntu22/install-klayout.sh
+
+    - name: Setup env (Windows)
+      if: matrix.platform.os == 'windows-latest'
+      run: |
+        choco install -y graphviz
+        $klayoutversion = python3 sc/setup/_tools.py --tool klayout --field version
+        Invoke-WebRequest -Uri "https://www.klayout.org/downloads/Windows/klayout-${klayoutversion}-win64.zip" -OutFile klayout.zip
+        7z x klayout.zip
+        xcopy /E "klayout-${klayoutversion}-win64" "C:\Program Files (x86)\KLayout\"
+
+    - name: Setup env (macOS)
+      if: matrix.platform.os == 'macos-13'
+      run: |
+        brew install graphviz || true
+        brew install --cask klayout
+        brew install --cask xquartz
+        echo "/opt/X11/bin" >> $GITHUB_PATH
+        mkdir -p /tmp/.X11-unix
+        sudo chmod 1777 /tmp/.X11-unix
+        sudo chown root /tmp/.X11-unix
+
+    - name: Setup python
+      id: python
+      uses: actions/setup-python@v5.1.1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: Packages
+        path: dist
+
+    - name: Install SC (non-windows)
+      if: matrix.platform.os != 'windows-latest'
+      run: |
+        ${{ steps.python.outputs.python-path }} -m venv venv
+        . venv/bin/activate
+        python3 --version
+        wheel=$(find dist -name "*.whl")
+        pip3 install "$wheel"[test]
+
+    - name: Run pytest (non-windows)
+      if: matrix.platform.os != 'windows-latest'
+      run: |
+        . venv/bin/activate
+        pytest sc/tests/ -m "not eda and not docker" -n auto
+        pytest sc/tests/tools/test_surelog.py -n auto
+        pytest sc/tests/flows/test_show.py -k "not openroad" -n auto
+
+    - name: Install SC (windows)
+      if: matrix.platform.os == 'windows-latest'
+      run: |
+        ${{ steps.python.outputs.python-path }} -m venv venv
+        venv/Scripts/activate
+        python3 --version
+        $wheel = Get-ChildItem -Path "dist\*.whl" | Select-Object -First 1 -ExpandProperty FullName
+        pip3 install "$wheel"[test]
+
+    - name: Run pytest (windows)
+      if: matrix.platform.os == 'windows-latest'
+      run: |
+        venv/Scripts/activate
+        pytest sc/tests/ -m "not eda and not docker" -n auto
+        pytest sc/tests/tools/test_surelog.py -n auto
+        pytest sc/tests/flows/test_show.py -k "not openroad" -n auto
+
+  publish:
+    needs: [build_wheel, test_wheel]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published' && !contains(github.event.release.body, 'NOPUBLISH')
+
+    permissions:
+      id-token: write
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: Packages
+
+    - name: Extract files
+      run: |
+        unzip Packages.zip
+
+    - uses: pypa/gh-action-pypi-publish@v1.9.0
+
+    - name: Add wheels to GitHub release artifacts
+      uses: softprops/action-gh-release@v2
+      with:
+        files: '*.whl'

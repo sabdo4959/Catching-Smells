@@ -1,0 +1,32 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+    # Stop running workflows when there is a newer commit in branch
+    # This prevents unnecessary runs for the same branch
+    if: github.event.after == github.event.before
+  pull_request:
+    branches: [ master ]
+    # Stop running workflows when there is a newer commit in PR
+    # This prevents unnecessary runs for the same pull request
+    if: github.event.after == github.event.before
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1.66.0
+      with:
+        ruby-version: 3.0.0
+    - name: make
+      run: make
+    - name: make check
+      run: make check

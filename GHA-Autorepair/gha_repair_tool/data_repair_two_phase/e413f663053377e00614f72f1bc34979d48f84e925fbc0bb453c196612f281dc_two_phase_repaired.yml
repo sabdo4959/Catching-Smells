@@ -1,0 +1,37 @@
+# 개선된 워크플로우
+name: Helper
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+jobs:
+  instructions:
+    name: instructions
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    timeout-minutes: 10  # 타임아웃 설정
+    permissions: 
+      issues: write  # GitHub Token 사용 시 필요한 권한 설정
+      pull-requests: read  # PR 읽기 권한 설정
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check for newer commits
+        id: check_commits
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/${{ github.head_ref }})" ]; then
+            echo "A newer commit exists in the PR. Stopping the workflow."
+            exit 1
+          fi
+
+      - name: Comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { hasLabel } = require(`${process.env.GITHUB_WORKSPACE}/scripts/action-utils.js`);
+            const { instructions } = require(`${process.env.GITHUB_WORKSPACE}/scripts/reply.js`);
+            if (hasLabel(context, 'domain')) {
+              await instructions(context, github);
+            }

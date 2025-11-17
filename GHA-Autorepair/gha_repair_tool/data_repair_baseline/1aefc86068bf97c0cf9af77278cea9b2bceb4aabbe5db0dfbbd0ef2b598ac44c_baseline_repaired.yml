@@ -1,0 +1,240 @@
+name: Extension scripts
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - versions.txt
+  pull_request_target:
+    branches: [ "master" ]
+
+env:
+  CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm_modules
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Approve
+        run: echo "For security reasons, all pull requests need to be approved first before running any automated CI."
+
+  extscripts:
+    name: Extension scripts
+
+    strategy:
+      matrix:
+        pgver: [ 16, 15, 14, 13 ]
+        os: 
+          - { name: ubuntu, image: 'warp-ubuntu-latest-x64-4x', arch: x86-64 }
+          - { name: macos, image: 'warp-macos-14-arm64-6x', arch: arm }
+        build_type: [ Release ]
+      exclude:
+        - os: { name: macos, image: 'warp-macos-14-arm64-6x', arch: arm }
+          pgver: 15
+        - os: { name: macos, image: 'warp-macos-14-arm64-6x', arch: arm }
+          pgver: 14
+        - os: { name: macos, image: 'warp-macos-14-arm64-6x', arch: arm }
+          pgver: 13
+      fail-fast: false
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}
+      OMNIGRES_INDEX_DOMAIN: "index.omnigres.com"
+      OMNIGRES_INDEX_HOST: omnigres-index
+      MATRIX_COMBINATION: ${{ matrix.pgver }}/${{ matrix.build_type }}/${{ matrix.os.name }}-${{ matrix.os.arch }}
+      OMNIGRES_S3_BUCKET: omnigres-ext-semver
+
+    runs-on: ${{ matrix.os.image }}
+
+    needs: [ approve ]
+    environment: ${{ (github.event_name == 'push' || contains(fromJSON(vars.AUTO_APPROVED_CONTRIBUTORS), github.event.pull_request.user.login) || contains(fromJSON('["OWNER", "MEMBER"]'), github.event.pull_request.author_association)) && 'master' || 'Integrate Pull Request' }}
+
+    steps:
+      - uses: actions/checkout@v3
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: all
+
+      - uses: actions/checkout@v3
+        if: github.event_name != 'push'
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: all
+
+      - name: Get path hash
+        if: matrix.os.name == 'macos'
+        run: |
+          echo "PATH_SUFFIX=-$(pwd | sha256sum | awk '{print $1}')" >> $GITHUB_ENV
+
+      - name: Get path hash
+        if: matrix.os.name != 'macos'
+        run: |
+          echo "PATH_SUFFIX=" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        with:
+          path: .pg
+          key: ${{ matrix.os.image }}-pg-${{ matrix.pgver }}-${{ matrix.build_type }}-${{ hashFiles('cmake/FindPostgreSQL.cmake') }}${{ env.PATH_SUFFIX }}
+
+      - uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/build/_deps
+          key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('extensions/**/CMakeLists.txt', '*/CMakeLists.txt', 'cmake/*.cmake') }}
+
+      - name: Configure
+        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DPGVER=${{ matrix.pgver }}
+
+      - name: Build
+        run: cmake --build ${{ github.workspace }}/build --parallel --config ${{ matrix.build_type }}
+
+      - name: Package extensions
+        run: cmake --build ${{ github.workspace }}/build --parallel --target package_extensions
+
+      - name: Get modified directories
+        if: ${{ github.event_name }} != 'push'
+        id: modified-dirs
+        uses: tj-actions/changed-files@v42
+        with:
+          base_sha: ${{ github.event.pull_request.base.sha }}
+          dir_names: true
+          escape_json: false
+          json: true
+          files_ignore: |
+            **/*.md
+            **/*.txt
+            **/*.yml
+
+      - name: Prepare extension files for s3 upload
+        id: new_ext_releases
+        working-directory: ${{ github.workspace }}/build
+        run: |
+          S3_FILES_DIR=packaged/s3
+          mkdir -p $S3_FILES_DIR
+          
+          S3_FILES_UPLOAD_DIR=$S3_FILES_DIR/output
+          mkdir -p $S3_FILES_UPLOAD_DIR
+          
+          index_contents=$(curl --fail-with-body https://${{ env.OMNIGRES_INDEX_DOMAIN }}/${{ env.MATRIX_COMBINATION }}/index.json | jq .)
+          
+          echo "index_contents: $index_contents"
+          
+          echo $index_contents > $S3_FILES_DIR/index.json
+          
+          format_version=$(echo $index_contents | jq ".format_version")
+          if [ "$format_version" != 1 ]; then
+            echo "unrecognised format_version: \"$format_version\", make changes to this workflow to work with newer format_version" && exit 1
+          fi
+          
+          new_ext_releases=""
+          
+          if [ "${{ github.event_name }}" = push ]; then
+            git show ${{ github.event.before }}:../versions.txt > old_versions.txt
+          else
+            git show ${{ github.event.pull_request.base.sha }}:../versions.txt > old_versions.txt
+          fi
+          
+          while read -r line; do
+            ext_name_with_version=$(echo $line | cut -d "#" -f 1)
+            ext_name=$(echo $ext_name_with_version | cut -d "=" -f 1)
+            ext_ver=$(echo $ext_name_with_version | cut -d "=" -f 2)
+          
+            if [ "$ext_ver" = "unreleased" ]; then
+              if [ $(echo $index_contents | jq ".extensions.$ext_name") != null ]; then
+                echo "$ext_name has already been released, can't go back to unreleased" && exit 1
+              fi
+              echo "skipping $ext_name because version is unreleased"
+              continue
+            fi
+          
+            commit_sha=$(echo $index_contents | jq ".extensions.$ext_name.\"$ext_ver\"")
+          
+            if [ "$commit_sha" = null ] && [ "$(egrep "^$ext_name=" old_versions.txt)" != "$(egrep "^$ext_name=" ../versions.txt)" ]; then
+              EXTENSION_DIR=$S3_FILES_DIR/$ext_name
+              mkdir $EXTENSION_DIR
+          
+              cp packaged/extension/{$ext_name--$ext_ver.sql,$ext_name--$ext_ver.control,$ext_name.control} $EXTENSION_DIR/
+          
+              if [ -f packaged/$ext_name--$ext_ver.so ]; then
+                  mkdir $EXTENSION_DIR/lib
+                  cp packaged/$ext_name--$ext_ver.so $EXTENSION_DIR/lib/
+              fi
+          
+              if [ -z "$new_ext_releases" ]; then
+                new_ext_releases+="$ext_name=$ext_ver"
+              else
+                new_ext_releases+="&$ext_name=$ext_ver"
+              fi
+          
+              if [ $(echo $index_contents | jq ".extensions.$ext_name | length") -gt 0 ]; then
+                export TMPDIR=$RUNNER_TEMP
+                export BUILD_TYPE=${{ matrix.build_type }}
+                export DEST_DIR=_migrations
+                mkdir -p $DEST_DIR
+                export PG_CONFIG=$(find ../.pg -name pg_config -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) | grep -v src | head -n 1)
+                echo "Using $PG_CONFIG"
+                ../generate-upgrades.sh $S3_FILES_DIR/index.json $ext_name $ext_ver || exit 1
+                cp $DEST_DIR/packaged/$ext_name--*.sql $EXTENSION_DIR/
+              fi
+          
+              cat artifacts.txt | grep -v unreleased > $EXTENSION_DIR/artifacts.txt
+              tar -C $EXTENSION_DIR -zcvf "$S3_FILES_UPLOAD_DIR/$ext_name--$ext_ver.tar.gz" .
+          
+              source venv/bin/activate  
+              DESTINATION_DIR=$EXTENSION_DIR \
+              TMPDIR=$RUNNER_TEMP \
+              python ../tools/package_extension_with_dependencies.py $EXTENSION_DIR/artifacts.txt $ext_name $ext_ver
+          
+              tar -C $EXTENSION_DIR -zcvf "$S3_FILES_UPLOAD_DIR/$ext_name--$ext_ver-with-dependencies.tar.gz" .
+            else
+              if [ "${{ github.event_name }}" != 'push' ]; then
+                modified_dirs='${{ steps.modified-dirs.outputs.all_modified_files }}'
+                if [ $(echo $modified_dirs | jq "[.[] | test(\"^extensions/$ext_name$\")] | any") = true ] || [ $(echo $modified_dirs | jq "[.[] | test(\"^extensions/$ext_name/\")] | any") = true ]; then
+                  echo "some files belonging to $ext_name are modified and $ext_ver is an already released version," \
+                       "please change the version to create new release" && exit 1
+                fi
+                if [ $(echo $modified_dirs | jq "any(endswith(\"migrate/$ext_name\"))") = true ]; then
+                  echo "some files belonging to $ext_name are modified and $ext_ver is an already released version," \
+                       "please change the version to create new release" && exit 1
+                fi
+              fi
+            fi
+          done < artifacts.txt
+          
+          echo "S3_FILES_UPLOAD_DIR=$S3_FILES_UPLOAD_DIR" >> "$GITHUB_OUTPUT"
+          echo "POST_BODY=$new_ext_releases" >> "$GITHUB_OUTPUT"
+
+      - name: Tailscale
+        uses: omnigres/tailscale-github-action@acfb679296986fae0eba66aadc3a9b40edfb287b
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Pretend to sync back to S3
+        working-directory: ${{ github.workspace }}/build
+        if: github.event_name != 'push'
+        run: |
+          POST_BODY="${{ steps.new_ext_releases.outputs.POST_BODY }}"
+          
+          if [ -z "$POST_BODY" ]; then
+            echo "no new extension versions were released"
+          else
+            S3_FILES_UPLOAD_DIR="${{ steps.new_ext_releases.outputs.S3_FILES_UPLOAD_DIR }}"
+            aws s3 sync --dryrun $S3_FILES_UPLOAD_DIR  "s3://${{ env.OMNIGRES_S3_BUCKET }}/${{ env.MATRIX_COMBINATION }}/${{ github.sha }}"
+          fi
+
+      - name: Sync back to S3
+        working-directory: ${{ github.workspace }}/build
+        if: github.event_name == 'push'
+        run: |
+          POST_BODY="${{ steps.new_ext_releases.outputs.POST_BODY }}"
+          
+          if [ -z "$POST_BODY" ]; then
+            echo "no new extension versions were released"
+          else
+            S3_FILES_UPLOAD_DIR="${{ steps.new_ext_releases.outputs.S3_FILES_UPLOAD_DIR }}"
+            aws s3 sync "$S3_FILES_UPLOAD_DIR"  "s3://${{ env.OMNIGRES_S3_BUCKET }}/${{ env.MATRIX_COMBINATION }}/${{ github.sha }}"
+            curl --fail-with-body -d "$POST_BODY" http://${{ env.OMNIGRES_INDEX_HOST }}/${{ env.MATRIX_COMBINATION }}/extensions?commit_sha=${{ github.sha }}
+          fi

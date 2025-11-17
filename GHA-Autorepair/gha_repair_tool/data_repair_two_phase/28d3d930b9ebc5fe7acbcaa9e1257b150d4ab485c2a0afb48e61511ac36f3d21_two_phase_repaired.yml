@@ -1,0 +1,45 @@
+# 개선된 워크플로우
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - master
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    paths-ignore:
+      - '**.md' # 예시로 문서 변경 시 CI를 실행하지 않도록 설정
+  pull_request:
+    branches:
+      - master
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    paths-ignore:
+      - '**.md' # 예시로 문서 변경 시 CI를 실행하지 않도록 설정
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # 타임아웃 설정 추가
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm ci # npm ci를 사용하여 의존성 설치
+      - run: CI='' && npm run build --if-present
+      - run: touch ./build/.nojekyll
+      - run: sed -i 's|scran/scran|kana/scran/scran|g' ./build/scran/scran.js
+      - name: GH Pages Deployment
+        uses: JamesIves/github-pages-deploy-action@4.1.3
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' # 푸시 이벤트에서만 배포
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: ./build
+          clean: true # Automatically remove deleted files from the deploy branch

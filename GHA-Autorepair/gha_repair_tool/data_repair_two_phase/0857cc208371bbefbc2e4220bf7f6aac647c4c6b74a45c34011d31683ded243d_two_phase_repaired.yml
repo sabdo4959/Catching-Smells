@@ -1,0 +1,50 @@
+# 개선된 워크플로우
+name: Test
+
+on:
+  push:
+    branches: [main]
+    # 최신 커밋이 있을 경우 워크플로우 중지
+    if: github.event.head_commit.id == github.sha
+  pull_request:
+    branches: [main]
+    # 최신 커밋이 있을 경우 워크플로우 중지
+    if: github.event.pull_request.head.sha == github.sha
+
+jobs:
+  Cypress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업에 대한 타임아웃 설정
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        uses: cypress-io/github-action@v2
+        with:
+          install-command: yarn --frozen-lockfile --silent
+          runTests: false
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code || echo "changes"
+
+      - name: Run e2e tests
+        if: steps.check_changes.outputs.changes == 'changes'  # 소스 코드가 변경된 경우에만 실행
+        uses: cypress-io/github-action@v2
+        with:
+          build: yarn build --mode test
+          command: yarn test:headless
+          install: false
+          working-directory: e2e
+
+      - name: Upload coverage
+        if: steps.check_changes.outputs.changes == 'changes'  # 소스 코드가 변경된 경우에만 실행
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true

@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    # 1. Stop running workflows when there is a newer commit in branch
+    # This is achieved by using the `concurrency` feature
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+jobs:
+  test:
+    name: Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 2. Avoid jobs without timeouts
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install, Build, Test
+        run: |
+          npm install
+          npm run build
+      - name: Publish
+        uses: actions/npm@1.0.0
+        with:
+          args: "publish --access public"
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: npm version
+#        run: |
+#          npm version patch
+#          git commit -m "Release"
+#          git push
+#      - name: npm publish
+#        run: npm publish

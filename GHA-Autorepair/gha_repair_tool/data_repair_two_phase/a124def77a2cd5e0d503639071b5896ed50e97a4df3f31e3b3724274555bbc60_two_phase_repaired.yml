@@ -1,0 +1,40 @@
+# 개선된 워크플로우
+name: JS - generate docs
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+    paths: [js]
+    # Prevents running the workflow if there are newer commits in the branch
+    if: github.event.head_commit.timestamp == github.event.repository.pushed_at
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  makeDocs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Set a timeout for the job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Generate docs
+        working-directory: js
+        run: |
+          yarn
+          yarn run build
+          yarn run make-docs
+      - name: Commit
+        run: |
+          git config --local user.email "invernizzi.l@gmail.com"
+          git config --local user.name "Luca Invernizzi"
+          git commit -m "Update docs" -a || echo "No changes to commit"
+          git push

@@ -1,0 +1,48 @@
+# 개선된 워크플로우
+name: Node CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 타임아웃 추가
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v2  # 최신 버전으로 업데이트
+      with:
+        ref: ${{ github.ref }}
+        
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2  # 최신 버전으로 업데이트
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Install dependencies
+      env:
+        HUSKY_SKIP_INSTALL: "true"
+        CXX: "g++-4.9"
+        CC: "gcc-4.9"
+        DISPLAY: ":99.0"
+      run: |
+        /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        yarn install --frozen-lockfile  # lockfile을 사용하여 의존성 일관성 보장
+
+    - name: Test & Build
+      env:
+        HUSKY_SKIP_INSTALL: "true"
+        CXX: "g++-4.9"
+        CC: "gcc-4.9"
+        DISPLAY: ":99.0"
+      run: |
+        yarn test:older --no-coverage
+        yarn test
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2  # 최신 버전으로 업데이트
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # required

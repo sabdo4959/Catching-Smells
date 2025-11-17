@@ -1,0 +1,197 @@
+name: 'Build'
+on: ['push', 'pull_request', 'workflow_dispatch', 'release']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.repository == 'nabeelio/phpvms'
+    strategy:
+      fail-fast: true
+      matrix:
+        php-versions: ['8.1', '8.2']
+    name: PHP ${{ matrix.php-versions }}
+    env:
+      extensions: intl, pcov, mbstring
+      key: cache-v1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Configure Caching
+    - name: Setup cache environment
+      id: cache-env
+      uses: shivammathur/cache-extensions@v1
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: ${{ env.extensions }}
+        key: ${{ env.key }}
+
+    - name: Cache extensions
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.cache-env.outputs.dir }}
+        key: ${{ steps.cache-env.outputs.key }}
+        restore-keys: ${{ steps.cache-env.outputs.key }}
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+
+    # Configure PHP
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: ${{ env.extensions }}
+        ini-values: post_max_size=256M, short_open_tag=On
+        coverage: xdebug
+        tools: php-cs-fixer, phpunit
+
+    - name: Shutdown Ubuntu MySQL
+      run: sudo service mysql stop
+
+    - name: Install MariaDB
+      uses: getong/mariadb-action@v1.1
+      with:
+        character_set_server: 'utf8'
+        collation_server: 'utf8_general_ci'
+        mysql_database: 'phpvms'
+        mysql_root_password: ''
+        mysql_user: ''
+        mysql_password: ''
+
+    - name: Configure Environment
+      run: |
+        php --version
+        mysql --version
+        sleep 15
+        # Downgrade composer version to 1.x
+        composer install --dev --no-interaction --verbose
+        cp .github/scripts/env.test .env
+        cp .github/scripts/phpunit.xml phpunit.xml
+        php artisan database:create --reset
+        php artisan migrate:refresh --seed
+
+    - name: Run Tests
+      run: |
+        export PHP_CS_FIXER_IGNORE_ENV=1
+        #vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php -v --dry-run --diff --using-cache=no
+        vendor/bin/phpunit --debug --verbose
+      timeout-minutes: 30  # Added timeout
+
+  # This runs after all of the tests, run have run. Creates a cleaned up version of the
+  # distro, and then creates the artifact to push up to S3 or wherever
+  artifacts:
+    name: 'Create release package'
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
+
+      # Configure Caching
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      # Dependencies
+      - name: 'Install Release Dependencies'
+        run: |
+          rm -rf vendor
+          composer install --no-dev --prefer-dist --no-interaction --verbose
+          sudo chmod +x ./.github/scripts/*
+
+      - name: Get version
+        run: .github/scripts/version.sh
+
+      - name: Build Distro
+        run: .github/scripts/build.sh
+
+      - name: Upload S3
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.S3_BUILD_ARTIFACTS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_BUILD_ARTIFACTS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.S3_BUCKET_NAME }}
+          source_dir: 'dist'
+          destination_dir: ''
+
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.0
+        with:
+          # DISCORD_MSG is defined in versions.sh
+          args: ${{ DISCORD_MSG }}
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: phpvms-package
+          path: dist
+
+  # This runs after all of the tests, run have run. Creates a cleaned up version of the
+  # distro, and then creates the artifact to push up to S3 or wherever
+   # https://github.com/actions/create-release
+  release:
+    name: 'Create Release'
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:  # Added permissions for GitHub Token
+      contents: read
+      actions: read
+    steps:
+
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: phpvms-package
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          allowUpdates: true
+          generateReleaseNotes: true
+          name: ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload S3
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.S3_BUILD_ARTIFACTS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_BUILD_ARTIFACTS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.S3_BUCKET_NAME }}
+          source_dir: 'dist'
+          destination_dir: ''
+
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.0
+        with:
+          # DISCORD_MSG is defined in versions.sh
+          args: "$DISCORD_MSG"

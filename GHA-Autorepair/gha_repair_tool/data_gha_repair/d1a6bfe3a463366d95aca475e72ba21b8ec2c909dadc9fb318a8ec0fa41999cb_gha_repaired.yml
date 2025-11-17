@@ -1,0 +1,33 @@
+name: Hook Slinger Build & Test
+
+on:
+  push:
+    branches:
+      - main
+    # Stop running workflows when there is a newer commit in branch
+    # This is achieved by using the `concurrency` feature
+    concurrency:
+      group: build-${{ github.ref }}
+      cancel-in-progress: true
+  pull_request:
+    branches:
+      - main
+    # Stop running workflows when there is a newer commit in PR
+    concurrency:
+      group: pr-${{ github.ref }}
+      cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts (line: 12)
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run the Linters, Build the Containers & Run the Tests
+        run: |
+          pip install docker-compose
+          make start_tests
+
+      - name: Check Test Log
+        run: |
+          docker logs -f hook-slinger_test_1

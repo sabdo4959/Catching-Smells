@@ -1,0 +1,212 @@
+name: test-and-lint
+on:
+  push:
+    branches:
+      - unstable
+      - main
+  pull_request:
+    branches:
+      - main
+  tags:
+    - 'v*'
+permissions:
+  contents: read
+jobs:
+  gotest:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: [ubuntu, macos, windows]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: go-generate
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.8.7
+          go install github.com/kevinburke/go-bindata/...@latest
+          go generate ./...
+      - name: go-test
+        run: |
+          go test ./pkg/...
+
+  golangci-darwin:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: [freebsd, darwin]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: go-generate
+        run: |
+          GOOS=darwin go install github.com/swaggo/swag/cmd/swag@v1.8.7
+          GOOS=darwin go install github.com/kevinburke/go-bindata/...@latest
+          GOOS=darwin go generate ./...
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.48
+
+  golangci-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [linux, windows]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: go-generate
+        run: |
+          GOOS=linux go install github.com/swaggo/swag/cmd/swag@v1.8.7
+          GOOS=linux go install github.com/kevinburke/go-bindata/...@latest
+          GOOS=linux go generate ./...
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.48
+
+  homebrew-test:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: go-generate
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.8.7
+          go install github.com/kevinburke/go-bindata/...@latest
+          echo $PATH
+          ls $(go env GOPATH)/bin
+          go generate ./...
+      - name: make-install
+        run: |
+          TMP=$(mktemp -d)
+          go install github.com/davidnewhall/md2roff@v0.0.1
+          make install VERSION=0.0.1 ITERATION=240 PREFIX=$TMP ETC=$TMP/etc
+
+  macapp-test:
+    runs-on: macos-latest
+    outputs:
+      packages: ${{ steps.release.outputs.packages }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: go-generate
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.8.7
+          go install github.com/kevinburke/go-bindata/...@latest
+          go generate ./...
+      - name: make-signdmg
+        env:
+          APPLE_SIGNING_KEY: ${{ secrets.APPLE_SIGNING_KEY }}
+          AC_USERNAME: ${{ secrets.AC_USERNAME }}
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+        id: release
+        run: |
+          brew install mitchellh/gon/gon jq
+          make signdmg
+          echo "packages=$(ls release/*.dmg | jq -R '.' | jq -sc)" >> $GITHUB_OUTPUT
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-macos-release
+          path: release
+
+  release-test:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.release.outputs.packages }}
+      allfiles: ${{ steps.release.outputs.allfiles }}
+      zips: ${{ steps.release.outputs.zips }}
+      version: ${{ steps.release.outputs.version }}
+    timeout-minutes: 30
+    env:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 'stable'
+      - name: go-generate
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@v1.8.7
+          go install github.com/kevinburke/go-bindata/...@latest
+      - name: make-release
+        id: release
+        run: |
+          sudo apt install -y rpm fakeroot zip debsigs gnupg jq 
+          sudo gem install --no-document fpm
+          echo "${GPG_SIGNING_KEY}" | gpg --import -
+          go install github.com/akavel/rsrc@latest
+          go install github.com/davidnewhall/md2roff@v0.0.1
+          make release
+          echo "allfiles=$(ls release/* | jq -R '.' | jq -sc)" >> $GITHUB_OUTPUT
+          echo "packages=$(ls release/*.{deb,rpm} | jq -R '.' | jq -sc)" >> $GITHUB_OUTPUT
+          echo "zips=$(ls release/*.{gz,zip} | jq -R '.' | jq -sc)" >> $GITHUB_OUTPUT
+          source settings.sh ; echo "version=${VERSION}-${ITERATION}" >> $GITHUB_OUTPUT
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-release
+          path: release
+
+  deploy-unstable-unstable:
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/unstable'
+    needs:
+      - release-test
+      - macapp-test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        files: [test-release, test-macos-release]
+    timeout-minutes: 30
+    steps:
+      - name: Download release files
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.files }}
+      - name: Upload files to unstable.notifiarr.app
+        run: >-
+          for file in *.{zip,dmg,gz}; do
+            [ -f "$file" ] || continue;
+            echo "Uploading: ${file}";
+            curl -sSH "X-API-KEY: ${{ secrets.UNSTABLE_UPLOAD_KEY }}" "https://unstable.notifiarr.app/upload.php" -F "file=@${file}";
+            versionfile="${{needs.release-test.outputs.version}};filename=${file}.txt;type=text/plain";
+            curl -sSH "X-API-KEY: ${{ secrets.UNSTABLE_UPLOAD_KEY }}" "https://unstable.notifiarr.app/upload.php" -F "file=${versionfile}";
+          done
+
+  deploy-unstable-packagecloud:
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/unstable'
+    needs: release-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Download release files
+        uses: actions/download-artifact@v2
+        with:
+          name: test-release
+      - uses: golift/upload-packagecloud@v1
+        with:
+          userrepo: golift/unstable
+          apitoken: ${{ secrets.PACKAGECLOUD_TOKEN }}
+          packages: .
+          rpmdists: el/7
+          debdists: ubuntu/focal

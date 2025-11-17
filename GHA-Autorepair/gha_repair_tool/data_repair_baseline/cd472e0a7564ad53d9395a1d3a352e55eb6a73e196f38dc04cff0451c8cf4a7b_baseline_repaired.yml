@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    # 최신 커밋이 있을 경우 워크플로우를 중단합니다.
+    if: github.event.head_commit.timestamp == github.event.before
+  pull_request:
+    types: [opened, synchronize]
+    # PR에 최신 커밋이 있을 경우 워크플로우를 중단합니다.
+    if: github.event.pull_request.updated_at == github.event.pull_request.created_at
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 작업에 대한 타임아웃 설정
+    steps:
+      - name: Checkout 🚪
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm 🌸
+        uses: pnpm/action-setup@v2.2.4
+
+      - name: Setup node 🍀
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Bootstrap 📦
+        run: script/bootstrap
+
+      - name: Typecheck 🔡
+        run: pnpm typecheck:affected
+
+      - name: Lint 🪩
+        run: pnpm lint:affected
+
+      - name: Prettier ✨
+        run: pnpm prettier:affected
+
+      - name: Build 🎁
+        run: pnpm build
+
+      - name: Run Tests 🧪
+        env:  # env 섹션을 올바르게 수정
+          NODE_ENV: test  # 예시 환경 변수 추가
+        run: pnpm test:dev

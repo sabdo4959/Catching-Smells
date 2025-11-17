@@ -1,0 +1,88 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    # Only run on changes to specific files or directories
+    paths:
+      - '**/*.cpp'
+      - '**/*.swift'
+      - '**/*.m'
+      - '**/*.py'
+      - '**/*.php'
+      - '**/*.rb'
+      - '**/*.cs'
+      - '**/*.java'
+      - '**/*.js'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - '**/*.cpp'
+      - '**/*.swift'
+      - '**/*.m'
+      - '**/*.py'
+      - '**/*.php'
+      - '**/*.rb'
+      - '**/*.cs'
+      - '**/*.java'
+      - '**/*.js'
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: ${{ matrix.language }} on ${{ matrix.os }}
+    strategy:
+      matrix:
+        language: [cpp]
+        os: [macos-latest, macos-13, ubuntu-latest, windows-latest]
+        include:
+          - os: macos-latest
+            language: swift
+          - os: macos-latest
+            language: objective-c
+          - os: macos-latest
+            language: python
+          - os: macos-latest
+            language: php
+          - os: macos-latest
+            language: ruby
+
+          - os: ubuntu-latest
+            language: csharp
+          - os: ubuntu-latest
+            language: java
+          - os: ubuntu-latest
+            language: php
+          - os: ubuntu-latest
+            language: ruby
+          - os: ubuntu-latest
+            language: python
+          - os: ubuntu-latest
+            language: js
+
+          - os: windows-latest
+            language: python
+
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Build ${{ matrix.language }} on ${{ matrix.os }}
+        uses: ./.github/actions/build
+        timeout-minutes: 90
+
+      - name: Test ${{ matrix.language }} on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 90
+        with:
+          flags: "--rfilter IceGrid/replication"

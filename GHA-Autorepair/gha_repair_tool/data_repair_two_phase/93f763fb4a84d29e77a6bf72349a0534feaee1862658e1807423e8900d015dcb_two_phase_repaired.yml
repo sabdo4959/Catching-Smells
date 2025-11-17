@@ -1,0 +1,83 @@
+# 개선된 워크플로우
+on:
+  push:
+    branches:
+      - release
+
+name: Release
+jobs:
+  checks:
+    name: run
+    runs-on: self-hosted
+    timeout-minutes: 30  # 전체 잡에 대한 타임아웃 설정
+    services:
+      consul:
+        image: consul:latest
+        ports:
+          - 8500
+      zookeeper:
+        image: zookeeper:latest
+        ports:
+          - 2181
+      etcd:
+        image: quay.io/coreos/etcd:latest
+        env:
+          ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+          ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
+        ports:
+          - 2379
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # 전체 히스토리를 가져오기 위해 fetch-depth를 0으로 설정
+
+    - name: Check for changes
+      id: check_changes
+      run: |
+        git fetch origin
+        if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/release)" ]; then
+          echo "No changes detected. Exiting."
+          exit 1
+        fi
+
+    - name: Log in to registry
+      uses: azure/docker-login@v1
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Install bazelisk
+      run: |
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.1.0/bazelisk-linux-amd64"
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+
+    - name: Test all
+      if: steps.check_changes.outcome == 'success'  # 변경 사항이 있을 때만 테스트 실행
+      uses: ngalaiko/bazel-action@1.2.1
+      with:
+        args: test //...
+
+    - name: Release to GitHub
+      if: steps.check_changes.outcome == 'success'  # 변경 사항이 있을 때만 릴리즈 실행
+      env:
+        DEPLOY_GITHUB_TOKEN: ${{ secrets.DEPLOY_GITHUB_TOKEN }}
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" run //:deploy-github -- ${{ github.sha }}
+
+    - name: Release `protoconf` to Docker Hub
+      if: steps.check_changes.outcome == 'success'  # 변경 사항이 있을 때만 릴리즈 실행
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" run //docker:protoconf_release
+
+    - name: Release `agent` to Docker Hub
+      if: steps.check_changes.outcome == 'success'  # 변경 사항이 있을 때만 릴리즈 실행
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" run //docker:agent_release
+
+    - name: Release `server` to Docker Hub
+      if: steps.check_changes.outcome == 'success'  # 변경 사항이 있을 때만 릴리즈 실행
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" run //docker:server_release

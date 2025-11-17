@@ -1,0 +1,42 @@
+# 개선된 워크플로우
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+    # 1. Stop running workflows when there is a newer commit in branch
+    # `concurrency`를 사용하여 최신 커밋이 있을 경우 이전 작업을 중단합니다.
+    concurrency:
+      group: deploy
+      cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # 3. Use permissions whenever using Github Token
+    permissions:
+      contents: write  # GitHub Token 사용 시 필요한 권한 설정
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install pnpm
+        run: npm i -g pnpm
+      - name: Install & Build
+        run: |
+          pnpm install
+          pnpm run docs:build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist
+          # cname: example.com # if wanna deploy to custom domain
+    # 2. Avoid jobs without timeouts
+    timeout-minutes: 10  # 작업이 10분 이상 걸릴 경우 중단
+    # 4. Avoid running CI related actions when no source code has changed
+    if: ${{ github.event.head_commit.message != '' }}  # 커밋 메시지가 있을 때만 실행

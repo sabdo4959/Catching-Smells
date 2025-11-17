@@ -1,0 +1,138 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - 'v*'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        include:
+          - name: ubuntu_18_04-x86_64
+            os: ubuntu-18.04
+            TARGET_CPU: x86-64
+          - name: ubuntu_22_04-x86_64
+            os: ubuntu-22.04
+            TARGET_CPU: x86-64
+          - name: osx_10_15-x86_64
+            os: macos-10.15
+            TARGET_CPU: nehalem
+          - name: win-x86_64
+            os: windows-2019
+            TARGET_CPU: x86-64
+          - name: ubuntu_18_04-x86_64-haswell
+            os: ubuntu-18.04
+            TARGET_CPU: haswell
+          - name: win-x86_64-haswell
+            os: windows-2019
+            TARGET_CPU: haswell
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install GNU tar (Macos)
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: |
+          brew install gnu-tar
+          echo PATH="/usr/local/opt/gnu-tar/libexec/gnubin:$PATH" >> $GITHUB_ENV
+
+      - name: Cache cargo
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.name }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install nasm
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: brew install nasm
+
+      - name: Install nasm
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: choco install nasm
+
+      - name: Install nasm fallback
+        if: ${{ contains(matrix.os, 'windows') && failure() }}
+        run: |
+          curl -L -o nasminst.exe https://imageflow-resources.s3-us-west-2.amazonaws.com/tools/nasm-2.15.05-installer-x64.exe
+          .\nasminst.exe /S
+
+      - name: Set Path for nasm
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: |
+          echo "C:\Program Files\NASM" >> $GITHUB_PATH
+          echo "C:\Program Files (x86)\NASM" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Install nasm
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt install nasm
+
+      - name: Check Build
+        run: cargo check --all
+
+      - name: Test Build
+        run: cargo test --all
+        env:
+          RUSTFLAGS: -C target-cpu=${{ matrix.TARGET_CPU }}
+
+      - name: Build Release
+        run: cargo build --all
+        env:
+          RUSTFLAGS: -C target-cpu=${{ matrix.TARGET_CPU }}
+
+  test_win32:
+    runs-on: windows-2019
+    timeout-minutes: 30  # Avoid jobs without timeouts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install nasm
+        run: choco install nasm
+
+      - name: Install nasm fallback
+        run: |
+          curl -L -o nasminst.exe https://imageflow-resources.s3-us-west-2.amazonaws.com/tools/nasm-2.15.05-installer-x86.exe
+          .\nasminst.exe /S
+        if: ${{ failure() }}
+
+      - name: Set Path for nasm
+        run: |
+          echo "C:\Program Files\NASM" >> $GITHUB_PATH
+          echo "C:\Program Files (x86)\NASM" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Cache cargo
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-windows-test-32-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install latest 32bit target
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
+          target: i686-pc-windows-msvc
+
+      - name: Check Build
+        run: cargo check --all --target=i686-pc-windows-msvc
+
+      - name: Test Build
+        run: cargo test --all --release --target=i686-pc-windows-msvc

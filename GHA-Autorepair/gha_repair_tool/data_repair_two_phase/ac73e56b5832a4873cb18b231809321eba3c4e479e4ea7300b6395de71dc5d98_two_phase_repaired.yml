@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened] # PR이 열리거나 업데이트될 때만 실행
+  push:
+    branches:
+      - main # main 브랜치에 푸시될 때만 실행
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-11]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30 # 타임아웃 설정 추가
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v16
+      - uses: cachix/cachix-action@v10
+        with:
+          name: nix-script
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - run: nix build --print-build-logs
+
+  rustfmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # 타임아웃 설정 추가
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }} # CI 관련 작업이 소스 코드 변경 시에만 실행
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v16
+      - uses: cachix/cachix-action@v10
+        with:
+          name: nix-script
+          skipPush: true
+
+      - run: nix develop --command rustfmt --check $(find . -name "*.rs" -not -ipath '*target*')
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # 타임아웃 설정 추가
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }} # CI 관련 작업이 소스 코드 변경 시에만 실행
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v16
+      - uses: cachix/cachix-action@v10
+        with:
+          name: nix-script
+          skipPush: true
+
+      - run: nix develop --command cargo clippy -- --deny warnings

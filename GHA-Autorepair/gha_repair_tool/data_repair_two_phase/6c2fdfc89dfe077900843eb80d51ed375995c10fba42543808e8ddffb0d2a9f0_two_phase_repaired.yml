@@ -1,0 +1,47 @@
+name: Ezra Bible App test suite
+
+on: 
+  push:
+    branches:
+      - main  # 특정 브랜치에만 트리거하도록 설정
+  pull_request:  # PR에 대해서도 테스트 실행
+    branches:
+      - main
+
+jobs:
+  e2e-test:
+    name: Run Cucumber tests
+    runs-on: ubuntu-20.04
+    timeout-minutes: 10
+    env:
+      JOBS: MAX
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies and build native modules
+        run: |
+          sudo apt update
+          sudo apt install -y libcurl4-gnutls-dev xvfb
+          npm install
+
+      - name: Compile templates
+        run: npm run compile-pug 
+
+      - name: Run test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 2
+          command: npm run headless-test
+
+      - name: Archive screenshot (in case of an error)
+        if: failure() && github.event_name != 'pull_request'  # PR에서는 아티팩트 업로드를 방지
+        uses: actions/upload-artifact@v2
+        with:
+          name: screenshot.png
+          path: ./test_screenshot.png

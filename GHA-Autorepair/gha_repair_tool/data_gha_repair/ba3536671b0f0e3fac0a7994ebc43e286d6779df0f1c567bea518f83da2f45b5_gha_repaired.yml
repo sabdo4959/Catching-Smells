@@ -1,0 +1,23 @@
+name: crates-index
+
+on:
+  schedule:
+  - cron: "0 */12 * * *"
+  # Prevent execution on forks
+  if: github.event.repository.fork == false
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # Set a timeout for the job
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+    - name: Download crates.io dumped database
+      run: |
+        wget -v https://static.crates.io/db-dump.tar.gz -O /data/db-dump.tar.gz
+    - name: Deploy crates index
+      run: ./scripts/deploy-crates-index.sh

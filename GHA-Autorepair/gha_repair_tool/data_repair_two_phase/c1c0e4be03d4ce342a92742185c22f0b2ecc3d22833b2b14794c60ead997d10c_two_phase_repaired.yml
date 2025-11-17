@@ -1,0 +1,44 @@
+# 개선된 워크플로우
+name: unittests
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**.py'  # Python 파일이 변경된 경우에만 실행
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  py-check:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.py }})
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: windows-latest, py: "3.7" }
+          - { os: macOS-latest, py: "3.7" }
+          - { os: ubuntu-latest, py: "3.6" }
+          - { os: ubuntu-latest, py: "3.7" }
+          - { os: ubuntu-latest, py: "3.8" }
+
+    timeout-minutes: 30  # 작업 타임아웃 설정
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.config.py }}  # Python 버전을 매트릭스에서 가져옴
+      - name: Install dependencies
+        run: |
+          pip install .
+          pip install pytest  # 'pytests'를 'pytest'로 수정
+      - name: LOAD EE CREDENTIALS
+        run: python ./.github/ee_token.py
+        env:
+          EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+      - name: UNIT TESTS 
+        run: |
+          pytest

@@ -1,0 +1,48 @@
+name: Backend Publish docker image
+
+on:
+  release:
+    types: ['released']
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}_backend
+
+jobs:
+  build-and-push-image:
+    if: startsWith(github.event.release.tag_name, 'v')
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Timeout 설정 추가
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2  # 최신 버전으로 업데이트
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4  # 최신 버전으로 업데이트
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3  # 최신 버전으로 업데이트
+        with:
+          context: .
+          file: "Dockerfile_backend"
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }}  # 수정된 구문
+          labels: ${{ steps.meta.outputs.labels }}

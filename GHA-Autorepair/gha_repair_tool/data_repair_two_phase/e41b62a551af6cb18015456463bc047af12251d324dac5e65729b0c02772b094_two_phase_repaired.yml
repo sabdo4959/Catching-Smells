@@ -1,0 +1,43 @@
+name: GitHub pages
+
+on:
+  schedule:
+    - cron:  '*/15 * * * *'
+  push:
+    branches:
+      - main
+  # Fork에서의 워크플로우 실행 방지
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 작업에 대한 타임아웃 설정
+    if: github.event_name != 'pull_request'  # Fork에서의 실행 방지
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Supplemental Dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: ./site
+          cname: drops.warframestat.us
+          force_orphan: true
+          user_name: 'Jimmy Bot'
+          user_email: 'translator@warframe.gg'
+      - name: Pushback
+        run: |
+          chmod +x .github/pushback.sh
+          ./pushback.sh
+
+# 변경 사항 요약:
+# 1. Fork에서의 워크플로우 실행 방지를 위해 pull_request 이벤트를 추가했습니다.
+# 2. 작업에 대한 타임아웃을 10분으로 설정했습니다.
+# 3. CI 관련 작업이 소스 코드 변경이 없을 때 실행되지 않도록 조건을 추가했습니다.

@@ -1,0 +1,40 @@
+name: Check Minecraft Version
+on:
+  schedule:
+    - cron: '0/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check_mcv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 작업 타임아웃 설정
+    if: github.event_name != 'fork'  # 포크에서 실행되지 않도록 조건 추가
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Configure Git information
+        run: |
+          git config --local user.email "bot@bugjump.net"
+          git config --local user.name "Hilda Bot"
+      - name: Configure GPG information
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+      - name: Set up Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      - name: Run update script
+        run: python Actions/check_mcv.py
+      - name: Commit changes
+        run: |
+          git add *
+          git diff-index --quiet HEAD || git commit -S -m "preloaded new version"
+      - name: Push changes
+        run: git push

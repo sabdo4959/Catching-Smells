@@ -1,0 +1,44 @@
+name: Automated test suite
+on:
+  push:
+    branches: [ master ]
+    # Stop running workflows when there is a newer commit in branch
+    # This is achieved by using the `concurrency` feature
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+  pull_request:
+    branches: [ master ]
+    # Stop running workflows when there is a newer commit in PR
+    concurrency:
+      group: ${{ github.event.pull_request.id }}
+      cancel-in-progress: true
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # Avoid jobs without timeouts
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Get poetry
+      run: |
+        pip install poetry
+    # See pyproject.toml for details
+    - name: Setup master tracked dependencies
+      run: |
+        git clone --recurse-submodules https://github.com/tradingstrategy-ai/eth-hentai.git ../eth-hentai
+        git clone --recurse-submodules https://github.com/tradingstrategy-ai/client.git ../client
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: Run test scripts
+      run: |
+        poetry run pytest
+      env:
+        TRADING_STRATEGY_API_KEY: ${{ secrets.TRADING_STRATEGY_API_KEY }}

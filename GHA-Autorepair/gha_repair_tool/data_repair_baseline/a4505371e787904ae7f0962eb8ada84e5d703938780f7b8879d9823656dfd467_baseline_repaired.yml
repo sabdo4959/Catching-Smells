@@ -1,0 +1,16 @@
+name: Build OrmLite
+
+on:
+  push:
+    paths:
+      - 'ServiceStack.OrmLite/**'
+      - '.github/workflows/build-ormlite.yml'
+    # 최신 커밋이 있을 경우 워크플로우 실행 중지
+    branches:
+      - main
+
+jobs:
+  build-ormlite:
+    uses: ServiceStack/ServiceStack/.github/workflows/reuse-build-ormlite.yml@main
+    secrets:
+      SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}

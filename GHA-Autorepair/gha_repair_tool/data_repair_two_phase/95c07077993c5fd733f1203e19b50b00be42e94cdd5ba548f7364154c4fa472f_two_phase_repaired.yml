@@ -1,0 +1,60 @@
+name: Prerelease
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'chore(release): packages')"
+    timeout-minutes: 10  # Job timeout 설정
+    steps:
+      - name: GitHub context
+        run: echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+      - name: Checkout
+        if: success()
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Fetch tags
+        if: success()
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - name: Read .nvmrc
+        if: success()
+        run: echo "::set-output name=NVMRC::$(cat .nvmrc)"
+        id: nvm
+      - name: yarn cache directory
+        if: success()
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Setup node_modules cache
+        if: success()
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Setup Node (uses version in .nvmrc)
+        if: success()
+        uses: actions/setup-node@v1
+        with:
+          node-version: "${{ steps.nvm.outputs.NVMRC }}"
+          registry-url: https://registry.npmjs.org/
+          scope: flopflip
+      - name: Install
+        if: success()
+        run: yarn install --frozen-lockfile
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code || echo "Changes detected"
+      - name: Publish to next dist-tag
+        if: success() && steps.check_changes.outputs.changes == 'true'  # 소스 코드 변경 사항이 있을 때만 실행
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          yarn release:next

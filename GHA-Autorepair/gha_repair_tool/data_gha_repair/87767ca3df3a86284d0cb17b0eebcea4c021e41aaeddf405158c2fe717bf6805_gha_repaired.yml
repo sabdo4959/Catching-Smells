@@ -1,0 +1,23 @@
+name: Create YAML on direct push to README
+
+on:
+  push:
+    paths:
+      - "README.md"
+
+jobs:
+  create_yamls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # Added timeout to avoid jobs without timeouts
+    steps:
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner.
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9 #install the python needed
+      - name: install dependencies
+        run: pip install pyyaml
+      - name: execute py script - create YAMLs # run file
+        run: |
+          python create_yamls.py

@@ -1,0 +1,30 @@
+# 개선된 워크플로우
+name: Build and Push to Nuget
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30  # 타임아웃 설정 추가
+
+    steps:
+    - uses: actions/checkout@v2  # 최신 버전으로 업데이트
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2  # 최신 버전으로 업데이트
+      with:
+        dotnet-version: '6.0.x'  # 패치 버전 자동 업데이트
+
+    - name: Run Tests
+      run: |
+        dotnet test --filter Category!=Dependencies
+
+    - name: Pack
+      run: |
+        cd Mjml.Net && dotnet pack -c Release
+
+    - name: Publish
+      if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      run: |
+        dotnet nuget push **/*.nupkg --source 'https://api.nuget.org/v3/index.json' --skip-duplicate -k ${{ secrets.NUGET_API_KEY }} --no-symbols  # 비밀 키 이름을 명확하게 수정

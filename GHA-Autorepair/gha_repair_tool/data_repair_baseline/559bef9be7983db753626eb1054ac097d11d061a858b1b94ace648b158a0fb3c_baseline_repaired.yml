@@ -1,0 +1,26 @@
+name: Publish to Pub.dev
+
+on:
+  push:
+    branches:
+      - main  # 특정 브랜치에 대한 푸시 이벤트를 지정합니다.
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: google/dart:latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # v1에서 v2로 업데이트하여 최신 버전을 사용합니다.
+
+      - name: Copy required files
+        run: |
+          cp ../README.md README.md
+          cp ../LICENSE LICENSE  # 'LICENCE'를 'LICENSE'로 수정했습니다.
+          pub publish --dry-run
+        working-directory: ./mapper

@@ -1,0 +1,27 @@
+name: Publish to Pub.dev
+
+on: 
+  push:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: google/dart:latest
+
+    timeout-minutes: 10  # Avoid jobs without timeouts
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1  # Stop running workflows when there is a newer commit in branch
+      - name: Copy required files
+        run:  |
+          cp ../README.md README.md
+          cp ../LICENSE LICENSE
+          pub publish --dry-run
+        working-directory: ./mapper

@@ -1,0 +1,24 @@
+name: Create YAML on direct push to README
+
+on:
+  push:
+    paths:
+      - "README.md"
+
+jobs:
+  create_yamls:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository content
+        uses: actions/checkout@v2 # Checkout the repository content to GitHub runner.
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' # Install the Python needed
+      
+      - name: Install dependencies
+        run: pip install pyyaml
+      
+      - name: Execute Python script - create YAMLs
+        run: python create_yamls.py

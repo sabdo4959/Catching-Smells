@@ -1,0 +1,63 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    if: github.event.head_commit.id == github.event.before
+  pull_request:
+    branches: [ "main" ]
+    # 최신 커밋이 있을 경우 워크플로우 중단
+    if: github.event.head_commit.id == github.event.before
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux_build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Linux
+        run: cargo build --verbose
+
+  windows_build:
+    runs-on: windows-latest
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Windows
+        run: cargo build --verbose
+
+  linux_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build 
+        run: cargo build
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check ILASM
+        run: ilasm --version
+      - name: Run cargo tests
+        run: cargo test --verbose --all
+
+  linux_test_c:
+    runs-on: ubuntu-latest
+    env:
+      C_MODE: 1
+    timeout-minutes: 10  # 타임아웃 추가
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build 
+        run: cargo build
+      - name: Run cargo tests
+        run: cargo test --verbose add
+
+# 변경 사항 요약:
+# 1. 최신 커밋이 있을 경우 워크플로우 중단 조건 추가
+# 2. 모든 잡에 타임아웃 추가

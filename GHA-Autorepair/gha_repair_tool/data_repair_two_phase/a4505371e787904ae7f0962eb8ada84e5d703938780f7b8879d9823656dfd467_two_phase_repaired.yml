@@ -1,0 +1,17 @@
+# 개선된 워크플로우
+name: Build OrmLite
+
+on:
+  push:
+    paths:
+      - 'ServiceStack.OrmLite/**'
+      - '.github/workflows/build-ormlite.yml'
+    branches:
+      - main  # 특정 브랜치에서만 실행하도록 설정
+
+jobs:
+  build-ormlite:
+    uses: ServiceStack/ServiceStack/.github/workflows/reuse-build-ormlite.yml@main
+    secrets:
+      SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}
+    if: github.event.head_commit.timestamp == github.event.repository.pushed_at  # 최신 커밋일 때만 실행

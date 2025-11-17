@@ -1,0 +1,17 @@
+# 개선된 워크플로우
+name: "Notification regarding New Pull Request via Slack"
+on:
+  issue_comment: 
+    types: [created]
+
+jobs:
+  notifyViaSlack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 타임아웃 추가: 5분으로 설정
+    steps:
+      - uses: denolib/setup-deno@v2
+        with:
+          deno-version: v1.x
+      - run: deno run --allow-net https://deno.land/x/cicd/notify-via-slack.ts ${{ secrets.SLACK_WEBHOOK_URL }} ${{ github.repository }} "Pull Request Created - ${{ github.event.issue.pull_request.html_url }}"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # 환경 변수로 설정하여 보안 강화

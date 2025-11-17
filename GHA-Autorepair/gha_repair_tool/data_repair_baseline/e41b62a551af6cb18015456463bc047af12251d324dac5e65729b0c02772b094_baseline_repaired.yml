@@ -1,0 +1,39 @@
+name: GitHub Pages
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  push:
+    branches:
+      - main
+  workflow_dispatch: # 수동 실행을 위한 트리거 추가
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' # Fork에서의 실행 방지
+    timeout-minutes: 10 # 작업 타임아웃 설정
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Supplemental Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: ./site
+          cname: drops.warframestat.us
+          force_orphan: true
+          user_name: 'Jimmy Bot'
+          user_email: 'translator@warframe.gg'
+
+      - name: Pushback
+        run: |
+          chmod +x .github/pushback.sh
+          ./pushback.sh

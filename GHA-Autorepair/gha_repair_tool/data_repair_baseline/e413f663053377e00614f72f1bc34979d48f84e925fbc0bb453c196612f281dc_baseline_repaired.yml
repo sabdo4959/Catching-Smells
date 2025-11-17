@@ -1,0 +1,31 @@
+name: Helper
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+jobs:
+  instructions:
+    name: instructions
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    timeout-minutes: 10  # 작업 타임아웃 설정
+    permissions: 
+      pull-requests: read  # GitHub Token 사용 시 권한 설정
+      issues: write  # 댓글 작성 권한 설정
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Comment
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { hasLabel } = require(`${process.env.GITHUB_WORKSPACE}/scripts/action-utils.js`);
+            const { instructions } = require(`${process.env.GITHUB_WORKSPACE}/scripts/reply.js`);
+            if (hasLabel(context, 'domain')) {
+              await instructions(context, github);
+            }

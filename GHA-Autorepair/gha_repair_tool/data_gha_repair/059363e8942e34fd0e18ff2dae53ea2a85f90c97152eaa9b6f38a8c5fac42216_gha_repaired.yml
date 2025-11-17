@@ -1,0 +1,41 @@
+name: Check Minecraft Version
+on:
+   schedule:
+    - cron:  '0/30 * * * *'
+   workflow_dispatch:
+      
+jobs:
+   check_mcv:
+      runs-on: ubuntu-latest
+      timeout-minutes: 10  # Added timeout to avoid jobs without timeouts
+      steps:
+       - name: 签出储存库
+         uses: actions/checkout@v4
+         with:
+           fetch-depth: 0  # Avoid executing scheduled workflows on forks
+       - name: 配置 Git 信息
+         run: |
+            git config --local user.email "bot@bugjump.net"
+            git config --local user.name "Hilda Bot"
+       - name: 配置 GPG 信息
+         uses: crazy-max/ghaction-import-gpg@v6
+         with:
+            gpg_private_key: ${{ secrets.BOT_GPG_PRIVATE_KEY }}
+            git_user_signingkey: true
+            git_commit_gpgsign: true
+       - name: 配置 Python 环境
+         uses: actions/setup-python@v4
+         with:
+           python-version: 3.11
+       - name: 安装依赖
+         run: |
+            python -m pip install --upgrade pip
+            pip install requests
+       - name: 运行更新脚本
+         run: python Actions/check_mcv.py
+       - name: 提交更改
+         run: |
+            git add *
+            git diff-index --quiet HEAD || git commit -S -m "preloaded new version"
+       - name: 推送更改
+         run: git push
