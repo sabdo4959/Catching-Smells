@@ -143,45 +143,17 @@ def run_actionlint(
                 "error_message": "File not found"
             }
         
-        # actionlint 실행파일 경로 자동 감지
-        if actionlint_path == "actionlint":
-            # 기본값인 경우 사용 가능한 actionlint 바이너리를 찾음
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            project_root = os.path.dirname(os.path.dirname(current_dir))
-            
-            # 여러 위치에서 actionlint 바이너리 검색
-            search_paths = [
-                # 현재 프로젝트의 syntax_repair 디렉토리
-                os.path.join(project_root, "syntax_repair", "actionlint"),
-                # smell_linter 디렉토리들 (절대 경로로 수정)
-                "/Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_mac",
-                "/Users/nam/Desktop/repository/Catching-Smells/smell_linter/src/actionlint_mac",
-                "/Users/nam/Desktop/repository/Catching-Smells/smell_linter/actionlint_linux",
-                "/Users/nam/Desktop/repository/Catching-Smells/smell_linter/src/actionlint_linux",
-            ]
-            
-            actionlint_found = None
-            for path in search_paths:
-                if os.path.exists(path) and os.access(path, os.X_OK):
-                    actionlint_found = path
-                    logger.info(f"actionlint 바이너리 발견: {actionlint_found}")
-                    break
-            
-            if actionlint_found:
-                actionlint_path = actionlint_found
-            else:
-                # 시스템 PATH에서 찾기 시도
-                actionlint_found = find_executable("actionlint")
-                if actionlint_found:
-                    actionlint_path = actionlint_found
-                else:
-                    logger.error("actionlint 바이너리를 찾을 수 없음")
-                    return {
-                        "success": False,
-                        "errors": [],
-                        "raw_output": "",
-                        "error_message": "actionlint binary not found"
-                    }
+        # actionlint 실행파일 경로 자동 감지 (시스템 PATH 사용)
+        actionlint_executable = find_executable("actionlint")
+        if not actionlint_executable:
+            logger.error("actionlint 바이너리를 PATH에서 찾을 수 없음")
+            return {
+                "success": False,
+                "errors": [],
+                "raw_output": "",
+                "error_message": "actionlint binary not found in PATH"
+            }
+        actionlint_path = actionlint_executable
         
         # actionlint 명령어 구성
         if output_format == "json":
@@ -512,92 +484,23 @@ def check_tool_availability() -> Dict[str, bool]:
 
 def run_smell_detector(yaml_file_path: str) -> Dict[str, Any]:
     """
-    기존 프로젝트의 smell detector를 실행합니다.
+    Smell detector를 실행합니다. (현재 비활성화됨)
     
     Args:
         yaml_file_path: 검사할 YAML 파일 경로
         
     Returns:
-        Dict: smell detector 실행 결과
-              {
-                  "success": bool,
-                  "smells": List[Dict],
-                  "raw_output": str,
-                  "error": str (실패 시)
-              }
+        Dict: 항상 성공과 빈 스멜 리스트를 반환
     """
     logger = logging.getLogger(__name__)
+    logger.warning("Smell detector is currently disabled. Returning success with empty results.")
     
-    try:
-        # 절대경로로 변환
-        abs_yaml_path = os.path.abspath(yaml_file_path)
-        
-        if not os.path.exists(abs_yaml_path):
-            logger.error(f"YAML 파일이 존재하지 않음: {abs_yaml_path}")
-            return {
-                "success": False,
-                "smells": [],
-                "raw_output": "",
-                "error": "File not found"
-            }
-        
-        # 기존 gha-ci-detector 실행 (smell detection 전용 환경 사용)
-        detector_path = "/Users/nam/Desktop/repository/Catching-Smells/RQ3/gha-ci-detector_paper/src"
-        python_path = "/Users/nam/Desktop/repository/Catching-Smells/.venv/bin/python"
-        command = f"cd {detector_path} && {python_path} -m gha_ci_detector file {abs_yaml_path}"
-        
-        result = run_command(command, timeout=60, shell=True)
-        
-        logger.debug(f"Smell detector stdout: {result['stdout']}")
-        logger.debug(f"Smell detector stderr: {result['stderr']}")
-        logger.debug(f"Smell detector return code: {result['returncode']}")
-        
-        # 성공적으로 실행되었고 출력이 있는 경우
-        if result["success"] and result["stdout"].strip():
-            smells = _parse_smell_detector_output(result["stdout"])
-            logger.info(f"Smell detector 실행 완료: {len(smells)}개 스멜 발견")
-            return {
-                "success": True,
-                "smells": smells,
-                "raw_output": result["stdout"]
-            }
-        # 실행 실패한 경우도 출력을 파싱해보기 (일부 스멜이 감지되었을 수 있음)
-        elif result["stdout"].strip():
-            logger.warning(f"Smell detector 실행 실패했지만 출력 있음 (코드: {result['returncode']})")
-            smells = _parse_smell_detector_output(result["stdout"])
-            logger.info(f"Smell detector 실행 완료: {len(smells)}개 스멜 발견")
-            return {
-                "success": True,
-                "smells": smells,
-                "raw_output": result["stdout"]
-            }
-        # 성공했지만 출력이 없는 경우
-        elif result["success"] and not result["stdout"].strip():
-            logger.warning("Smell detector가 빈 출력을 반환했습니다.")
-            if result["stderr"].strip():
-                logger.warning(f"Smell detector stderr: {result['stderr']}")
-            return {
-                "success": True,
-                "smells": [],
-                "raw_output": result["stdout"]
-            }
-        else:
-            logger.warning(f"Smell detector 실행 실패: {result['stderr']}")
-            return {
-                "success": False,
-                "smells": [],
-                "raw_output": result["stdout"],
-                "error": result["stderr"]
-            }
-            
-    except Exception as e:
-        logger.error(f"Smell detector 실행 중 오류: {e}")
-        return {
-            "success": False,
-            "smells": [],
-            "raw_output": "",
-            "error": str(e)
-        }
+    return {
+        "success": True,
+        "smells": [],
+        "raw_output": "",
+        "error": ""
+    }
 
 
 def _parse_smell_detector_output(output: str) -> list:
