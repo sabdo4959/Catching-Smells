@@ -58,8 +58,8 @@ def call_openai_api(
     prompt: str,
     model: str = "gpt-4o-mini",
     max_tokens: int = 2000,
-    temperature: float = 0.1,
-    api_key: Optional[str] = ""
+    temperature: float = 0.0,
+    api_key: Optional[str] = None
 ) -> Optional[str]:
     """
     OpenAI API를 호출하여 응답을 받습니다.
@@ -81,11 +81,11 @@ def call_openai_api(
         return None
     
     try:
+        # API 키 우선순위: 파라미터 > 환경변수 > 기본값
+        final_api_key = api_key or os.getenv("OPENAI_API_KEY") or ""
+        
         # OpenAI 클라이언트 생성
-        if api_key:
-            client = OpenAI(api_key=api_key)
-        else:
-            client = OpenAI()  # 환경변수에서 OPENAI_API_KEY 사용
+        client = OpenAI(api_key=final_api_key)
         
         logger.info(f"OpenAI API 호출 시작 (모델: {model})")
         
@@ -97,7 +97,7 @@ def call_openai_api(
             ],
             max_tokens=max_tokens,
             temperature=temperature,
-            timeout=60
+            timeout=180  # 60초에서 180초로 증가 (복잡한 파일 처리 위해)
         )
         
         # 응답 추출

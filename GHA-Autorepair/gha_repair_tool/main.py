@@ -466,6 +466,55 @@ def create_guided_syntax_repair_prompt(yaml_content: str, actionlint_errors: lis
     Returns:
         str: 생성된 가이드 프롬프트
     """
+    
+    YAML_GENERATION_RULES = """
+### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
+You are a GitHub Actions YAML repair engine. You must follow these 5 rules strictly to ensure the output is valid YAML.
+
+#### Rule 1: Quote Wildcards and Globs
+- **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
+- Examples:
+  - ❌ Bad: `files: *.whl`
+  - ✅ Good: `files: '*.whl'`
+
+#### Rule 2: FORCE Block Scalar (`|`) for `run` with Colons
+- If a `run` command contains a colon (`:`) followed by a space, you **MUST** use the pipe (`|`) style.
+- Quoting is NOT enough (it causes conflicts).
+- Examples:
+  - ❌ Bad: `run: echo Status: Success`
+  - ❌ Bad: `run: 'echo "Status: Success"'`
+  - ✅ Good:
+    ```
+    run: |
+      echo Status: Success
+    ```
+
+#### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
+- If an `if` expression contains a colon (e.g., inside a string like `'type: bug'`), quote the **WHOLE** condition.
+- Examples:
+  - ❌ Bad: `if: github.event.label.name == 'type: bug'`
+  - ✅ Good: `if: "github.event.label.name == 'type: bug'"`
+
+#### Rule 4: Strict Indentation (2 Spaces)
+- Use **exactly 2 spaces** per level. NO TABS.
+- Content inside `|` block must be indented **2 spaces deeper** than the parent key.
+- Examples:
+  - ❌ Bad:
+    ```
+    run: |
+    echo "no indent"
+    ```
+  - ✅ Good:
+    ```
+    run: |
+      echo "proper indent"
+    ```
+
+#### Rule 5: NO MARKDOWN FENCES
+- **DO NOT** output ```yaml or ``` tags.
+- Return **RAW YAML TEXT ONLY**.
+"""
+    
     prompt = f"""### ROLE ###
 You are a "Precision Linter Robot" that specializes ONLY in fixing syntax errors in GitHub Actions YAML files. Your sole mission is to resolve the given error list.
 
@@ -477,6 +526,8 @@ GOAL: Fix ONLY the 'Detected Syntax Errors' listed below.
 - NEVER touch semantic parts such as workflow logic, step order, if conditions, run script contents, etc.
 - NEVER add or remove new steps or jobs.
 - Preserve original comments and formatting as much as possible.
+
+{YAML_GENERATION_RULES}
 
 **Original YAML:**
 ```yaml
@@ -561,6 +612,55 @@ def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str
     Returns:
         str: 생성된 가이드 프롬프트
     """
+    
+    YAML_GENERATION_RULES = """
+### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
+You are a GitHub Actions YAML repair engine. You must follow these 5 rules strictly to ensure the output is valid YAML.
+
+#### Rule 1: Quote Wildcards and Globs
+- **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
+- Examples:
+  - ❌ Bad: `files: *.whl`
+  - ✅ Good: `files: '*.whl'`
+
+#### Rule 2: FORCE Block Scalar (`|`) for `run` with Colons
+- If a `run` command contains a colon (`:`) followed by a space, you **MUST** use the pipe (`|`) style.
+- Quoting is NOT enough (it causes conflicts).
+- Examples:
+  - ❌ Bad: `run: echo Status: Success`
+  - ❌ Bad: `run: 'echo "Status: Success"'`
+  - ✅ Good:
+    ```
+    run: |
+      echo Status: Success
+    ```
+
+#### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
+- If an `if` expression contains a colon (e.g., inside a string like `'type: bug'`), quote the **WHOLE** condition.
+- Examples:
+  - ❌ Bad: `if: github.event.label.name == 'type: bug'`
+  - ✅ Good: `if: "github.event.label.name == 'type: bug'"`
+
+#### Rule 4: Strict Indentation (2 Spaces)
+- Use **exactly 2 spaces** per level. NO TABS.
+- Content inside `|` block must be indented **2 spaces deeper** than the parent key.
+- Examples:
+  - ❌ Bad:
+    ```
+    run: |
+    echo "no indent"
+    ```
+  - ✅ Good:
+    ```
+    run: |
+      echo "proper indent"
+    ```
+
+#### Rule 5: NO MARKDOWN FENCES
+- **DO NOT** output ```yaml or ``` tags.
+- Return **RAW YAML TEXT ONLY**.
+"""
+    
     prompt = f"""### ROLE ###
 You are a "Professional DevOps Engineer" who fixes ONLY the 'Specific Code Smell List' in GitHub Actions workflows according to best practices.
 
@@ -571,6 +671,8 @@ GOAL: Fix ONLY the 'Detected Semantic Smell List' listed below according to GitH
 - NEVER fix smells or other code quality issues not listed. (e.g., don't arbitrarily improve efficiency)
 - NEVER change code not directly related to smell fixes. (e.g., don't modify permissions key to fix timeout smell)
 - Fix smells while maintaining the core functionality, behavior sequence, if conditions, and other structural/logical flow of the existing workflow
+
+{YAML_GENERATION_RULES}
 
 **Current YAML (syntax errors already fixed):**
 ```yaml
