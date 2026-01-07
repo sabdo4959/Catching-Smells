@@ -203,7 +203,7 @@ def run_baseline_mode(input_path: str, output_path: str) -> bool:
         
         # 5. LLM 호출
         logger.info("5단계: LLM API 호출")
-        llm_response = llm_api.call_llm_with_retry(integrated_prompt, max_tokens=4000)
+        llm_response = llm_api.call_llm_with_retry(integrated_prompt, max_tokens=6000)
         
         if not llm_response:
             logger.error("LLM API 호출 실패")
@@ -303,7 +303,7 @@ def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: boo
             
             # 4단계: 구문 오류 수정 LLM 호출
             logger.info("4단계: 구문 오류 수정 LLM 호출")
-            llm_response = llm_api.call_llm_with_retry(syntax_prompt, max_tokens=4000)
+            llm_response = llm_api.call_llm_with_retry(syntax_prompt, max_tokens=6000)
             
             if not llm_response:
                 logger.error("구문 오류 수정 LLM 호출 실패")
@@ -353,7 +353,7 @@ def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: boo
                 
                 # 9단계: 스멜 수정 LLM 호출
                 logger.info("9단계: 스멜 수정 LLM 호출")
-                llm_response = llm_api.call_llm_with_retry(semantic_prompt, max_tokens=4000)
+                llm_response = llm_api.call_llm_with_retry(semantic_prompt, max_tokens=6000)
                 
                 if not llm_response:
                     logger.error("스멜 수정 LLM 호출 실패")
@@ -480,21 +480,44 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
 #### Rule 2: FORCE Block Scalar (`|`) for `run` with Special Cases
 - You **MUST** use the pipe (`|`) style when `run` contains:
   1. A colon (`:`) followed by a space
-  2. Blank/empty lines between commands
+  2. Blank/empty lines between commands (including after comments)
   3. Multi-line commands
 - Quoting is NOT enough (it causes YAML parsing conflicts).
 - **CRITICAL**: Keep ALL command text exactly the same, only change YAML format.
-- Examples:
-  - ❌ Bad: `run: echo Status: Success`
-  - ❌ Bad: `run: 'echo "Status: Success"'`
-  - ❌ Bad: Multi-line run without `|` when it has blank lines
-  - ✅ Good:
+
+**CRITICAL EXAMPLES - Learn from these exact patterns:**
+
+**Pattern 1: Colon in run command**
+  - ❌ WRONG: `run: echo "binary zip: ${{ binary_zip }}"`
+  - ❌ WRONG: `run: 'echo "Status: Success"'`
+  - ✅ CORRECT:
     ```
     run: |
-      echo Status: Success
-      
-      echo "Next command"
+      echo "binary zip: ${{ binary_zip }}"
     ```
+
+**Pattern 2: Blank lines in run (especially after comments)**
+  - ❌ WRONG:
+    ```
+    run: |
+      mvn_args="install"
+      # comment
+      # comment
+      
+      if [ condition ]; then
+    ```
+  - ✅ CORRECT (remove blank lines after comments):
+    ```
+    run: |
+      mvn_args="install"
+      # comment
+      # comment
+      if [ condition ]; then
+    ```
+
+**Pattern 3: Multi-line with colons AND blank lines**
+  - ❌ WRONG: Any run with both issues without `|`
+  - ✅ CORRECT: Always use `run: |` and clean up blank lines after comments
 
 #### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
 - If an `if` expression contains a colon (e.g., inside a string like `'type: bug'`), quote the **WHOLE** condition.
@@ -647,21 +670,44 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
 #### Rule 2: FORCE Block Scalar (`|`) for `run` with Special Cases
 - You **MUST** use the pipe (`|`) style when `run` contains:
   1. A colon (`:`) followed by a space
-  2. Blank/empty lines between commands
+  2. Blank/empty lines between commands (including after comments)
   3. Multi-line commands
 - Quoting is NOT enough (it causes YAML parsing conflicts).
 - **CRITICAL**: Keep ALL command text exactly the same, only change YAML format.
-- Examples:
-  - ❌ Bad: `run: echo Status: Success`
-  - ❌ Bad: `run: 'echo "Status: Success"'`
-  - ❌ Bad: Multi-line run without `|` when it has blank lines
-  - ✅ Good:
+
+**CRITICAL EXAMPLES - Learn from these exact patterns:**
+
+**Pattern 1: Colon in run command**
+  - ❌ WRONG: `run: echo "binary zip: ${{ binary_zip }}"`
+  - ❌ WRONG: `run: 'echo "Status: Success"'`
+  - ✅ CORRECT:
     ```
     run: |
-      echo Status: Success
-      
-      echo "Next command"
+      echo "binary zip: ${{ binary_zip }}"
     ```
+
+**Pattern 2: Blank lines in run (especially after comments)**
+  - ❌ WRONG:
+    ```
+    run: |
+      mvn_args="install"
+      # comment
+      # comment
+      
+      if [ condition ]; then
+    ```
+  - ✅ CORRECT (remove blank lines after comments):
+    ```
+    run: |
+      mvn_args="install"
+      # comment
+      # comment
+      if [ condition ]; then
+    ```
+
+**Pattern 3: Multi-line with colons AND blank lines**
+  - ❌ WRONG: Any run with both issues without `|`
+  - ✅ CORRECT: Always use `run: |` and clean up blank lines after comments
 
 #### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
 - If an `if` expression contains a colon (e.g., inside a string like `'type: bug'`), quote the **WHOLE** condition.
@@ -687,6 +733,33 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
 #### Rule 5: NO MARKDOWN FENCES
 - **DO NOT** output ```yaml or ``` tags.
 - Return **RAW YAML TEXT ONLY**.
+
+#### Rule 6: `if` Conditional Placement (CRITICAL)
+- **`if` conditionals can ONLY appear at:**
+  1. **Job level**: `jobs: <job-name>: if:`
+  2. **Step level**: `steps: - if:`
+- **NEVER place `if` inside event triggers** like `on: push:` or `on: pull_request:`
+- **Examples**:
+  - ❌ WRONG:
+    ```
+    on:
+      push:
+        branches: [main]
+        if: "github.event.after == ..."  # ❌ INVALID LOCATION
+    ```
+  - ✅ CORRECT:
+    ```
+    on:
+      push:
+        branches: [main]
+    jobs:
+      build:
+        if: "github.event.after == ..."  # ✅ Valid at job level
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            if: "success()"  # ✅ Valid at step level
+    ```
 """
     
     prompt = f"""### ROLE ###
