@@ -477,16 +477,23 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
   - ❌ Bad: `files: *.whl`
   - ✅ Good: `files: '*.whl'`
 
-#### Rule 2: FORCE Block Scalar (`|`) for `run` with Colons
-- If a `run` command contains a colon (`:`) followed by a space, you **MUST** use the pipe (`|`) style.
-- Quoting is NOT enough (it causes conflicts).
+#### Rule 2: FORCE Block Scalar (`|`) for `run` with Special Cases
+- You **MUST** use the pipe (`|`) style when `run` contains:
+  1. A colon (`:`) followed by a space
+  2. Blank/empty lines between commands
+  3. Multi-line commands
+- Quoting is NOT enough (it causes YAML parsing conflicts).
+- **CRITICAL**: Keep ALL command text exactly the same, only change YAML format.
 - Examples:
   - ❌ Bad: `run: echo Status: Success`
   - ❌ Bad: `run: 'echo "Status: Success"'`
+  - ❌ Bad: Multi-line run without `|` when it has blank lines
   - ✅ Good:
     ```
     run: |
       echo Status: Success
+      
+      echo "Next command"
     ```
 
 #### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
@@ -523,9 +530,23 @@ GOAL: Fix ONLY the 'Detected Syntax Errors' listed below.
 
 ### STRICT PROHIBITIONS (Guardrails): ###
 - NEVER modify or change any code that is not mentioned in the error list.
-- NEVER touch semantic parts such as workflow logic, step order, if conditions, run script contents, etc.
+- NEVER touch semantic parts such as workflow logic, step order, if conditions logic, etc.
 - NEVER add or remove new steps or jobs.
 - Preserve original comments and formatting as much as possible.
+
+### SPECIAL RULE FOR `run` COMMANDS: ###
+**PRIORITY 1 (HIGHEST): Fix YAML Parsing Errors First**
+- If `run` command causes YAML parsing failure, you MUST fix the YAML syntax:
+  ✅ ALLOWED: Add block scalar (`run: |`) when run contains colons or blank lines
+  ✅ ALLOWED: Fix indentation to make valid YAML
+  ✅ ALLOWED: Preserve ALL command text exactly (don't change echo, curl, etc.)
+  
+**PRIORITY 2: Preserve Command Logic**  
+- NEVER change what the command does (no logic changes)
+- NEVER modify command arguments, flags, or parameters
+- Example:
+  - ❌ BAD: Change `echo "Status: Success"` to `echo "Status Success"`
+  - ✅ GOOD: Change from `run: echo "Status: Success"` to `run: |\n  echo "Status: Success"`
 
 {YAML_GENERATION_RULES}
 
@@ -623,16 +644,23 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
   - ❌ Bad: `files: *.whl`
   - ✅ Good: `files: '*.whl'`
 
-#### Rule 2: FORCE Block Scalar (`|`) for `run` with Colons
-- If a `run` command contains a colon (`:`) followed by a space, you **MUST** use the pipe (`|`) style.
-- Quoting is NOT enough (it causes conflicts).
+#### Rule 2: FORCE Block Scalar (`|`) for `run` with Special Cases
+- You **MUST** use the pipe (`|`) style when `run` contains:
+  1. A colon (`:`) followed by a space
+  2. Blank/empty lines between commands
+  3. Multi-line commands
+- Quoting is NOT enough (it causes YAML parsing conflicts).
+- **CRITICAL**: Keep ALL command text exactly the same, only change YAML format.
 - Examples:
   - ❌ Bad: `run: echo Status: Success`
   - ❌ Bad: `run: 'echo "Status: Success"'`
+  - ❌ Bad: Multi-line run without `|` when it has blank lines
   - ✅ Good:
     ```
     run: |
       echo Status: Success
+      
+      echo "Next command"
     ```
 
 #### Rule 3: QUOTE ENTIRE `if` Conditions with Colons

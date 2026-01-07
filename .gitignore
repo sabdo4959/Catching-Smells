@@ -141,6 +141,6 @@ api_keys.txt
 
 # Test outputs
 test_*.yml
-*_repaired.yml
 *_test.yml
 GHA-Autorepair/gha_repair_tool/temp/*
+*_gha_repaired.yml

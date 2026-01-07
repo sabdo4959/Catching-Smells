@@ -103,6 +103,17 @@ def call_openai_api(
         # 응답 추출
         if response and response.choices:
             content = response.choices[0].message.content
+            
+            # YAML 코드 블록이 있다면 제거
+            if content.startswith('```yaml'):
+                content = content[7:]
+            if content.startswith('```'):
+                content = content[3:]
+            if content.endswith('```'):
+                content = content[:-3]
+                
+            content = content.strip()
+            
             logger.info("OpenAI API 호출 성공")
             return content
         else:
