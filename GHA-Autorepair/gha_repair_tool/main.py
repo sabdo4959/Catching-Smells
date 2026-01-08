@@ -467,9 +467,129 @@ def create_guided_syntax_repair_prompt(yaml_content: str, actionlint_errors: lis
         str: 생성된 가이드 프롬프트
     """
     
+    # ==============================================================================
+    # PART 1. ACTIONLINT & GHA SCHEMA DEFENSE RULES (HIGHEST PRIORITY)
+    # 목표: actionlint 통과를 위한 구조적 제약 사항 준수
+    # ==============================================================================
+    
+    ACTIONLINT_DEFENSE_RULES = """
+### 🛡️ ACTIONLINT & SCHEMA DEFENSE RULES (STRICT) 🛡️
+You MUST follow these rules to pass 'actionlint' validation and GitHub Actions schema constraints.
+
+#### Defense Rule 1: 🚨 NO `if` in `on` / `triggers` (FATAL ERROR - HIGHEST PRIORITY)
+- **FATAL ERROR:** `unexpected key "if" for "push" section` or `"pull_request" section`
+- **Root Cause:** `on:` section defines WHEN to trigger (static config). NO runtime conditions allowed.
+- **STRICTLY FORBIDDEN:**
+  - ❌ ANY `if:` key inside `on:` section
+  - ❌ `${{ github.* }}` expressions inside `on:`
+  - ❌ Conditional logic in triggers (push, pull_request, schedule, workflow_dispatch, etc.)
+
+**CRITICAL FIX PATTERN (Most Common Error):**
+```yaml
+# ❌ WRONG (CAUSES FATAL ERROR):
+on:
+  push:
+    branches: [main]
+    if: github.event.after == 'xxx'  # ❌ ERROR
+
+# ✅ CORRECT (Move to Job Level):
+on:
+  push:
+    branches: [main]  # ✅ Clean trigger
+
+jobs:
+  build:
+    if: github.event.after == 'xxx'  # ✅ Condition at job level
+    runs-on: ubuntu-latest
+```
+
+**Multi-Trigger Pattern (Common Failure Case):**
+```yaml
+# ❌ WRONG:
+on:
+  push:
+    if: github.repository == 'owner/repo'  # ❌ ERROR
+  pull_request:
+    if: github.event.pull_request.head.repo.fork == false  # ❌ ERROR
+
+# ✅ CORRECT:
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    if: |
+      github.repository == 'owner/repo' &&
+      (github.event_name == 'push' || 
+       github.event.pull_request.head.repo.fork == false)
+    runs-on: ubuntu-latest
+```
+
+#### Defense Rule 2: 🚫 NO `timeout-minutes` for Reusable Workflows
+- **ERROR:** `when a reusable workflow is called... timeout-minutes is not available`
+- **Rule:** If a job uses `uses: ./.github/workflows/...`, DO NOT add `timeout-minutes`.
+- **Exception Handling:** When fixing Smell 5 (Missing Timeout), CHECK if job is reusable first.
+```yaml
+# ❌ WRONG (Reusable Workflow):
+jobs:
+  reusable-job:
+    uses: ./.github/workflows/check.yml
+    timeout-minutes: 60  # ❌ ERROR - not allowed for reusable workflows
+
+# ✅ CORRECT:
+jobs:
+  reusable-job:
+    uses: ./.github/workflows/check.yml  # ✅ No timeout for reusable
+
+  regular-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # ✅ OK for regular jobs
+```
+
+#### Defense Rule 3: 📝 Strict List Syntax for Paths/Branches
+- **ERROR:** `expected scalar node ... but found sequence node`
+- **Rule:** `paths`, `paths-ignore`, `branches`, `branches-ignore` MUST use list format (hyphens).
+```yaml
+# ❌ WRONG:
+on:
+  push:
+    paths-ignore: '**.md'  # ❌ Single string - may cause errors
+
+# ✅ CORRECT (Use List Format):
+on:
+  push:
+    paths-ignore:
+      - '**.md'      # ✅ List item (note the hyphen)
+      - 'docs/**'    # ✅ Each pattern on separate line
+```
+
+#### Defense Rule 4: 🧩 Separation of `uses` and `run`
+- **ERROR:** `step contains both "uses" and "run"`
+- **Rule:** A step CANNOT have both `uses:` (action) and `run:` (shell command).
+- **Fix:** Split into two separate steps.
+```yaml
+# ❌ WRONG:
+- name: Checkout and build
+  uses: actions/checkout@v4
+  run: npm install  # ❌ Cannot coexist
+
+# ✅ CORRECT:
+- name: Checkout
+  uses: actions/checkout@v4
+- name: Build
+  run: npm install
+```
+"""
+
+    # ==============================================================================
+    # PART 2. YAML SYNTAX GENERATION RULES (CRITICAL)
+    # 목표: 유효한 YAML 생성 및 파싱 에러 방지
+    # ==============================================================================
+
     YAML_GENERATION_RULES = """
 ### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
-You are a GitHub Actions YAML repair engine. You must follow these 6 rules strictly to ensure the output is valid YAML.
+You are a GitHub Actions YAML repair engine. Follow these rules to ensure valid YAML output.
 
 #### Rule 1: Quote Wildcards and Globs
 - **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
@@ -540,140 +660,16 @@ You are a GitHub Actions YAML repair engine. You must follow these 6 rules stric
       echo "proper indent"
     ```
 
-#### Rule 5: NO MARKDOWN FENCES
-- **DO NOT** output ```yaml or ``` tags.
-- Return **RAW YAML TEXT ONLY**.
-
-#### Rule 6: Context Availability - `if` Placement (MOST CRITICAL)
-**THIS IS THE #1 CAUSE OF ERRORS - PAY EXTREME ATTENTION**
-
-**📚 GHA CONTEXT AVAILABILITY RULES (OFFICIAL DOCUMENTATION):**
-
-**6.1. ❌ ABSOLUTE PROHIBITION: NO `if` or Contexts in `on:` (Triggers)**
-- **Rule:** The `on:` section defines **WHEN** to trigger the workflow (static configuration).
-- **STRICTLY FORBIDDEN:** 
-  - ❌ `if:` key anywhere inside `on:`
-  - ❌ `${{ github.* }}` expressions inside `on:`
-  - ❌ `${{ secrets.* }}` inside `on:`
-  - ❌ `${{ env.* }}` inside `on:`
-- **Common Error:** `unexpected key "if" for "push" section` or `unexpected key "if" for "pull_request" section`
-- **Examples:**
-  ```yaml
-  # ❌ ABSOLUTELY WRONG - WILL CAUSE ERROR:
-  on:
-    push:
-      branches: [main]
-      if: github.event.after == '...'  # ❌ FATAL ERROR
-  
-  on:
-    pull_request:
-      if: github.repository == 'my/repo'  # ❌ FATAL ERROR
-  
-  on:
-    workflow:
-      inputs:
-        version:
-          if: github.event_name == 'push'  # ❌ FATAL ERROR
-  ```
-
-**6.2. ✅ CORRECT LOCATION #1: Job Level `if`**
-- **Allowed:** `if:` can appear under `jobs.<job_id>:`
-- **Available Contexts:** `github`, `needs`, `inputs`, `vars`
-- **NOT Available:** `steps`, `runner`, `secrets` (in most cases), `env`
-- **Examples:**
-  ```yaml
-  # ✅ CORRECT:
-  jobs:
-    build:
-      if: github.event_name == 'push'  # ✅ Job-level conditional
-      runs-on: ubuntu-latest
-      steps:
-        - run: echo "Building..."
-  
-    deploy:
-      if: github.repository == 'owner/repo'  # ✅ Job-level conditional
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - run: echo "Deploying..."
-  ```
-
-**6.3. ✅ CORRECT LOCATION #2: Step Level `if`**
-- **Allowed:** `if:` can appear under `steps:` array items
-- **Available Contexts:** `github`, `needs`, `inputs`, `steps`, `runner`, `env`, `secrets`, `vars`, `job`, `matrix`
-- **Examples:**
-  ```yaml
-  # ✅ CORRECT:
-  jobs:
-    test:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-          if: success()  # ✅ Step-level conditional
-        
-        - name: Run tests
-          run: npm test
-          if: github.ref == 'refs/heads/main'  # ✅ Step-level conditional
-  ```
-
-**6.4. ❌ Security Rule: NO Secrets in `if` (Most Cases)**
-- **Rule:** Do NOT use `${{ secrets.* }}` in `if` conditions (security risk)
-- **Exception:** `secrets.GITHUB_TOKEN` is sometimes allowed in step-level `if`
-- **Examples:**
-  ```yaml
-  # ❌ WRONG:
-  jobs:
-    build:
-      if: secrets.MY_SECRET == 'value'  # ❌ Security violation
-  
-  # ✅ CORRECT (if needed, use environment):
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check secret
-          run: |
-            if [ -n "${{ secrets.MY_SECRET }}" ]; then
-              echo "Secret exists"
-            fi
-  ```
-
-**6.5. REPAIR STRATEGY: Moving `if` from `on:` to Job Level**
-When you see `if:` inside `on:`, you MUST move it to the job level:
-
-```yaml
-# ❌ BEFORE (WRONG):
-on:
-  push:
-    branches: [main]
-    if: github.event.after == 'xxx'  # ❌ ERROR
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "test"
-
-# ✅ AFTER (CORRECT):
-on:
-  push:
-    branches: [main]  # ✅ Clean trigger definition
-
-jobs:
-  build:
-    if: github.event.after == 'xxx'  # ✅ Moved to job level
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "test"
-```
-
-**6.6. CRITICAL CHECKLIST:**
-Before returning YAML, verify:
-- [ ] NO `if:` key anywhere inside `on:` section
-- [ ] NO `${{ ... }}` expressions inside `on:` section
-- [ ] All `if:` conditions are at job level (`jobs.<job_id>.if`) or step level (`steps[].if`)
-- [ ] NO `secrets.*` in `if` conditions (except `secrets.GITHUB_TOKEN` at step level if necessary)
+#### Rule 5: NO MARKDOWN FENCES OR BACKTICKS (CRITICAL - NEW)
+- **ABSOLUTELY FORBIDDEN:** Backtick characters (`, ```, ``````) in YAML output
+- **DO NOT** use markdown code block syntax anywhere in the YAML
+- **VERIFICATION:** Output must NOT contain ANY backtick (`) character
+- **Common Error:** found character backtick that cannot start any token
+- Examples:
+  - ❌ WRONG: run with backtick characters
+  - ❌ WRONG: Including markdown code fences in output
+  - ✅ CORRECT: Use $() for command substitution instead of backticks
+- **Return RAW YAML TEXT ONLY** without any markdown formatting.
 """
     
     prompt = f"""### ROLE ###
@@ -701,6 +697,8 @@ GOAL: Fix ONLY the 'Detected Syntax Errors' listed below.
 - Example:
   - ❌ BAD: Change `echo "Status: Success"` to `echo "Status Success"`
   - ✅ GOOD: Change from `run: echo "Status: Success"` to `run: |\n  echo "Status: Success"`
+
+{ACTIONLINT_DEFENSE_RULES}
 
 {YAML_GENERATION_RULES}
 
@@ -788,213 +786,240 @@ def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str
         str: 생성된 가이드 프롬프트
     """
     
-    YAML_GENERATION_RULES = """
-### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
-You are a GitHub Actions YAML repair engine. You must follow these 6 rules strictly to ensure the output is valid YAML.
+    # ==============================================================================
+    # PART 1. ACTIONLINT & GHA SCHEMA DEFENSE RULES (MUST PRESERVE)
+    # 목표: Semantic repair 중에도 구조적 제약 위반 방지
+    # ==============================================================================
+    
+    ACTIONLINT_DEFENSE_RULES = """
+### 🛡️ ACTIONLINT & SCHEMA DEFENSE RULES (STRICT) 🛡️
+You MUST follow these rules to pass 'actionlint' validation and GitHub Actions schema constraints.
 
-#### Rule 1: Quote Wildcards and Globs
-- **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
-- Examples:
-  - ❌ Bad: `files: *.whl`
-  - ✅ Good: `files: '*.whl'`
-
-#### Rule 2: FORCE Block Scalar (`|`) for `run` with Special Cases
-- You **MUST** use the pipe (`|`) style when `run` contains:
-  1. A colon (`:`) followed by a space
-  2. Blank/empty lines between commands (including after comments)
-  3. Multi-line commands
-- Quoting is NOT enough (it causes YAML parsing conflicts).
-- **CRITICAL**: Keep ALL command text exactly the same, only change YAML format.
-
-**CRITICAL EXAMPLES - Learn from these exact patterns:**
-
-**Pattern 1: Colon in run command**
-  - ❌ WRONG: `run: echo "binary zip: ${{ binary_zip }}"`
-  - ❌ WRONG: `run: 'echo "Status: Success"'`
-  - ✅ CORRECT:
-    ```
-    run: |
-      echo "binary zip: ${{ binary_zip }}"
-    ```
-
-**Pattern 2: Blank lines in run (especially after comments)**
-  - ❌ WRONG:
-    ```
-    run: |
-      mvn_args="install"
-      # comment
-      # comment
-      
-      if [ condition ]; then
-    ```
-  - ✅ CORRECT (remove blank lines after comments):
-    ```
-    run: |
-      mvn_args="install"
-      # comment
-      # comment
-      if [ condition ]; then
-    ```
-
-**Pattern 3: Multi-line with colons AND blank lines**
-  - ❌ WRONG: Any run with both issues without `|`
-  - ✅ CORRECT: Always use `run: |` and clean up blank lines after comments
-
-#### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
-- If an `if` expression contains a colon (e.g., inside a string like `'type: bug'`), quote the **WHOLE** condition.
-- Examples:
-  - ❌ Bad: `if: github.event.label.name == 'type: bug'`
-  - ✅ Good: `if: "github.event.label.name == 'type: bug'"`
-
-#### Rule 4: Strict Indentation (2 Spaces)
-- Use **exactly 2 spaces** per level. NO TABS.
-- Content inside `|` block must be indented **2 spaces deeper** than the parent key.
-- Examples:
-  - ❌ Bad:
-    ```
-    run: |
-    echo "no indent"
-    ```
-  - ✅ Good:
-    ```
-    run: |
-      echo "proper indent"
-    ```
-
-#### Rule 5: NO MARKDOWN FENCES
-- **DO NOT** output ```yaml or ``` tags.
-- Return **RAW YAML TEXT ONLY**.
-
-#### Rule 6: Context Availability - `if` Placement (MOST CRITICAL)
-**THIS IS THE #1 CAUSE OF ERRORS - PAY EXTREME ATTENTION**
-
-**📚 GHA CONTEXT AVAILABILITY RULES (OFFICIAL DOCUMENTATION):**
-
-**6.1. ❌ ABSOLUTE PROHIBITION: NO `if` or Contexts in `on:` (Triggers)**
-- **Rule:** The `on:` section defines **WHEN** to trigger the workflow (static configuration).
-- **STRICTLY FORBIDDEN:** 
-  - ❌ `if:` key anywhere inside `on:`
+#### Defense Rule 1: 🚨 NO `if` in `on` / `triggers` (FATAL ERROR - HIGHEST PRIORITY)
+- **FATAL ERROR:** `unexpected key "if" for "push" section` or `"pull_request" section`
+- **Root Cause:** `on:` section defines WHEN to trigger (static config). NO runtime conditions allowed.
+- **STRICTLY FORBIDDEN:**
+  - ❌ ANY `if:` key inside `on:` section
   - ❌ `${{ github.* }}` expressions inside `on:`
-  - ❌ `${{ secrets.* }}` inside `on:`
-  - ❌ `${{ env.* }}` inside `on:`
-- **Common Error:** `unexpected key "if" for "push" section` or `unexpected key "if" for "pull_request" section`
-- **Examples:**
-  ```yaml
-  # ❌ ABSOLUTELY WRONG - WILL CAUSE ERROR:
-  on:
-    push:
-      branches: [main]
-      if: github.event.after == '...'  # ❌ FATAL ERROR
-  
-  on:
-    pull_request:
-      if: github.repository == 'my/repo'  # ❌ FATAL ERROR
-  
-  on:
-    workflow:
-      inputs:
-        version:
-          if: github.event_name == 'push'  # ❌ FATAL ERROR
-  ```
+  - ❌ Conditional logic in triggers (push, pull_request, schedule, workflow_dispatch, etc.)
 
-**6.2. ✅ CORRECT LOCATION #1: Job Level `if`**
-- **Allowed:** `if:` can appear under `jobs.<job_id>:`
-- **Available Contexts:** `github`, `needs`, `inputs`, `vars`
-- **NOT Available:** `steps`, `runner`, `secrets` (in most cases), `env`
-- **Examples:**
-  ```yaml
-  # ✅ CORRECT:
-  jobs:
-    build:
-      if: github.event_name == 'push'  # ✅ Job-level conditional
-      runs-on: ubuntu-latest
-      steps:
-        - run: echo "Building..."
-  
-    deploy:
-      if: github.repository == 'owner/repo'  # ✅ Job-level conditional
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - run: echo "Deploying..."
-  ```
-
-**6.3. ✅ CORRECT LOCATION #2: Step Level `if`**
-- **Allowed:** `if:` can appear under `steps:` array items
-- **Available Contexts:** `github`, `needs`, `inputs`, `steps`, `runner`, `env`, `secrets`, `vars`, `job`, `matrix`
-- **Examples:**
-  ```yaml
-  # ✅ CORRECT:
-  jobs:
-    test:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-          if: success()  # ✅ Step-level conditional
-        
-        - name: Run tests
-          run: npm test
-          if: github.ref == 'refs/heads/main'  # ✅ Step-level conditional
-  ```
-
-**6.4. ❌ Security Rule: NO Secrets in `if` (Most Cases)**
-- **Rule:** Do NOT use `${{ secrets.* }}` in `if` conditions (security risk)
-- **Exception:** `secrets.GITHUB_TOKEN` is sometimes allowed in step-level `if`
-- **Examples:**
-  ```yaml
-  # ❌ WRONG:
-  jobs:
-    build:
-      if: secrets.MY_SECRET == 'value'  # ❌ Security violation
-  
-  # ✅ CORRECT (if needed, use environment):
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Check secret
-          run: |
-            if [ -n "${{ secrets.MY_SECRET }}" ]; then
-              echo "Secret exists"
-            fi
-  ```
-
-**6.5. REPAIR STRATEGY: Moving `if` from `on:` to Job Level**
-When you see `if:` inside `on:`, you MUST move it to the job level:
-
+**CRITICAL FIX PATTERN (Most Common Error):**
 ```yaml
-# ❌ BEFORE (WRONG):
+# ❌ WRONG (CAUSES FATAL ERROR):
 on:
   push:
     branches: [main]
     if: github.event.after == 'xxx'  # ❌ ERROR
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "test"
-
-# ✅ AFTER (CORRECT):
+# ✅ CORRECT (Move to Job Level):
 on:
   push:
-    branches: [main]  # ✅ Clean trigger definition
+    branches: [main]  # ✅ Clean trigger
 
 jobs:
   build:
-    if: github.event.after == 'xxx'  # ✅ Moved to job level
+    if: github.event.after == 'xxx'  # ✅ Condition at job level
     runs-on: ubuntu-latest
-    steps:
-      - run: echo "test"
 ```
 
-**6.6. CRITICAL CHECKLIST:**
-Before returning YAML, verify:
-- [ ] NO `if:` key anywhere inside `on:` section
-- [ ] NO `${{ ... }}` expressions inside `on:` section
-- [ ] All `if:` conditions are at job level (`jobs.<job_id>.if`) or step level (`steps[].if`)
-- [ ] NO `secrets.*` in `if` conditions (except `secrets.GITHUB_TOKEN` at step level if necessary)
+**Multi-Trigger Pattern (Common Failure Case):**
+```yaml
+# ❌ WRONG:
+on:
+  push:
+    if: github.repository == 'owner/repo'  # ❌ ERROR
+  pull_request:
+    if: github.event.pull_request.head.repo.fork == false  # ❌ ERROR
+
+# ✅ CORRECT:
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    if: |
+      github.repository == 'owner/repo' &&
+      (github.event_name == 'push' || 
+       github.event.pull_request.head.repo.fork == false)
+    runs-on: ubuntu-latest
+```
+
+#### Defense Rule 2: 🚫 NO `timeout-minutes` for Reusable Workflows
+- **ERROR:** `when a reusable workflow is called... timeout-minutes is not available`
+- **Rule:** If a job uses `uses: ./.github/workflows/...`, DO NOT add `timeout-minutes`.
+- **Exception Handling:** When fixing Smell 5 (Missing Timeout), CHECK if job is reusable first.
+```yaml
+# ❌ WRONG (Reusable Workflow):
+jobs:
+  reusable-job:
+    uses: ./.github/workflows/check.yml
+    timeout-minutes: 60  # ❌ ERROR - not allowed for reusable workflows
+
+# ✅ CORRECT:
+jobs:
+  reusable-job:
+    uses: ./.github/workflows/check.yml  # ✅ No timeout for reusable
+
+  regular-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # ✅ OK for regular jobs
+```
+
+#### Defense Rule 3: 📝 Strict List Syntax for Paths/Branches
+- **ERROR:** `expected scalar node ... but found sequence node`
+- **Rule:** `paths`, `paths-ignore`, `branches`, `branches-ignore` MUST use list format (hyphens).
+```yaml
+# ❌ WRONG:
+on:
+  push:
+    paths-ignore: '**.md'  # ❌ Single string - may cause errors
+
+# ✅ CORRECT (Use List Format):
+on:
+  push:
+    paths-ignore:
+      - '**.md'      # ✅ List item (note the hyphen)
+      - 'docs/**'    # ✅ Each pattern on separate line
+```
+
+#### Defense Rule 4: 🧩 Separation of `uses` and `run`
+- **ERROR:** `step contains both "uses" and "run"`
+- **Rule:** A step CANNOT have both `uses:` (action) and `run:` (shell command).
+- **Fix:** Split into two separate steps.
+```yaml
+# ❌ WRONG:
+- name: Checkout and build
+  uses: actions/checkout@v4
+  run: npm install  # ❌ Cannot coexist
+
+# ✅ CORRECT:
+- name: Checkout
+  uses: actions/checkout@v4
+- name: Build
+  run: npm install
+```
+"""
+
+    # ==============================================================================
+    # PART 2. SMELL REPAIR GUIDELINES (REFINED)
+    # 목표: Smell 5 예외 처리 추가, Smell 8/9/10 위치 제약 강화
+    # ==============================================================================
+
+    SMELL_FIX_INSTRUCTIONS = """
+### 🔧 CODE SMELL REPAIR GUIDELINES ###
+
+#### Smell 2: Outdated Action
+- **Problem:** Security/Stability risks from old tags.
+- **Solution:** Use Commit Hash (Secure) or latest major tag.
+- **Example:** `uses: actions/checkout@v4`
+
+#### Smell 3: Deprecated Command
+- **Problem:** `::set-output` fails in new runners.
+- **Solution:** Use `$GITHUB_OUTPUT`.
+- **Syntax:** `run: echo "{key}={value}" >> $GITHUB_OUTPUT`
+
+#### Smell 4: Over-privileged Permissions
+- **Problem:** Overly permissive token.
+- **Solution:** Add `permissions: contents: read` (or specific rights) to top-level or job.
+
+#### Smell 5: Missing Job Timeout (⚠️ EXCEPTION FOR REUSABLE WORKFLOWS)
+- **Problem:** Jobs running indefinitely.
+- **Solution:** Add `timeout-minutes: 60` to jobs.
+- **🚨 CRITICAL EXCEPTION:** DO NOT add timeout if the job uses a Reusable Workflow (e.g., `uses: ./.github/...`). It causes syntax errors per Defense Rule 2.
+```yaml
+# ❌ WRONG:
+jobs:
+  reusable:
+    uses: ./.github/workflows/check.yml
+    timeout-minutes: 60  # ❌ ERROR
+
+# ✅ CORRECT:
+jobs:
+  reusable:
+    uses: ./.github/workflows/check.yml  # No timeout
+  
+  regular:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # OK
+```
+
+#### Smell 6 & 7: Concurrency
+- **Smell 6 (PR):** Add `concurrency` group with `cancel-in-progress: true`.
+- **Smell 7 (Branch):** Add `concurrency` group for branches.
+
+#### Smell 8: Missing Path Filter (⚠️ LIST SYNTAX REQUIRED)
+- **Problem:** Wasteful runs on doc changes.
+- **Solution:** Add `paths-ignore` to `push` or `pull_request`.
+- **🚨 SYNTAX:** MUST use list format with hyphens (`-`) per Defense Rule 3.
+- **🚨 LOCATION:** Modify `on` section. DO NOT add `if` per Defense Rule 1.
+```yaml
+# ✅ CORRECT:
+on:
+  push:
+    paths-ignore:
+      - '**.md'    # List format with hyphen
+      - 'docs/**'
+```
+
+#### Smell 9: Run on Fork (Schedule) (⚠️ LOCATION CONSTRAINT)
+- **Problem:** Scheduled runs waste resources on forks.
+- **Solution:** Add repo owner check.
+- **🚨 CRITICAL LOCATION:** `on: schedule` DOES NOT support `if` per Defense Rule 1. You MUST add `if: github.repository_owner == ...` at the **JOB level**.
+```yaml
+# ✅ CORRECT:
+on:
+  schedule:
+    - cron: '0 0 * * *'  # No if here
+
+jobs:
+  scheduled-job:
+    if: github.repository_owner == 'owner'  # Check at job level
+    runs-on: ubuntu-latest
+```
+
+#### Smell 10: Run on Fork (Artifact) (⚠️ LOCATION CONSTRAINT)
+- **Problem:** Artifact uploads waste resources on forks.
+- **Solution:** Add check before upload.
+- **🚨 CRITICAL LOCATION:** Add `if: github.repository_owner == ...` to the **STEP** using `upload-artifact`. NEVER in `on` per Defense Rule 1.
+```yaml
+# ✅ CORRECT:
+steps:
+  - name: Upload artifact
+    uses: actions/upload-artifact@v4
+    if: github.repository_owner == 'owner'  # Check at step level
+    with:
+      name: build
+      path: dist/
+```
+"""
+
+    # ==============================================================================
+    # PART 3. YAML SYNTAX GENERATION RULES (MUST PRESERVE)
+    # 목표: Semantic repair 중에도 YAML 파싱 에러 방지
+    # ==============================================================================
+
+    YAML_GENERATION_RULES = """
+### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
+
+#### Rule 1: Quote Wildcards and Globs
+- **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
+
+#### Rule 2: FORCE Block Scalar (`|`) for `run` with Special Cases
+- Use pipe (`|`) when `run` contains: colons, blank lines, multi-line commands
+- Keep ALL command text exactly the same
+
+#### Rule 3: QUOTE ENTIRE `if` Conditions with Colons
+- If `if` expression contains `:`, quote the WHOLE condition
+
+#### Rule 4: Strict Indentation (2 Spaces)
+- Use exactly 2 spaces per level. NO TABS.
+
+#### Rule 5: NO MARKDOWN FENCES OR BACKTICKS (CRITICAL)
+- **ABSOLUTELY FORBIDDEN:** Backtick characters (`, ```, ``````) in YAML output
+- **DO NOT** use markdown code block syntax
+- **VERIFICATION:** Output must NOT contain ANY backtick (`) character
+- **Return RAW YAML TEXT ONLY**
 """
     
     prompt = f"""### ROLE ###
@@ -1004,9 +1029,13 @@ You are a "Professional DevOps Engineer" who fixes ONLY the 'Specific Code Smell
 GOAL: Fix ONLY the 'Detected Semantic Smell List' listed below according to GitHub best practices.
 
 ### STRICT PROHIBITIONS (Guardrails): ###
-- NEVER fix smells or other code quality issues not listed. (e.g., don't arbitrarily improve efficiency)
-- NEVER change code not directly related to smell fixes. (e.g., don't modify permissions key to fix timeout smell)
-- Fix smells while maintaining the core functionality, behavior sequence, if conditions, and other structural/logical flow of the existing workflow
+- NEVER fix smells or other code quality issues not listed.
+- NEVER change code not directly related to smell fixes.
+- Fix smells while maintaining the core functionality, behavior sequence, if conditions, and other structural/logical flow of the existing workflow.
+
+{ACTIONLINT_DEFENSE_RULES}
+
+{SMELL_FIX_INSTRUCTIONS}
 
 {YAML_GENERATION_RULES}
 
@@ -1034,9 +1063,6 @@ Provide an improved YAML that fixes each smell according to GitHub Actions best 
 """
 
     return prompt
-
-
-
 
 
 def create_baseline_prompt(yaml_content: str, actionlint_errors: list, smells: list) -> str:
