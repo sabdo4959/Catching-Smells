@@ -670,6 +670,80 @@ You are a GitHub Actions YAML repair engine. Follow these rules to ensure valid 
   - ❌ WRONG: Including markdown code fences in output
   - ✅ CORRECT: Use $() for command substitution instead of backticks
 - **Return RAW YAML TEXT ONLY** without any markdown formatting.
+
+#### Rule 6: `concurrency` Placement Rules (FIX COMMON ERROR)
+- **ERROR PATTERN:** `unexpected key "concurrency" for "push" section` or `"pull_request" section`
+- **ROOT CAUSE:** `concurrency` placed INSIDE trigger sections instead of at workflow/job level
+- **RULE:** `concurrency` is ONLY valid at:
+  1. **Workflow-level** (root of YAML, alongside `name:`, `on:`)
+  2. **Job-level** (inside a job definition, alongside `runs-on:`, `steps:`)
+- **NEVER place `concurrency` inside:**
+  - ❌ `on:` section
+  - ❌ `on.push:` section  
+  - ❌ `on.pull_request:` section
+  - ❌ `on.workflow_dispatch:` section
+  - ❌ Any trigger configuration
+
+**EXAMPLES:**
+
+**❌ WRONG - concurrency inside trigger:**
+```yaml
+on:
+  push:
+    branches: [main]
+    concurrency:        # ❌ INVALID - cannot be inside push
+      group: build
+      cancel-in-progress: true
+```
+
+**❌ WRONG - concurrency as job name:**
+```yaml
+jobs:
+  concurrency:          # ❌ INVALID - job named 'concurrency' 
+    group: test         # ❌ Missing runs-on, steps
+    cancel-in-progress: true
+```
+
+**✅ CORRECT - Workflow-level concurrency:**
+```yaml
+name: CI
+on:
+  push:
+    branches: [main]
+
+concurrency:            # ✅ VALID - at workflow root
+  group: $\{{ github.workflow }}-$\{{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+```
+
+**✅ CORRECT - Job-level concurrency:**
+```yaml
+name: CI
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:        # ✅ VALID - inside job
+      group: build-$\{{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - run: npm install
+```
+
+**FIX STRATEGY:**
+1. **DETECT:** Find `concurrency:` inside `on:` or trigger sections
+2. **EXTRACT:** Remove `concurrency:` block from wrong location
+3. **RELOCATE:** Move to workflow root (before `jobs:`) or inside specific job
+4. **VERIFY:** Ensure `group:` and `cancel-in-progress:` remain intact
 """
     
     prompt = f"""### ROLE ###
@@ -1020,6 +1094,56 @@ steps:
 - **DO NOT** use markdown code block syntax
 - **VERIFICATION:** Output must NOT contain ANY backtick (`) character
 - **Return RAW YAML TEXT ONLY**
+
+#### Rule 6: `concurrency` Placement for NEW Additions (Smell 6, 7)
+- **WHEN ADDING NEW `concurrency`** (for Smell 6 or Smell 7 fixes):
+  - **ALWAYS place at workflow-level** (root of YAML, before `jobs:` section)
+  - **NEVER add inside** `on:`, `on.push:`, `on.pull_request:`, or any trigger section
+  
+- **WHEN `concurrency` ALREADY EXISTS:**
+  - **KEEP IT AS-IS** (preserve existing location - workflow-level or job-level)
+  - **ONLY update values** if needed (e.g., add `cancel-in-progress: true`)
+
+**EXAMPLES FOR NEW ADDITIONS:**
+
+**✅ CORRECT - Add concurrency at workflow root:**
+```yaml
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:            # ✅ NEW concurrency at workflow root
+  group: $\{{ github.workflow }}-$\{{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+```
+
+**❌ WRONG - Adding concurrency inside trigger:**
+```yaml
+on:
+  push:
+    branches: [main]
+    concurrency:        # ❌ NEVER add here
+      group: build
+```
+
+**EXISTING concurrency - PRESERVE:**
+```yaml
+# If workflow already has concurrency at job-level:
+jobs:
+  build:
+    concurrency:        # ✅ KEEP existing job-level concurrency
+      group: existing
+    runs-on: ubuntu-latest
+    # Don't add another concurrency at workflow-level
+```
 """
     
     prompt = f"""### ROLE ###
