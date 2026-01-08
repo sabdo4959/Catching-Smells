@@ -469,7 +469,7 @@ def create_guided_syntax_repair_prompt(yaml_content: str, actionlint_errors: lis
     
     YAML_GENERATION_RULES = """
 ### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
-You are a GitHub Actions YAML repair engine. You must follow these 5 rules strictly to ensure the output is valid YAML.
+You are a GitHub Actions YAML repair engine. You must follow these 6 rules strictly to ensure the output is valid YAML.
 
 #### Rule 1: Quote Wildcards and Globs
 - **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
@@ -543,6 +543,137 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
 #### Rule 5: NO MARKDOWN FENCES
 - **DO NOT** output ```yaml or ``` tags.
 - Return **RAW YAML TEXT ONLY**.
+
+#### Rule 6: Context Availability - `if` Placement (MOST CRITICAL)
+**THIS IS THE #1 CAUSE OF ERRORS - PAY EXTREME ATTENTION**
+
+**📚 GHA CONTEXT AVAILABILITY RULES (OFFICIAL DOCUMENTATION):**
+
+**6.1. ❌ ABSOLUTE PROHIBITION: NO `if` or Contexts in `on:` (Triggers)**
+- **Rule:** The `on:` section defines **WHEN** to trigger the workflow (static configuration).
+- **STRICTLY FORBIDDEN:** 
+  - ❌ `if:` key anywhere inside `on:`
+  - ❌ `${{ github.* }}` expressions inside `on:`
+  - ❌ `${{ secrets.* }}` inside `on:`
+  - ❌ `${{ env.* }}` inside `on:`
+- **Common Error:** `unexpected key "if" for "push" section` or `unexpected key "if" for "pull_request" section`
+- **Examples:**
+  ```yaml
+  # ❌ ABSOLUTELY WRONG - WILL CAUSE ERROR:
+  on:
+    push:
+      branches: [main]
+      if: github.event.after == '...'  # ❌ FATAL ERROR
+  
+  on:
+    pull_request:
+      if: github.repository == 'my/repo'  # ❌ FATAL ERROR
+  
+  on:
+    workflow:
+      inputs:
+        version:
+          if: github.event_name == 'push'  # ❌ FATAL ERROR
+  ```
+
+**6.2. ✅ CORRECT LOCATION #1: Job Level `if`**
+- **Allowed:** `if:` can appear under `jobs.<job_id>:`
+- **Available Contexts:** `github`, `needs`, `inputs`, `vars`
+- **NOT Available:** `steps`, `runner`, `secrets` (in most cases), `env`
+- **Examples:**
+  ```yaml
+  # ✅ CORRECT:
+  jobs:
+    build:
+      if: github.event_name == 'push'  # ✅ Job-level conditional
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo "Building..."
+  
+    deploy:
+      if: github.repository == 'owner/repo'  # ✅ Job-level conditional
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo "Deploying..."
+  ```
+
+**6.3. ✅ CORRECT LOCATION #2: Step Level `if`**
+- **Allowed:** `if:` can appear under `steps:` array items
+- **Available Contexts:** `github`, `needs`, `inputs`, `steps`, `runner`, `env`, `secrets`, `vars`, `job`, `matrix`
+- **Examples:**
+  ```yaml
+  # ✅ CORRECT:
+  jobs:
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+          if: success()  # ✅ Step-level conditional
+        
+        - name: Run tests
+          run: npm test
+          if: github.ref == 'refs/heads/main'  # ✅ Step-level conditional
+  ```
+
+**6.4. ❌ Security Rule: NO Secrets in `if` (Most Cases)**
+- **Rule:** Do NOT use `${{ secrets.* }}` in `if` conditions (security risk)
+- **Exception:** `secrets.GITHUB_TOKEN` is sometimes allowed in step-level `if`
+- **Examples:**
+  ```yaml
+  # ❌ WRONG:
+  jobs:
+    build:
+      if: secrets.MY_SECRET == 'value'  # ❌ Security violation
+  
+  # ✅ CORRECT (if needed, use environment):
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check secret
+          run: |
+            if [ -n "${{ secrets.MY_SECRET }}" ]; then
+              echo "Secret exists"
+            fi
+  ```
+
+**6.5. REPAIR STRATEGY: Moving `if` from `on:` to Job Level**
+When you see `if:` inside `on:`, you MUST move it to the job level:
+
+```yaml
+# ❌ BEFORE (WRONG):
+on:
+  push:
+    branches: [main]
+    if: github.event.after == 'xxx'  # ❌ ERROR
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+
+# ✅ AFTER (CORRECT):
+on:
+  push:
+    branches: [main]  # ✅ Clean trigger definition
+
+jobs:
+  build:
+    if: github.event.after == 'xxx'  # ✅ Moved to job level
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+```
+
+**6.6. CRITICAL CHECKLIST:**
+Before returning YAML, verify:
+- [ ] NO `if:` key anywhere inside `on:` section
+- [ ] NO `${{ ... }}` expressions inside `on:` section
+- [ ] All `if:` conditions are at job level (`jobs.<job_id>.if`) or step level (`steps[].if`)
+- [ ] NO `secrets.*` in `if` conditions (except `secrets.GITHUB_TOKEN` at step level if necessary)
 """
     
     prompt = f"""### ROLE ###
@@ -659,7 +790,7 @@ def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str
     
     YAML_GENERATION_RULES = """
 ### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
-You are a GitHub Actions YAML repair engine. You must follow these 5 rules strictly to ensure the output is valid YAML.
+You are a GitHub Actions YAML repair engine. You must follow these 6 rules strictly to ensure the output is valid YAML.
 
 #### Rule 1: Quote Wildcards and Globs
 - **ALWAYS quote** strings containing wildcards: `*`, `?`, `[`, `]`
@@ -734,32 +865,136 @@ You are a GitHub Actions YAML repair engine. You must follow these 5 rules stric
 - **DO NOT** output ```yaml or ``` tags.
 - Return **RAW YAML TEXT ONLY**.
 
-#### Rule 6: `if` Conditional Placement (CRITICAL)
-- **`if` conditionals can ONLY appear at:**
-  1. **Job level**: `jobs: <job-name>: if:`
-  2. **Step level**: `steps: - if:`
-- **NEVER place `if` inside event triggers** like `on: push:` or `on: pull_request:`
-- **Examples**:
-  - ❌ WRONG:
-    ```
-    on:
-      push:
-        branches: [main]
-        if: "github.event.after == ..."  # ❌ INVALID LOCATION
-    ```
-  - ✅ CORRECT:
-    ```
-    on:
-      push:
-        branches: [main]
-    jobs:
-      build:
-        if: "github.event.after == ..."  # ✅ Valid at job level
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout
-            if: "success()"  # ✅ Valid at step level
-    ```
+#### Rule 6: Context Availability - `if` Placement (MOST CRITICAL)
+**THIS IS THE #1 CAUSE OF ERRORS - PAY EXTREME ATTENTION**
+
+**📚 GHA CONTEXT AVAILABILITY RULES (OFFICIAL DOCUMENTATION):**
+
+**6.1. ❌ ABSOLUTE PROHIBITION: NO `if` or Contexts in `on:` (Triggers)**
+- **Rule:** The `on:` section defines **WHEN** to trigger the workflow (static configuration).
+- **STRICTLY FORBIDDEN:** 
+  - ❌ `if:` key anywhere inside `on:`
+  - ❌ `${{ github.* }}` expressions inside `on:`
+  - ❌ `${{ secrets.* }}` inside `on:`
+  - ❌ `${{ env.* }}` inside `on:`
+- **Common Error:** `unexpected key "if" for "push" section` or `unexpected key "if" for "pull_request" section`
+- **Examples:**
+  ```yaml
+  # ❌ ABSOLUTELY WRONG - WILL CAUSE ERROR:
+  on:
+    push:
+      branches: [main]
+      if: github.event.after == '...'  # ❌ FATAL ERROR
+  
+  on:
+    pull_request:
+      if: github.repository == 'my/repo'  # ❌ FATAL ERROR
+  
+  on:
+    workflow:
+      inputs:
+        version:
+          if: github.event_name == 'push'  # ❌ FATAL ERROR
+  ```
+
+**6.2. ✅ CORRECT LOCATION #1: Job Level `if`**
+- **Allowed:** `if:` can appear under `jobs.<job_id>:`
+- **Available Contexts:** `github`, `needs`, `inputs`, `vars`
+- **NOT Available:** `steps`, `runner`, `secrets` (in most cases), `env`
+- **Examples:**
+  ```yaml
+  # ✅ CORRECT:
+  jobs:
+    build:
+      if: github.event_name == 'push'  # ✅ Job-level conditional
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo "Building..."
+  
+    deploy:
+      if: github.repository == 'owner/repo'  # ✅ Job-level conditional
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo "Deploying..."
+  ```
+
+**6.3. ✅ CORRECT LOCATION #2: Step Level `if`**
+- **Allowed:** `if:` can appear under `steps:` array items
+- **Available Contexts:** `github`, `needs`, `inputs`, `steps`, `runner`, `env`, `secrets`, `vars`, `job`, `matrix`
+- **Examples:**
+  ```yaml
+  # ✅ CORRECT:
+  jobs:
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+          if: success()  # ✅ Step-level conditional
+        
+        - name: Run tests
+          run: npm test
+          if: github.ref == 'refs/heads/main'  # ✅ Step-level conditional
+  ```
+
+**6.4. ❌ Security Rule: NO Secrets in `if` (Most Cases)**
+- **Rule:** Do NOT use `${{ secrets.* }}` in `if` conditions (security risk)
+- **Exception:** `secrets.GITHUB_TOKEN` is sometimes allowed in step-level `if`
+- **Examples:**
+  ```yaml
+  # ❌ WRONG:
+  jobs:
+    build:
+      if: secrets.MY_SECRET == 'value'  # ❌ Security violation
+  
+  # ✅ CORRECT (if needed, use environment):
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check secret
+          run: |
+            if [ -n "${{ secrets.MY_SECRET }}" ]; then
+              echo "Secret exists"
+            fi
+  ```
+
+**6.5. REPAIR STRATEGY: Moving `if` from `on:` to Job Level**
+When you see `if:` inside `on:`, you MUST move it to the job level:
+
+```yaml
+# ❌ BEFORE (WRONG):
+on:
+  push:
+    branches: [main]
+    if: github.event.after == 'xxx'  # ❌ ERROR
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+
+# ✅ AFTER (CORRECT):
+on:
+  push:
+    branches: [main]  # ✅ Clean trigger definition
+
+jobs:
+  build:
+    if: github.event.after == 'xxx'  # ✅ Moved to job level
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+```
+
+**6.6. CRITICAL CHECKLIST:**
+Before returning YAML, verify:
+- [ ] NO `if:` key anywhere inside `on:` section
+- [ ] NO `${{ ... }}` expressions inside `on:` section
+- [ ] All `if:` conditions are at job level (`jobs.<job_id>.if`) or step level (`steps[].if`)
+- [ ] NO `secrets.*` in `if` conditions (except `secrets.GITHUB_TOKEN` at step level if necessary)
 """
     
     prompt = f"""### ROLE ###
