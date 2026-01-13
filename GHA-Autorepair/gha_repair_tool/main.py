@@ -209,13 +209,28 @@ def run_baseline_mode(input_path: str, output_path: str) -> bool:
             logger.error("LLM API 호출 실패")
             return False
         
-        # 6. 응답에서 YAML 추출
-        logger.info("6단계: 수정된 YAML 추출")
-        repaired_yaml = llm_api.extract_code_from_response(llm_response, "yaml")
-        
-        if not repaired_yaml:
-            logger.warning("YAML 코드 블록을 찾을 수 없음, 전체 응답 사용")
-            repaired_yaml = llm_response.strip()
+        # 6. 응답에서 YAML 추출 (JSON 파싱)
+        import json
+        logger.info("6단계: 수정된 YAML 추출 (JSON 파싱)")
+        repaired_yaml = None
+        try:
+            # LLM 응답에서 JSON 코드 블록 추출
+            json_str = llm_api.extract_code_from_response(llm_response, "json")
+            if not json_str:
+                logger.warning("JSON 코드 블록을 찾을 수 없음, 전체 응답을 파싱 시도")
+                json_str = llm_response
+
+            response_json = json.loads(json_str)
+            repaired_yaml = response_json.get("repaired_yaml")
+
+            if not repaired_yaml:
+                logger.error("JSON 응답에 'repaired_yaml' 키가 없습니다.")
+                return False
+
+        except json.JSONDecodeError:
+            logger.error("LLM 응답을 JSON으로 파싱하는 데 실패했습니다.")
+            logger.debug(f"파싱 실패한 응답: {llm_response}")
+            return False
         
         logger.debug(f"추출된 YAML:\n{repaired_yaml}")
         
@@ -309,13 +324,27 @@ def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: boo
                 logger.error("구문 오류 수정 LLM 호출 실패")
                 return False
             
-            # 5단계: 수정된 YAML 추출
-            logger.info("5단계: 구문 수정된 YAML 추출")
-            phase1_yaml = llm_api.extract_code_from_response(llm_response, "yaml")
-            
-            if not phase1_yaml:
-                logger.warning("YAML 코드 블록을 찾을 수 없음, 전체 응답 사용")
-                phase1_yaml = llm_response.strip()
+            # 5단계: 구문 수정된 YAML 추출 (JSON 파싱)
+            import json
+            logger.info("5단계: 구문 수정된 YAML 추출 (JSON 파싱)")
+            phase1_yaml = None
+            try:
+                json_str = llm_api.extract_code_from_response(llm_response, "json")
+                if not json_str:
+                    logger.warning("JSON 코드 블록을 찾을 수 없음, 전체 응답을 파싱 시도")
+                    json_str = llm_response
+
+                response_json = json.loads(json_str)
+                phase1_yaml = response_json.get("repaired_yaml")
+
+                if not phase1_yaml:
+                    logger.error("JSON 응답에 'repaired_yaml' 키가 없습니다.")
+                    return False
+
+            except json.JSONDecodeError:
+                logger.error("LLM 응답을 JSON으로 파싱하는 데 실패했습니다.")
+                logger.debug(f"파싱 실패한 응답: {llm_response}")
+                return False
             
             logger.info(f"Phase 1 완료, 수정된 YAML 크기: {len(phase1_yaml)} 문자")
         else:
@@ -359,13 +388,27 @@ def run_two_phase_mode(input_path: str, output_path: str, use_guided_prompt: boo
                     logger.error("스멜 수정 LLM 호출 실패")
                     return False
                 
-                # 10단계: 최종 수정된 YAML 추출
-                logger.info("10단계: 최종 수정된 YAML 추출")
-                final_yaml = llm_api.extract_code_from_response(llm_response, "yaml")
-                
-                if not final_yaml:
-                    logger.warning("YAML 코드 블록을 찾을 수 없음, 전체 응답 사용")
-                    final_yaml = llm_response.strip()
+                # 10단계: 최종 수정된 YAML 추출 (JSON 파싱)
+                import json
+                logger.info("10단계: 최종 수정된 YAML 추출 (JSON 파싱)")
+                final_yaml = None
+                try:
+                    json_str = llm_api.extract_code_from_response(llm_response, "json")
+                    if not json_str:
+                        logger.warning("JSON 코드 블록을 찾을 수 없음, 전체 응답을 파싱 시도")
+                        json_str = llm_response
+
+                    response_json = json.loads(json_str)
+                    final_yaml = response_json.get("repaired_yaml")
+
+                    if not final_yaml:
+                        logger.error("JSON 응답에 'repaired_yaml' 키가 없습니다.")
+                        return False
+
+                except json.JSONDecodeError:
+                    logger.error("LLM 응답을 JSON으로 파싱하는 데 실패했습니다.")
+                    logger.debug(f"파싱 실패한 응답: {llm_response}")
+                    return False
                 
                 logger.info(f"Phase 2 완료, 최종 YAML 크기: {len(final_yaml)} 문자")
             else:
@@ -447,8 +490,13 @@ def create_syntax_repair_prompt(yaml_content: str, actionlint_errors: list, use_
 5. Ensure the output is valid YAML syntax
 
 **Response Format:**
-```yaml
-# Fixed workflow
+Your response MUST be a JSON object with a single key "repaired_yaml" that contains the complete corrected YAML workflow as a string.
+
+Example:
+```json
+{
+  "repaired_yaml": "name: My Workflow\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v2"
+}
 ```
 """
 
@@ -790,8 +838,13 @@ GOAL: Fix ONLY the 'Detected Syntax Errors' listed below.
 
     prompt += """
 **Response Format:**
-```yaml
-# Fixed workflow
+Your response MUST be a JSON object with a single key "repaired_yaml" that contains the complete corrected YAML workflow as a string.
+
+Example:
+```json
+{
+  "repaired_yaml": "name: My Workflow\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v2"
+}
 ```
 """
 
@@ -840,8 +893,13 @@ def create_semantic_repair_prompt(yaml_content: str, smells: list, use_guided_pr
 5. Return the complete improved YAML workflow
 
 **Response Format:**
-```yaml
-# Fixed workflow
+Your response MUST be a JSON object with a single key "repaired_yaml" that contains the complete corrected YAML workflow as a string.
+
+Example:
+```json
+{
+  "repaired_yaml": "name: My Workflow\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v2"
+}
 ```
 """
 
@@ -1181,8 +1239,13 @@ GOAL: Fix ONLY the 'Detected Semantic Smell List' listed below according to GitH
 Provide an improved YAML that fixes each smell according to GitHub Actions best practices:
 
 **Response Format:**
-```yaml
-# Fixed workflow
+Your response MUST be a JSON object with a single key "repaired_yaml" that contains the complete corrected YAML workflow as a string.
+
+Example:
+```json
+{
+  "repaired_yaml": "name: My Workflow\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v2"
+}
 ```
 """
 
@@ -1237,8 +1300,13 @@ Please provide a complete GitHub Actions workflow that fixes all the syntax erro
 4. Fix all syntax errors
 
 **Response Format:**
-```yaml
-# Fixed workflow
+Your response MUST be a JSON object with a single key "repaired_yaml" that contains the complete corrected YAML workflow as a string.
+
+Example:
+```json
+{
+  "repaired_yaml": "name: My Workflow\\non: [push]\\njobs:\\n  build:\\n    runs-on: ubuntu-latest\\n    steps:\\n      - uses: actions/checkout@v2"
+}
 ```
 """
     
