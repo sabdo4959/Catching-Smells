@@ -712,7 +712,7 @@ on:
     branches: [main]
 
 concurrency:            # ✅ VALID - at workflow root
-  group: $\{{ github.workflow }}-$\{{ github.ref }}
+  group: ${{{{ github.workflow }}-${{{{ github.ref }}}}
   cancel-in-progress: true
 
 jobs:
@@ -733,7 +733,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     concurrency:        # ✅ VALID - inside job
-      group: build-$\{{ github.ref }}
+      group: build-${{{{ github.ref }}}}
       cancel-in-progress: true
     steps:
       - run: npm install
@@ -744,6 +744,222 @@ jobs:
 2. **EXTRACT:** Remove `concurrency:` block from wrong location
 3. **RELOCATE:** Move to workflow root (before `jobs:`) or inside specific job
 4. **VERIFY:** Ensure `group:` and `cancel-in-progress:` remain intact
+
+#### Rule 7: NO Duplicate Keys - Merge Strategy (CRITICAL) 👯
+- **FATAL ERROR:** `key "jobs" is duplicated`, `key "on" is duplicated`, `key "env" is duplicated`, `key "permissions" is duplicated`
+- **Official Syntax:** Per YAML spec and GitHub Actions syntax, a mapping CANNOT contain duplicate keys at the same level
+  - Reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+- **ROOT CAUSE:** Appending new content at end of file instead of merging into EXISTING blocks
+- **STRICT INSTRUCTION:**
+  1. **CHECK:** Does the top-level key (`jobs`, `on`, `permissions`, `env`, `concurrency`) ALREADY EXIST in the file?
+  2. **IF EXISTS:** Write new content **INSIDE** the existing block (merge, don't duplicate)
+  3. **NEVER:** Write the same top-level key twice
+
+**EXAMPLES:**
+
+**❌ WRONG - Duplicate 'jobs' key:**
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm build
+
+# ... lines later ...
+jobs:                    # ❌ DUPLICATE KEY ERROR!
+  test:
+    runs-on: ubuntu-latest
+```
+
+**✅ CORRECT - Merged into single 'jobs' block:**
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm build
+  test:                  # ✅ Added as sibling job (same indentation as 'build')
+    runs-on: ubuntu-latest
+```
+
+**❌ WRONG - Duplicate 'on' key:**
+```yaml
+on:
+  push:
+    branches: [main]
+
+on:                      # ❌ DUPLICATE KEY ERROR!
+  pull_request:
+    branches: [main]
+```
+
+**✅ CORRECT - Merged triggers:**
+```yaml
+on:
+  push:
+    branches: [main]
+  pull_request:          # ✅ Added as sibling trigger (same level as 'push')
+    branches: [main]
+```
+
+**FIX STRATEGY:**
+1. **SCAN:** Identify ALL occurrences of top-level keys (`jobs:`, `on:`, `env:`, etc.)
+2. **MERGE:** Combine all content under the FIRST occurrence
+3. **DELETE:** Remove duplicate key declarations
+4. **VERIFY:** Maintain proper indentation (siblings at same level)
+
+#### Rule 8: YAML Structure Types - Sequence vs. Mapping (CRITICAL) 🏗️
+- **FATAL ERRORS:** 
+  - `"push" section is sequence node but mapping node is expected`
+  - `"tags" section is sequence node but mapping node is expected`
+  - `expected scalar node for string value but found sequence node`
+- **Official Syntax:** GitHub Actions has STRICT requirements for Mappings (key-value) vs. Sequences (lists)
+  - Reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+- **ROOT CAUSE:** Using list syntax (`- item`) where key-value pairs are required, or vice versa
+
+**A. Areas Requiring MAPPINGS (Key-Value, NO Dashes `-`):**
+
+1. **`jobs:`** - Job names are keys, not list items
+   - ✅ CORRECT: `jobs:\n  build:\n    runs-on: ubuntu-latest`
+   - ❌ WRONG: `jobs:\n  - build:` (don't use dash)
+
+2. **`on:`** - Event names are keys
+   - ✅ CORRECT: `on:\n  push:\n    branches: [main]`
+   - ❌ WRONG: `on:\n  - push:` (don't use dash)
+
+3. **`on.push:`, `on.pull_request:`** - Trigger filters are keys
+   - ✅ CORRECT: `push:\n  branches: [main]\n  tags: [v*]`
+   - ❌ WRONG: `push:\n  - branches: [main]` (don't use dash before branches)
+
+4. **`env:`** - Environment variables are key-value pairs
+   - ✅ CORRECT: `env:\n  NODE_VERSION: '14'`
+   - ❌ WRONG: `env:\n  - NODE_VERSION: '14'`
+
+5. **`with:`** - Action inputs are key-value pairs
+   - ✅ CORRECT: `with:\n  node-version: 14`
+   - ❌ WRONG: `with:\n  - node-version: 14`
+
+**B. Areas Requiring SEQUENCES (List, MUST use Dashes `-`):**
+
+1. **`steps:`** - Steps are ALWAYS a list
+   - ✅ CORRECT: `steps:\n  - name: Checkout\n    uses: actions/checkout@v4`
+   - ❌ WRONG: `steps:\n  name: Checkout` (missing dash)
+
+2. **`branches:`, `tags:`, `paths:`** - Filter values are lists (when multiple items)
+   - ✅ CORRECT: `branches:\n  - main\n  - develop` OR `branches: [main, develop]`
+   - ✅ ALSO OK: `branches: main` (single scalar value allowed)
+   - ❌ WRONG: Empty without values (see Rule C2)
+
+3. **`types:`** - Event types are lists
+   - ✅ CORRECT: `types: [opened, synchronize]` OR `types:\n  - opened\n  - synchronize`
+
+4. **`strategy.matrix:`** - Matrix values are lists
+   - ✅ CORRECT: `matrix:\n  node-version: [14, 16, 18]`
+
+**C. Special Rules:**
+
+1. **`needs:`** - Can be scalar (string) OR sequence (list), NEVER mapping
+   - ✅ CORRECT: `needs: build`
+   - ✅ CORRECT: `needs: [build, test]`
+   - ❌ WRONG: `needs:\n  build: true`
+
+2. **`secrets:`** - For reusable workflows, can be mapping OR `inherit` keyword
+   - ✅ CORRECT: `secrets:\n  TOKEN: ${{{{ secrets.TOKEN }}}}`
+   - ✅ CORRECT: `secrets: inherit`
+   - ❌ WRONG: `secrets:\n  - TOKEN: value` (not a list)
+
+3. **Empty sections MUST be removed:**
+   - ❌ WRONG: `tags:` (no values)
+   - ❌ WRONG: `env:` (no variables)
+   - ❌ WRONG: `paths-ignore:` (no paths)
+   - ✅ CORRECT: Remove the entire empty section
+
+**D. Structure Conversion Patterns (CRITICAL FIXES):**
+
+1. **Shorthand to Full Syntax (Triggers):**
+   - ❌ WRONG: `on: [push]` → `push: []` (Empty list is wrong)
+   - ❌ WRONG: `on: [push]` → `push: {}` (Empty mapping at root is wrong)
+   - ✅ CORRECT: `on: [push]` → `on:\n  push:` (Mapping inside 'on')
+   
+   - ❌ WRONG: `on: [push, pull_request]` → `push: []\n  pull_request: []`
+   - ✅ CORRECT: `on: [push, pull_request]` → `on:\n  push:\n  pull_request:`
+
+2. **Filter Placement (Nesting Rule):**
+   - **Rule:** `tags`, `branches`, `paths`, `paths-ignore` MUST be INSIDE a specific trigger (push/pull_request), NOT directly under `on`.
+   - ❌ WRONG (tags as sibling to push):
+     ```yaml
+     on:
+       push:
+         branches: [main]
+       tags: [v*]  # ❌ Error: tags is at wrong level
+     ```
+   - ✅ CORRECT (tags nested in push):
+     ```yaml
+     on:
+       push:
+         branches: [main]
+         tags: [v*]  # ✅ Correct: tags is child of push
+     ```
+   - ❌ WRONG (tags at on level):
+     ```yaml
+     on:
+       push:
+       tags:  # ❌ Error: tags should be inside push
+         - v*
+     ```
+   - ✅ CORRECT (move tags into push):
+     ```yaml
+     on:
+       push:
+         tags:  # ✅ Correct: tags is inside push
+           - v*
+     ```
+
+**EXAMPLES:**
+
+**❌ WRONG - push as sequence:**
+```yaml
+on:
+  - push:                # ❌ push should be a KEY, not a list item
+      branches: [main]
+```
+
+**✅ CORRECT - push as mapping:**
+```yaml
+on:
+  push:                  # ✅ push is a key (no dash)
+    branches: [main]
+```
+
+**❌ WRONG - tags empty:**
+```yaml
+on:
+  push:
+    tags:                # ❌ Empty - must have values or be removed
+```
+
+**✅ CORRECT - tags with values or removed:**
+```yaml
+on:
+  push:
+    tags:
+      - v*               # ✅ List of tag patterns
+      - release-*
+```
+OR
+```yaml
+on:
+  push:
+    branches: [main]     # ✅ Removed empty tags section entirely
+```
+
+**FIX STRATEGY:**
+1. **IDENTIFY:** Check GitHub Actions syntax reference for expected type (mapping vs. sequence)
+2. **CONVERT:** 
+   - If mapping needed → Remove dashes, use `key: value` format
+   - If sequence needed → Add dashes, use `- item` format or `[item1, item2]`
+3. **REMOVE:** Delete any empty sections (no values)
+4. **VERIFY:** Check indentation matches the structure type
 """
     
     prompt = f"""### ROLE ###
@@ -868,6 +1084,58 @@ def create_guided_semantic_repair_prompt(yaml_content: str, smells: list) -> str
     ACTIONLINT_DEFENSE_RULES = """
 ### 🛡️ ACTIONLINT & SCHEMA DEFENSE RULES (STRICT) 🛡️
 You MUST follow these rules to pass 'actionlint' validation and GitHub Actions schema constraints.
+
+#### Defense Rule 0: 👯 NO Duplicate Keys (CRITICAL FOR SEMANTIC REPAIR)
+- **CONTEXT:** When fixing smells (e.g., Smell 9, Smell 6, Smell 4), you will ADD new code.
+- **FATAL ERROR:** Creating a second `jobs:`, `on:`, `env:`, `permissions:`, or `concurrency:` section causes "key is duplicated" error.
+- **STRICT INSTRUCTION:**
+  1. **LOOK FIRST:** Does `jobs:` already exist in the file? (It almost ALWAYS does!)
+  2. **MERGE:** Write your new job/env/permission **INSIDE** the existing block.
+  3. **NEVER:** Write `jobs:` or `on:` again at the bottom of the file.
+
+**EXAMPLES:**
+
+**❌ WRONG - Creating duplicate jobs:**
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Existing job
+
+# ... (many lines later) ...
+
+jobs:  # ❌ DUPLICATE KEY ERROR!
+  scheduled-job:  # Smell 9 fix - WRONG APPROACH
+    if: github.repository_owner == 'owner'
+    runs-on: ubuntu-latest
+```
+
+**✅ CORRECT - Merge into existing jobs:**
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Existing job
+  
+  scheduled-job:  # ✅ Added as sibling job (same indentation as 'build')
+    if: github.repository_owner == 'owner'
+    runs-on: ubuntu-latest
+```
+
+**❌ WRONG - Creating duplicate permissions:**
+```yaml
+permissions:
+  contents: read  # Existing
+
+# ... later ...
+permissions:  # ❌ DUPLICATE KEY ERROR!
+  issues: write  # Smell 4 fix - WRONG APPROACH
+```
+
+**✅ CORRECT - Merge into existing permissions:**
+```yaml
+permissions:
+  contents: read  # Existing
+  issues: write   # ✅ Added to same permissions block
+```
 
 #### Defense Rule 1: 🚨 NO `if` in `on` / `triggers` (FATAL ERROR - HIGHEST PRIORITY)
 - **FATAL ERROR:** `unexpected key "if" for "push" section` or `"pull_request" section`
@@ -1022,18 +1290,40 @@ jobs:
 - **Smell 6 (PR):** Add `concurrency` group with `cancel-in-progress: true`.
 - **Smell 7 (Branch):** Add `concurrency` group for branches.
 
-#### Smell 8: Missing Path Filter (⚠️ LIST SYNTAX REQUIRED)
+#### Smell 8: Missing Path Filter (⚠️ LIST SYNTAX & LOCATION REQUIRED)
 - **Problem:** Wasteful runs on doc changes.
 - **Solution:** Add `paths-ignore` to `push` or `pull_request`.
 - **🚨 SYNTAX:** MUST use list format with hyphens (`-`) per Defense Rule 3.
-- **🚨 LOCATION:** Modify `on` section. DO NOT add `if` per Defense Rule 1.
+- **🚨 LOCATION:** MUST be INSIDE `on.push` or `on.pull_request`, NOT at job level or as sibling to `on`.
+- **🚨 FORBIDDEN:** NEVER put `paths-ignore` inside `jobs` or at workflow root.
+
+**❌ WRONG - paths-ignore at job level:**
 ```yaml
-# ✅ CORRECT:
+jobs:
+  build:
+    paths-ignore:  # ❌ ERROR: Wrong location
+      - '**.md'
+    runs-on: ubuntu-latest
+```
+
+**❌ WRONG - paths-ignore as sibling to on:**
+```yaml
 on:
   push:
-    paths-ignore:
+paths-ignore:  # ❌ ERROR: Wrong location
+  - '**.md'
+```
+
+**✅ CORRECT - paths-ignore inside on.push:**
+```yaml
+on:
+  push:
+    paths-ignore:  # ✅ Correct location
       - '**.md'    # List format with hyphen
       - 'docs/**'
+  pull_request:
+    paths-ignore:  # ✅ Can also be in pull_request
+      - '**.md'
 ```
 
 #### Smell 9: Run on Fork (Schedule) (⚠️ LOCATION CONSTRAINT)
@@ -1115,7 +1405,7 @@ on:
   pull_request:
 
 concurrency:            # ✅ NEW concurrency at workflow root
-  group: $\{{ github.workflow }}-$\{{ github.ref }}
+  group: ${{{{ github.workflow }}-${{{{ github.ref }}}}
   cancel-in-progress: true
 
 jobs:
@@ -1143,6 +1433,178 @@ jobs:
       group: existing
     runs-on: ubuntu-latest
     # Don't add another concurrency at workflow-level
+```
+
+#### Rule 7: NO Duplicate Keys When Adding Smells (CRITICAL) 👯
+- **CONTEXT:** When fixing smells (e.g., adding `permissions`, `concurrency`, `env`), you might accidentally create duplicate keys
+- **RULE:** Before adding a new top-level section, CHECK if it already exists
+- **Official Syntax:** YAML mappings cannot have duplicate keys
+  - Reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+**STRICT INSTRUCTION:**
+1. **CHECK:** Does `jobs:`, `on:`, `permissions:`, `env:`, or `concurrency:` ALREADY EXIST?
+2. **IF EXISTS:** MERGE your smell fix INTO the existing block (don't duplicate the key)
+3. **IF NOT EXISTS:** Add the new top-level key
+
+**EXAMPLE - Adding permissions (Smell 4):**
+
+**❌ WRONG - Duplicate permissions:**
+```yaml
+permissions:
+  contents: read        # Existing
+
+# ... jobs below ...
+
+permissions:            # ❌ DUPLICATE - Error!
+  issues: write         # Smell 4 fix
+```
+
+**✅ CORRECT - Merged permissions:**
+```yaml
+permissions:
+  contents: read        # Existing
+  issues: write         # ✅ Merged Smell 4 fix
+```
+
+**EXAMPLE - Adding concurrency (Smell 6/7):**
+
+**❌ WRONG - Duplicate concurrency:**
+```yaml
+concurrency:
+  group: existing
+
+# ... later ...
+concurrency:            # ❌ DUPLICATE - Error!
+  group: ${{{{ github.workflow }}}}
+  cancel-in-progress: true
+```
+
+**✅ CORRECT - Update existing concurrency:**
+```yaml
+concurrency:
+  group: existing
+  cancel-in-progress: true  # ✅ Added to existing block
+```
+
+#### Rule 8: YAML Structure Types When Fixing Smells (CRITICAL) 🏗️
+- **CONTEXT:** When adding filters (Smell 8) or modifying triggers, use correct YAML types
+- **RULE:** Follow GitHub Actions syntax for mappings vs. sequences
+  - Reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+**A. When Adding Path Filters (Smell 8):**
+
+**❌ WRONG - paths-ignore as mapping:**
+```yaml
+on:
+  push:
+    paths-ignore:
+      docs: true        # ❌ Wrong - not a mapping
+```
+
+**✅ CORRECT - paths-ignore as sequence:**
+```yaml
+on:
+  push:
+    paths-ignore:
+      - '**.md'          # ✅ List with dash
+      - 'docs/**'
+```
+
+**B. When Modifying Triggers:**
+
+**✅ CORRECT - Event names are keys (no dash):**
+```yaml
+on:
+  push:                  # ✅ Key (no dash)
+    branches: [main]
+  pull_request:          # ✅ Key (no dash)
+    branches: [main]
+```
+
+**❌ WRONG - Events as list:**
+```yaml
+on:
+  - push:                # ❌ Don't use dash for event names
+      branches: [main]
+```
+
+**C. Special Rules:**
+
+1. **`needs:`** - Can be scalar (string) OR sequence (list), NEVER mapping
+   - ✅ CORRECT: `needs: build`
+   - ✅ CORRECT: `needs: [build, test]`
+   - ❌ WRONG: `needs:\n  build: true`
+
+2. **`secrets:`** - For reusable workflows, can be mapping OR `inherit` keyword
+   - ✅ CORRECT: `secrets:\n  TOKEN: ${{{{ secrets.TOKEN }}}}`
+   - ✅ CORRECT: `secrets: inherit`
+   - ❌ WRONG: `secrets:\n  - TOKEN: value` (not a list)
+
+3. **Empty sections MUST be removed:**
+   - ❌ WRONG: `tags:` (no values)
+   - ❌ WRONG: `env:` (no variables)
+   - ❌ WRONG: `paths-ignore:` (no paths)
+   - ✅ CORRECT: Remove the entire empty section
+
+**D. Structure Conversion Patterns (CRITICAL FIXES):**
+
+1. **Shorthand to Full Syntax (Triggers):**
+   - ❌ WRONG: `on: [push]` → `push: []` (Empty list - loses event meaning)
+   - ❌ WRONG: `on: [push]` → `push: {{}}` (Empty mapping - also wrong)
+   - ✅ CORRECT: `on: [push]` → `on:\n  push:`
+   
+   **Example fix:**
+   ```yaml
+   # Original shorthand:
+   on: [push, pull_request]
+   
+   # ❌ WRONG - Conversion creates empty sequences:
+   on:
+     push: []          # ERROR - empty list
+     pull_request: []  # ERROR - empty list
+   
+   # ✅ CORRECT - Proper full syntax:
+   on:
+     push:             # Correct - empty mapping (or can have filters)
+     pull_request:     # Correct - empty mapping (or can have filters)
+   ```
+
+2. **Filter Placement (Nesting Rule):**
+   - `tags`, `branches`, `paths`, `paths-ignore` MUST be INSIDE the trigger (push/pull_request/etc.)
+   - ❌ WRONG: `on:\n  push:\n  tags: [v*]` (tags is sibling to push)
+   - ✅ CORRECT: `on:\n  push:\n    tags: [v*]` (tags nested inside push)
+   
+   **Example fix:**
+   ```yaml
+   # Original with tags at wrong level:
+   on:
+     push:
+       branches: [main]
+     tags:           # ❌ WRONG - tags is sibling to push
+       - v*
+   
+   # ✅ CORRECT - Tags INSIDE push:
+   on:
+     push:
+       branches: [main]
+       tags:         # ✅ Correct - nested under push
+         - v*
+   ```
+
+**EXAMPLES:**
+
+**❌ WRONG - Empty tags:**
+```yaml
+on:
+  push:
+    tags:                # ❌ Empty - remove this
+```
+
+**✅ CORRECT - Removed empty section:**
+```yaml
+on:
+  push:
+    branches: [main]     # ✅ Removed empty tags section
 ```
 """
     
