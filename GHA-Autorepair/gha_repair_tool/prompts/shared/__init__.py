@@ -26,8 +26,11 @@ from .yaml_generation_rules import (
     YAML_RULE_8E_FILTER_NESTING,
     YAML_RULE_8F_REMOVE_EMPTY,
     YAML_RULE_8G_ACTION_INPUTS,
+    YAML_RULE_9_JOB_STRUCTURE,
     ALL_YAML_GENERATION_RULES,
 )
+
+from .rule10_variable_reference import YAML_RULE_10_VARIABLE_REFERENCE
 
 __all__ = [
     # Defense Rules
@@ -51,5 +54,7 @@ __all__ = [
     'YAML_RULE_8E_FILTER_NESTING',
     'YAML_RULE_8F_REMOVE_EMPTY',
     'YAML_RULE_8G_ACTION_INPUTS',
+    'YAML_RULE_9_JOB_STRUCTURE',
+    'YAML_RULE_10_VARIABLE_REFERENCE',
     'ALL_YAML_GENERATION_RULES',
 ]
