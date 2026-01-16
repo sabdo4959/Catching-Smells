@@ -8,11 +8,17 @@ Version History:
 - v1.0: Initial rules 1-5 (Quote wildcards, Block scalar, Quote if, Indentation, No markdown)
 - v2.0: Added rules 6-8 (Concurrency placement, No duplicate keys, Structure types)
 - v3.0: Added rules 8E-8G (Filter nesting, Remove empty, Action inputs)
+- v3.1: Added Rule 9 (Job structure validation)
+- v3.2: Added Rule 10 (Variable and property reference validation)
 
 References:
 - YAML Specification: https://yaml.org/spec/1.2/spec.html
 - GitHub Actions Syntax: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 """
+
+# Import Rule 10 from separate file
+from .rule10_variable_reference import YAML_RULE_10_VARIABLE_REFERENCE
+
 
 # ==============================================================================
 # YAML Generation Rules (Core)
@@ -581,6 +587,191 @@ steps:
 ```
 """
 
+YAML_RULE_9_JOB_STRUCTURE = """
+**Rule 9: Job Definition Validation (CRITICAL - NEW v3.1) 🏗️**
+
+- **FATAL ERRORS:** 
+  - `"steps" section is missing in job "X"`
+  - `"runs-on" section is missing in job "X"`
+  - `unexpected key "group" for "job" section`
+  - `unexpected key "cancel-in-progress" for "job" section`
+- **ROOT CAUSE:** LLM confuses job names with workflow-level keywords OR creates incomplete job definitions
+- **CRITICAL DETECTION:** Job that has ONLY `group:` and `cancel-in-progress:` → This is NOT a job, it's `concurrency`!
+
+**A. EVERY JOB MUST HAVE (Mandatory Requirements):**
+
+1. **Regular Job** (most common):
+   ```yaml
+   jobs:
+     build:              # Job ID (any name EXCEPT reserved keywords)
+       runs-on: ubuntu-latest   # ✅ REQUIRED
+       steps:                   # ✅ REQUIRED
+         - run: echo "test"
+   ```
+
+2. **Reusable Workflow Job** (alternative):
+   ```yaml
+   jobs:
+     call-workflow:
+       uses: ./.github/workflows/reusable.yml   # ✅ REQUIRED (replaces runs-on + steps)
+       secrets: inherit
+   ```
+
+3. **FORBIDDEN:** Job with neither `runs-on` + `steps` NOR `uses`
+   ```yaml
+   jobs:
+     incomplete-job:      # ❌ ERROR: No runs-on, no steps, no uses
+       timeout-minutes: 60
+       # Missing required keys!
+   ```
+
+**B. RESERVED KEYWORDS CANNOT BE JOB NAMES:**
+
+These are workflow-level or trigger-level keys, NOT job names:
+- ❌ `concurrency` (workflow-level keyword)
+- ❌ `schedule` (trigger keyword)
+- ❌ `on` (workflow-level keyword)
+- ❌ `jobs` (workflow-level keyword)
+- ❌ `env` (workflow-level keyword)
+- ❌ `permissions` (workflow-level keyword)
+- ❌ `defaults` (workflow-level keyword)
+
+**DETECTION RULE:** If a "job" ONLY contains `group:` and `cancel-in-progress:` → It's `concurrency`, NOT a job!
+
+**EXAMPLES:**
+
+**❌ WRONG - "concurrency" used as job name:**
+```yaml
+jobs:
+  concurrency:           # ❌ FATAL ERROR: This looks like a job but it's concurrency!
+    group: build         # ❌ Job needs runs-on + steps
+    cancel-in-progress: true
+```
+
+**✅ CORRECT - Move to workflow-level:**
+```yaml
+concurrency:             # ✅ At workflow root
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  build:                 # ✅ Proper job
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+```
+
+**❌ WRONG - "scheduled-job" without required keys:**
+```yaml
+jobs:
+  scheduled-job:         # ❌ Job name is OK, but missing required keys
+    if: github.event_name == 'schedule'
+    # Missing: runs-on
+    # Missing: steps
+```
+
+**✅ CORRECT - Add required keys:**
+```yaml
+jobs:
+  scheduled-job:         # ✅ Job name is fine
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest    # ✅ Added runs-on
+    steps:                    # ✅ Added steps
+      - run: echo "Scheduled task"
+```
+
+**❌ WRONG - Job with only metadata:**
+```yaml
+jobs:
+  deploy:
+    timeout-minutes: 60
+    environment: production
+    # ❌ Missing: runs-on
+    # ❌ Missing: steps or uses
+```
+
+**✅ CORRECT - Add execution keys:**
+```yaml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest    # ✅ Added runs-on
+    timeout-minutes: 60
+    environment: production
+    steps:                    # ✅ Added steps
+      - run: echo "Deploy"
+```
+
+**C. SPECIAL CASE: "schedule" Trigger Type Error**
+
+- **ERROR:** `"schedule" section must be sequence node but got mapping node`
+- **CAUSE:** Using mapping `{cron: '...'}` instead of list `[{cron: '...'}]`
+- **RULE:** `on.schedule` is ALWAYS a list (sequence), even with one cron expression
+
+**❌ WRONG - schedule as mapping:**
+```yaml
+on:
+  schedule:
+    cron: '0 0 * * *'    # ❌ ERROR: schedule must be a list
+```
+
+**✅ CORRECT - schedule as list:**
+```yaml
+on:
+  schedule:              # ✅ List of cron schedules
+    - cron: '0 0 * * *'
+```
+
+OR inline list syntax:
+```yaml
+on:
+  schedule: [{cron: '0 0 * * *'}]  # ✅ Also valid (list with one item)
+```
+
+**D. FIX STRATEGY (Step-by-step):**
+
+1. **SCAN** all keys under `jobs:` 
+2. **CHECK** each job:
+   - Does it have `runs-on` + `steps`? → ✅ Valid regular job
+   - Does it have `uses`? → ✅ Valid reusable workflow job
+   - Does it ONLY have `group` + `cancel-in-progress`? → ❌ This is `concurrency`, move it!
+   - Does it have NEITHER? → ❌ Add `runs-on` + `steps` OR remove it
+3. **VERIFY** job names don't match reserved keywords
+4. **RELOCATE** misplaced `concurrency` blocks to workflow-level
+5. **ADD** missing `runs-on` and `steps` to incomplete jobs
+
+**E. EDGE CASES:**
+
+1. **Job with conditional execution is still a job:**
+   ```yaml
+   jobs:
+     conditional:
+       if: github.event_name == 'push'  # ✅ OK to have if
+       runs-on: ubuntu-latest           # ✅ Still needs runs-on
+       steps:                           # ✅ Still needs steps
+         - run: echo "test"
+   ```
+
+2. **Job with matrix strategy is still a job:**
+   ```yaml
+   jobs:
+     matrix-job:
+       strategy:
+         matrix:
+           os: [ubuntu-latest, windows-latest]  # ✅ OK to have strategy
+       runs-on: ${{ matrix.os }}                # ✅ Still needs runs-on
+       steps:                                   # ✅ Still needs steps
+         - run: echo "test"
+   ```
+
+3. **Job names CAN be similar to keywords (with different spelling):**
+   ```yaml
+   jobs:
+     scheduled-job: ...   # ✅ OK (not "schedule")
+     concurrent-build: ...  # ✅ OK (not "concurrency")
+     on-success: ...      # ✅ OK (job name, not trigger "on:")
+   ```
+"""
+
 # ==============================================================================
 # Combined YAML Generation Rules
 # ==============================================================================
@@ -610,4 +801,7 @@ You are a GitHub Actions YAML repair engine. Follow these rules to ensure valid 
 {YAML_RULE_8F_REMOVE_EMPTY}
 
 {YAML_RULE_8G_ACTION_INPUTS}
+
+{YAML_RULE_9_JOB_STRUCTURE}
 """
+# Note: YAML_RULE_10_VARIABLE_REFERENCE temporarily excluded for testing
