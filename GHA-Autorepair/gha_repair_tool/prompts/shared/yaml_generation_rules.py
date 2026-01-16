@@ -588,15 +588,31 @@ steps:
 """
 
 YAML_RULE_9_JOB_STRUCTURE = """
-**Rule 9: Job Definition Validation (CRITICAL - NEW v3.1) 🏗️**
+**⚠️⚠️⚠️ RULE 9: MANDATORY JOB VALIDATION (READ THIS FIRST!) ⚠️⚠️⚠️**
 
-- **FATAL ERRORS:** 
-  - `"steps" section is missing in job "X"`
-  - `"runs-on" section is missing in job "X"`
-  - `unexpected key "group" for "job" section`
-  - `unexpected key "cancel-in-progress" for "job" section`
-- **ROOT CAUSE:** LLM confuses job names with workflow-level keywords OR creates incomplete job definitions
-- **CRITICAL DETECTION:** Job that has ONLY `group:` and `cancel-in-progress:` → This is NOT a job, it's `concurrency`!
+🚨 **BEFORE YOU OUTPUT ANY YAML, VERIFY THIS:**
+
+Every job under `jobs:` MUST have one of these combinations:
+1. `runs-on` + `steps` (regular job) ✅
+2. `uses` (reusable workflow) ✅  
+3. ANYTHING ELSE = FATAL ERROR ❌
+
+**CRITICALLY IMPORTANT:**
+- Job with `runs-on: ubuntu-latest` but NO `steps:` → ❌ INVALID!
+- Job with `if: condition` but NO `steps:` → ❌ INVALID!
+- Job named "scheduled-job" with `runs-on` but NO `steps:` → ❌ INVALID!
+
+**SELF-CHECK BEFORE OUTPUT:**
+□ Did I add `runs-on` to any job?
+□ If YES → Did I ALSO add `steps:` with at least ONE step?
+□ If NO → STOP and add `steps:` now!
+
+**COMMON FATAL ERRORS TO AVOID:**
+- ❌ `"steps" section is missing in job "X"`
+- ❌ `"runs-on" section is missing in job "X"`
+- ❌ `unexpected key "group"` → This is `concurrency`, not a job!
+
+**DETECTION RULE:** Job with ONLY `group:` + `cancel-in-progress:` → This is `concurrency`, NOT a job!
 
 **A. EVERY JOB MUST HAVE (Mandatory Requirements):**
 
@@ -605,7 +621,7 @@ YAML_RULE_9_JOB_STRUCTURE = """
    jobs:
      build:              # Job ID (any name EXCEPT reserved keywords)
        runs-on: ubuntu-latest   # ✅ REQUIRED
-       steps:                   # ✅ REQUIRED
+       steps:                   # ✅ REQUIRED (even if just one step)
          - run: echo "test"
    ```
 
@@ -620,9 +636,27 @@ YAML_RULE_9_JOB_STRUCTURE = """
 3. **FORBIDDEN:** Job with neither `runs-on` + `steps` NOR `uses`
    ```yaml
    jobs:
-     incomplete-job:      # ❌ ERROR: No runs-on, no steps, no uses
+     incomplete-job:      # ❌ FATAL ERROR: No runs-on, no steps, no uses
        timeout-minutes: 60
        # Missing required keys!
+   ```
+
+4. **FORBIDDEN:** Job with `runs-on` but NO `steps`
+   ```yaml
+   jobs:
+     scheduled-job:       # ❌ FATAL ERROR: Has runs-on but missing steps
+       if: github.event_name == 'schedule'
+       runs-on: ubuntu-latest
+       # ❌ Missing: steps section!
+   ```
+   **FIX:**
+   ```yaml
+   jobs:
+     scheduled-job:       # ✅ CORRECT: Added steps
+       if: github.event_name == 'schedule'
+       runs-on: ubuntu-latest
+       steps:             # ✅ Required!
+         - run: echo "Scheduled task"
    ```
 
 **B. RESERVED KEYWORDS CANNOT BE JOB NAMES:**
@@ -727,17 +761,26 @@ on:
   schedule: [{cron: '0 0 * * *'}]  # ✅ Also valid (list with one item)
 ```
 
-**D. FIX STRATEGY (Step-by-step):**
+**D. FIX STRATEGY (Step-by-step) - MANDATORY CHECKLIST:**
+
+Before outputting the final YAML, mentally execute this checklist:
 
 1. **SCAN** all keys under `jobs:` 
-2. **CHECK** each job:
+2. **CHECK** each job (one by one):
    - Does it have `runs-on` + `steps`? → ✅ Valid regular job
    - Does it have `uses`? → ✅ Valid reusable workflow job
+   - Does it have `runs-on` but NO `steps`? → ❌ FATAL! Add `steps:` with at least one step
    - Does it ONLY have `group` + `cancel-in-progress`? → ❌ This is `concurrency`, move it!
    - Does it have NEITHER? → ❌ Add `runs-on` + `steps` OR remove it
-3. **VERIFY** job names don't match reserved keywords
+3. **VERIFY** job names don't match reserved keywords (concurrency, schedule, on, jobs, env, permissions, defaults)
 4. **RELOCATE** misplaced `concurrency` blocks to workflow-level
 5. **ADD** missing `runs-on` and `steps` to incomplete jobs
+6. **DOUBLE-CHECK:** Count jobs with `runs-on` → Same count must have `steps` (unless using `uses`)
+
+**CRITICAL REMINDER:** 
+- Job with `runs-on: ubuntu-latest` but no `steps:` = INVALID ❌
+- Job with `if: condition` but no `steps:` = INVALID ❌  
+- **ALWAYS** add `steps:` section when you add `runs-on:`
 
 **E. EDGE CASES:**
 
@@ -780,6 +823,9 @@ ALL_YAML_GENERATION_RULES = f"""
 ### ⚡ IRONCLAD YAML SYNTAX RULES (NO EXCEPTIONS) ⚡
 You are a GitHub Actions YAML repair engine. Follow these rules to ensure valid YAML output.
 
+🚨🚨🚨 **CRITICAL: READ RULE 9 FIRST!** 🚨🚨🚨
+{YAML_RULE_9_JOB_STRUCTURE}
+
 {YAML_RULE_1_QUOTE_WILDCARDS}
 
 {YAML_RULE_2_FORCE_BLOCK_SCALAR}
@@ -801,7 +847,5 @@ You are a GitHub Actions YAML repair engine. Follow these rules to ensure valid 
 {YAML_RULE_8F_REMOVE_EMPTY}
 
 {YAML_RULE_8G_ACTION_INPUTS}
-
-{YAML_RULE_9_JOB_STRUCTURE}
 """
 # Note: YAML_RULE_10_VARIABLE_REFERENCE temporarily excluded for testing
