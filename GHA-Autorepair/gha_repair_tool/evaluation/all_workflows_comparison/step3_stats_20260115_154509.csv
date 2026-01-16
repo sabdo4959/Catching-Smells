@@ -1,0 +1,11 @@
+Category,Metric,Value
+Overall,Total Files,1000
+Overall,STEP3 YAML Success Rate,97.80%
+Overall,STEP3 actionlint Success Rate,86.70%
+Overall,Average BLEU Score,0.7523
+Actionlint Passed,Count,867
+Actionlint Passed,Percentage of All,86.70%
+Actionlint Passed,Average BLEU,0.7457
+High Quality (actionlint + BLEU>=0.85),Count,378
+High Quality,Percentage of All,37.80%
+High Quality,Percentage of Actionlint Passed,43.60%

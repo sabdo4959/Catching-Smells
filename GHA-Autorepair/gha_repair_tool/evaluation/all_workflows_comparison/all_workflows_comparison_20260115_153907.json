@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "step_dirs": {
+      "step1": "/Users/nam/step1",
+      "step2": "/Users/nam/step2",
+      "step3": "/Users/nam/step3",
+      "step4": "/Users/nam/step4",
+      "step5": "/Users/nam/step5"
+    },
+    "processing_time": 0.235496,
+    "timestamp": "2026-01-15T15:39:07.636824"
+  },
+  "step_results": {
+    "step2": {
+      "file_pairs_count": 0,
+      "results": [],
+      "stats": null
+    },
+    "step3": {
+      "file_pairs_count": 0,
+      "results": [],
+      "stats": null
+    },
+    "step4": {
+      "file_pairs_count": 0,
+      "results": [],
+      "stats": null
+    },
+    "step5": {
+      "file_pairs_count": 0,
+      "results": [],
+      "stats": null
+    }
+  }
+}

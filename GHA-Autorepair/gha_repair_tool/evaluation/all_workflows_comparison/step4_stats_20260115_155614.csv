@@ -1,0 +1,14 @@
+Category,Metric,Value
+Overall,Total Files,100
+Overall,STEP4 YAML Success Rate,98.00%
+Overall,STEP4 actionlint Success Rate,88.00%
+Overall,Average BLEU Score,0.6694
+Actionlint Passed,Count,88
+Actionlint Passed,Percentage of All,88.00%
+Actionlint Passed,Average BLEU,0.6639
+High Quality (actionlint + BLEU>=0.85),Count,16
+High Quality,Percentage of All,16.00%
+High Quality,Percentage of Actionlint Passed,18.18%
+High Quality,Average BLEU,0.9097
+High Quality,Average Edit Distance,6.88
+High Quality,Edit Distance Range,1 ~ 22

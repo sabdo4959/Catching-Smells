@@ -1,0 +1,14 @@
+Category,Metric,Value
+Overall,Total Files,13380
+Overall,STEP3 YAML Success Rate,98.43%
+Overall,STEP3 actionlint Success Rate,86.55%
+Overall,Average BLEU Score,0.7509
+Actionlint Passed,Count,11581
+Actionlint Passed,Percentage of All,86.55%
+Actionlint Passed,Average BLEU,0.7474
+High Quality (actionlint + BLEU>=0.85),Count,5089
+High Quality,Percentage of All,38.03%
+High Quality,Percentage of Actionlint Passed,43.94%
+High Quality,Average BLEU,0.9188
+High Quality,Average Edit Distance,6.21
+High Quality,Edit Distance Range,1 ~ 254
