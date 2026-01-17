@@ -30,6 +30,51 @@ STRICT PROHIBITIONS:
 - NEVER include multiple YAML documents in one output (no --- separators)
 - Output ONLY valid YAML content that starts with workflow-level keys"""
     
+    # Conservative Repair Principle (MOST IMPORTANT)
+    conservative_principle = """
+
+🚨 CONSERVATIVE REPAIR PRINCIPLE (CRITICAL - READ FIRST) 🚨
+
+Your ONLY job is to fix the specific errors listed in the "ERRORS TO FIX" section below.
+DO NOT make any other changes, improvements, optimizations, or refactoring.
+
+MANDATORY RULES:
+1. Fix ONLY the errors explicitly listed below
+2. Keep EVERYTHING else EXACTLY as it appears in the original
+3. Make the MINIMAL change required to fix each error
+4. Preserve original structure, order, formatting, and naming
+5. DO NOT add, remove, or reorder any working code
+6. DO NOT "improve" or "optimize" working parts
+
+CRITICAL EXAMPLES - Learn from these:
+
+❌ WRONG: Error says "inputs at wrong location"
+   → Delete the inputs section (simple but destroys functionality)
+
+✅ CORRECT: Error says "inputs at wrong location"  
+   → Move inputs to the correct location ONLY (preserves functionality)
+
+❌ WRONG: Error says "missing runs-on key"
+   → Reorganize entire job structure and add runs-on
+
+✅ CORRECT: Error says "missing runs-on key"
+   → Add ONLY "runs-on: ubuntu-latest" where needed
+
+❌ WRONG: Error says "wrong indentation"
+   → Reformat entire file and reorder keys
+
+✅ CORRECT: Error says "wrong indentation"
+   → Fix ONLY the indentation of the problematic line
+
+VERIFICATION CHECKLIST before responding:
+□ Did I fix ALL listed errors?
+□ Did I make ONLY minimal changes to fix those errors?
+□ Did I preserve ALL other code exactly as-is?
+□ Did I avoid adding/removing/reordering working code?
+
+Think: "What is the SMALLEST possible change to fix this specific error?"
+"""
+    
     # Special Syntax Rules (beyond shared rules)
     special_syntax_rules = """
 SYNTAX REPAIR SPECIAL RULES:
@@ -73,6 +118,8 @@ Rule 8D: Wildcard Escaping
     error_section = "\n".join([f"- {err}" for err in actionlint_errors])
     
     prompt = f"""{role_definition}
+
+{conservative_principle}
 
 {prohibitions}
 

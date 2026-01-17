@@ -940,5 +940,6 @@ You are a GitHub Actions YAML repair engine. Follow these rules to ensure valid 
 {YAML_RULE_8F_REMOVE_EMPTY}
 
 {YAML_RULE_8G_ACTION_INPUTS}
+
+{YAML_RULE_10_VARIABLE_REFERENCE}
 """
-# Note: YAML_RULE_10_VARIABLE_REFERENCE temporarily excluded for testing

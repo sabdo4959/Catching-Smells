@@ -202,6 +202,11 @@ DEFENSE_RULE_4_SEPARATE_USES_RUN = """
 """
 
 # ==============================================================================
+# Defense Rule 5: Correct Context Usage in Templates (DEPRECATED - USE RULE 10)
+# ==============================================================================
+
+
+# ==============================================================================
 # Combined Defense Rules
 # ==============================================================================
 
@@ -216,6 +221,7 @@ You MUST follow these rules to pass 'actionlint' validation and GitHub Actions s
 {DEFENSE_RULE_3_STRICT_LIST_SYNTAX}
 
 {DEFENSE_RULE_4_SEPARATE_USES_RUN}
+
 """
 
 # For Semantic Repair (includes Defense Rule 0)
@@ -232,4 +238,5 @@ You MUST follow these rules to pass 'actionlint' validation and GitHub Actions s
 {DEFENSE_RULE_3_STRICT_LIST_SYNTAX}
 
 {DEFENSE_RULE_4_SEPARATE_USES_RUN}
+
 """

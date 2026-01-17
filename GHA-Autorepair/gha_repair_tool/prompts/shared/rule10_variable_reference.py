@@ -1,377 +1,392 @@
 """
-Rule 10: Variable and Property Reference Validation
+Rule 10: Variable and Context Reference Guide
+Based on GitHub Actions official documentation
 """
 
 YAML_RULE_10_VARIABLE_REFERENCE = """
-#### Rule 10: Variable and Property Reference Validation
+#### Rule 10: 📚 Variable and Context Reference Guide
 
-**CRITICAL: All variables and properties MUST be defined before use!**
+This guide helps you use GitHub Actions contexts correctly. All examples are from the official GitHub documentation.
+
+**Reference:** https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/contexts
 
 ---
 
-### A. UNDEFINED VARIABLE ERRORS
+### A. Understanding Contexts
 
-**Common Pattern: `undefined variable "variable_name"`**
+GitHub Actions provides several contexts to access information during workflow execution. 
+Each context has specific properties you can reference using `${{ context.property }}` syntax.
 
-This error means you're using `${{ variable_name }}` but it's not defined anywhere.
-
-**Available Variable Contexts:**
-- `env.*` - Environment variables (workflow/job/step level)
-- `github.*` - GitHub context (github.workspace, github.sha, github.ref, etc.)
-- `secrets.*` - Repository secrets
+**Available Contexts:**
+- `github.*` - Workflow run information (workspace, ref, sha, etc.)
+- `env.*` - Environment variables you define
 - `inputs.*` - Workflow inputs (workflow_call, workflow_dispatch)
-- `matrix.*` - Matrix variables (when using strategy.matrix)
-- `needs.<job_id>.outputs.*` - Outputs from previous jobs
-- `steps.<step_id>.outputs.*` - Outputs from previous steps
-- `runner.*` - Runner context (runner.os, runner.arch, runner.workspace, etc.)
+- `matrix.*` - Matrix strategy values
+- `steps.*` - Outputs from previous steps
+- `needs.*` - Outputs from dependent jobs
+- `runner.*` - Runner environment (os, arch, temp, etc.)
+- `secrets.*` - Repository and organization secrets
+- `job.*` - Current job information
+- `vars.*` - Configuration variables
 
 ---
 
-### B. FIX STRATEGY FOR UNDEFINED VARIABLES
+### B. Context Examples (From Official Docs)
 
-**Case 1: Variable used but never defined**
+#### 1️⃣ **github context** - Workflow metadata
 
-❌ WRONG:
 ```yaml
+# Example: Access workspace directory
+name: Build
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Use variable
-        run: echo "${{ binary_zip }}"    # ❌ undefined variable "binary_zip"
+      - uses: actions/checkout@v4
+      - run: echo "Workspace: ${{ github.workspace }}"
+      - run: echo "Repository: ${{ github.repository }}"
+      - run: echo "Branch: ${{ github.ref }}"
 ```
 
-**Fix Options:**
+**Common properties:**
+- `github.workspace` - `/home/runner/work/repo/repo`
+- `github.repository` - `owner/repo-name`
+- `github.ref` - `refs/heads/main`
+- `github.sha` - Commit SHA
+- `github.actor` - Username who triggered
 
-**Option A: Define in `env`**
+---
+
+#### 2️⃣ **env context** - Environment variables
+
 ```yaml
+# Example: Using environment variables at different levels
+name: Hi Mascot
+on: push
+env:
+  mascot: Mona              # Workflow level
+  super_duper_var: totally_awesome
+
 jobs:
-  build:
+  windows_job:
+    runs-on: windows-latest
+    steps:
+      - run: echo 'Hi ${{ env.mascot }}'  # Hi Mona
+      - run: echo 'Hi ${{ env.mascot }}'  # Hi Octocat
+        env:
+          mascot: Octocat   # Step level (overrides workflow level)
+  
+  linux_job:
     runs-on: ubuntu-latest
     env:
-      binary_zip: release.zip    # ✅ Define here
+      mascot: Tux           # Job level
     steps:
-      - name: Use variable
-        run: echo "${{ env.binary_zip }}"    # ✅ Now reference with env. prefix
+      - run: echo 'Hi ${{ env.mascot }}'  # Hi Tux
 ```
 
-**Option B: Set as step output**
+**Key point:** More specific env overrides less specific (step > job > workflow)
+
+---
+
+#### 3️⃣ **inputs context** - Workflow inputs
+
+**For workflow_dispatch (manual trigger):**
 ```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        required: true
+        type: string
+      deploy_target:
+        required: true
+        type: string
+      perform_deploy:
+        required: true
+        type: boolean
+
 jobs:
-  build:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.perform_deploy }}
+    steps:
+      - run: echo "Deploying build:${{ inputs.build_id }} to target:${{ inputs.deploy_target }}"
+```
+
+**For workflow_call (reusable workflows):**
+```yaml
+name: Reusable deploy workflow
+on:
+  workflow_call:
+    inputs:
+      build_id:
+        required: true
+        type: number
+      deploy_target:
+        required: true
+        type: string
+
+jobs:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Create variable
-        id: setup
-        run: echo "binary_zip=release.zip" >> $GITHUB_OUTPUT    # ✅ Define output
+      - run: echo "Deploying build:${{ inputs.build_id }} to target:${{ inputs.deploy_target }}"
+```
+
+**Important:** \`inputs\` are defined INSIDE \`workflow_dispatch:\` or \`workflow_call:\`, not at workflow root level.
+
+---
+
+#### 4️⃣ **matrix context** - Matrix strategy values
+
+```yaml
+# Example: Using matrix values
+name: Test matrix
+on: push
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [14, 16]
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --version
+```
+
+**Reference:** Values defined in \`strategy.matrix\` are accessed via \`matrix.property_name\`
+
+---
+
+#### 5️⃣ **steps context** - Step outputs
+
+```yaml
+# Example: Passing data between steps
+name: Generate random failure
+on: push
+jobs:
+  randomly-failing-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate 0 or 1
+        id: generate_number
+        run: echo "random_number=$(($RANDOM % 2))" >> $GITHUB_OUTPUT
       
-      - name: Use variable
-        run: echo "${{ steps.setup.outputs.binary_zip }}"    # ✅ Reference output
+      - name: Pass or fail
+        run: |
+          if [[ ${{ steps.generate_number.outputs.random_number }} == 0 ]]; then 
+            exit 0
+          else 
+            exit 1
+          fi
 ```
 
-**Option C: Use from GitHub context (if appropriate)**
-```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Use GitHub variable
-        run: echo "${{ github.workspace }}"    # ✅ Built-in context
-```
+**Pattern:** \`steps.<step_id>.outputs.<output_name>\`
+
+**Requirements:**
+- Step must have an \`id\`
+- Output must be set with \`>> $GITHUB_OUTPUT\`
+- Step must run before being referenced
 
 ---
 
-### C. PROPERTY NOT DEFINED ERRORS
+#### 6️⃣ **needs context** - Job dependencies
 
-**Common Pattern: `property "property_name" is not defined in object type {}`**
-
-This means you're accessing `object.property` but the property doesn't exist.
-
-**Most Common Cases:**
-
-**Case 1: `workspace` property**
-
-❌ WRONG:
 ```yaml
-- run: cd ${{ workspace }}    # ❌ property "workspace" is not defined
-```
+# Example: Using outputs from dependent jobs
+name: Build and deploy
+on: push
 
-✅ CORRECT:
-```yaml
-- run: cd ${{ github.workspace }}    # ✅ Use github.workspace
-# OR
-- run: cd ${{ runner.workspace }}     # ✅ Use runner.workspace (parent dir)
-```
-
-**Case 2: Step outputs (`version`, `release`, `changelog`, etc.)**
-
-❌ WRONG:
-```yaml
-steps:
-  - name: Get version
-    id: version_step
-    run: echo "1.0.0"
-  
-  - name: Use version
-    run: echo "${{ version }}"    # ❌ property "version" is not defined
-```
-
-✅ CORRECT:
-```yaml
-steps:
-  - name: Get version
-    id: version_step
-    run: echo "version=1.0.0" >> $GITHUB_OUTPUT    # ✅ Set output properly
-  
-  - name: Use version
-    run: echo "${{ steps.version_step.outputs.version }}"    # ✅ Full path
-```
-
-**Case 3: Matrix properties**
-
-❌ WRONG:
-```yaml
-strategy:
-  matrix:
-    os: [ubuntu-latest, windows-latest]
-steps:
-  - run: echo "${{ operating_system }}"    # ❌ undefined variable
-```
-
-✅ CORRECT:
-```yaml
-strategy:
-  matrix:
-    os: [ubuntu-latest, windows-latest]
-steps:
-  - run: echo "${{ matrix.os }}"    # ✅ Use matrix.os
-```
-
----
-
-### D. COMMON VARIABLE PATTERNS
-
-**Pattern 1: Environment Variables**
-```yaml
-env:
-  VERSION: "1.0.0"
-  BINARY_ZIP: "release.zip"
-
-jobs:
-  build:
-    steps:
-      - run: echo "${{ env.VERSION }}"        # ✅ Workflow-level env
-      - run: echo "${{ env.BINARY_ZIP }}"     # ✅ Workflow-level env
-```
-
-**Pattern 2: Step Outputs Chain**
-```yaml
-steps:
-  - name: Build
-    id: build
-    run: |
-      echo "artifact_name=myapp.zip" >> $GITHUB_OUTPUT
-      echo "version=1.0.0" >> $GITHUB_OUTPUT
-  
-  - name: Upload
-    uses: actions/upload-artifact@v3
-    with:
-      name: ${{ steps.build.outputs.artifact_name }}    # ✅ Reference output
-      path: ./dist
-  
-  - name: Tag release
-    run: |
-      git tag v${{ steps.build.outputs.version }}       # ✅ Reference output
-```
-
-**Pattern 3: Job Outputs**
-```yaml
 jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get_version.outputs.version }}    # ✅ Expose as job output
+      build_id: ${{ steps.build_step.outputs.build_id }}
     steps:
-      - id: get_version
-        run: echo "version=1.0.0" >> $GITHUB_OUTPUT
+      - name: Build
+        id: build_step
+        run: echo "build_id=$RANDOM" >> $GITHUB_OUTPUT
   
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deploying ${{ needs.build.outputs.version }}"    # ✅ Use job output
+      - run: echo "Deploying build ${{ needs.build.outputs.build_id }}"
+  
+  debug:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    steps:
+      - run: echo "Failed to build and deploy"
 ```
 
----
-
-### E. DETECTION AND FIX CHECKLIST
-
-**When you see undefined variable/property errors:**
-
-1. **Identify the variable**: What is being referenced?
-   - `${{ binary_zip }}` → variable: `binary_zip`
-   - `${{ workspace }}` → variable: `workspace`
-   - `${{ version }}` → variable: `version`
-
-2. **Determine correct context**:
-   - Is it a file path? → Use `github.workspace`
-   - Is it a custom value? → Define in `env` or step output
-   - Is it from another step? → Use `steps.<id>.outputs.*`
-   - Is it from matrix? → Use `matrix.*`
-
-3. **Add definition**:
-   - Add to `env:` section
-   - Or set in previous step with `>> $GITHUB_OUTPUT`
-   - Or use correct built-in context (github.*, runner.*, etc.)
-
-4. **Update all references**:
-   - Change `${{ variable }}` to `${{ env.variable }}`
-   - Or change to `${{ steps.step_id.outputs.variable }}`
-   - Or change to `${{ github.property }}`
+**Pattern:** \`needs.<job_id>.outputs.<output_name>\`
 
 ---
 
-### F. CRITICAL GITHUB CONTEXTS REFERENCE
-
-**Commonly Used Properties:**
+#### 7️⃣ **runner context** - Runner environment
 
 ```yaml
-# GitHub Context
-${{ github.workspace }}      # Working directory (e.g., /home/runner/work/repo/repo)
-${{ github.repository }}     # owner/repo-name
-${{ github.ref }}            # refs/heads/main
-${{ github.sha }}            # Commit SHA
-${{ github.actor }}          # Username who triggered
-${{ github.event_name }}     # Event type (push, pull_request, etc.)
-
-# Runner Context
-${{ runner.os }}             # Linux, Windows, macOS
-${{ runner.arch }}           # X64, ARM, ARM64
-${{ runner.workspace }}      # Parent directory of github.workspace
-${{ runner.temp }}           # Temp directory path
-
-# Job Context
-${{ job.status }}            # success, failure, cancelled
-
-# Steps Context (requires step id)
-${{ steps.<step_id>.outputs.<output_name> }}
-${{ steps.<step_id>.outcome }}    # success, failure, cancelled, skipped
-${{ steps.<step_id>.conclusion }} # success, failure, cancelled, skipped, neutral
-
-# Needs Context (requires job dependency)
-${{ needs.<job_id>.outputs.<output_name> }}
-${{ needs.<job_id>.result }}      # success, failure, cancelled, skipped
-
-# Matrix Context (requires strategy.matrix)
-${{ matrix.<key> }}              # Value from matrix
-```
-
----
-
-### G. VALIDATION RULES SUMMARY
-
-**BEFORE generating YAML:**
-
-1. ✅ Every `${{ variable }}` must have a corresponding definition
-2. ✅ Use correct context prefix: `env.`, `steps.`, `github.`, `runner.`, `matrix.`, `needs.`
-3. ✅ Define variables BEFORE using them (in `env` or previous steps)
-4. ✅ Use `>> $GITHUB_OUTPUT` for step outputs, not just `echo`
-5. ✅ Reference workspace as `github.workspace`, not `workspace`
-6. ✅ Chain step outputs with full path: `steps.<id>.outputs.<name>`
-
-**AFTER generating YAML:**
-
-1. ✅ Search for all `${{ ... }}` expressions
-2. ✅ Verify each variable/property is defined
-3. ✅ Check context prefixes are correct
-4. ✅ Ensure output chains are valid (step id exists, output name matches)
-
----
-
-### H. COMPLETE EXAMPLE: BEFORE & AFTER
-
-**❌ WRONG (Multiple undefined variable errors):**
-```yaml
+# Example: Using runner context for temporary files
 name: Build
-
 on: push
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build
+      - uses: actions/checkout@v4
+      - name: Build with logs
         run: |
-          echo "Building version ${{ VERSION }}"              # ❌ undefined variable "VERSION"
-          zip -r ${{ binary_zip }} ./dist                     # ❌ undefined variable "binary_zip"
-          echo "Workspace: ${{ workspace }}"                  # ❌ property "workspace" not defined
+          mkdir ${{ runner.temp }}/build_logs
+          echo "Logs from building" > ${{ runner.temp }}/build_logs/build.log
       
-      - name: Upload
-        uses: actions/upload-artifact@v3
+      - name: Upload logs on fail
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ artifact_name }}                          # ❌ undefined variable "artifact_name"
-          path: ./dist
-      
-      - name: Create release
-        run: |
-          gh release create v${{ version }} \\                # ❌ property "version" not defined
-            --notes "${{ changelog }}"                        # ❌ property "changelog" not defined
+          name: Build failure logs
+          path: ${{ runner.temp }}/build_logs
 ```
 
-**✅ CORRECT (All variables properly defined):**
+**Common properties:**
+- \`runner.os\` - \`Linux\`, \`Windows\`, \`macOS\`
+- \`runner.arch\` - \`X64\`, \`ARM\`, \`ARM64\`
+- \`runner.temp\` - Temporary directory path
+- \`runner.tool_cache\` - Pre-installed tools directory
+
+---
+
+### C. Common Mistakes and Fixes
+
+#### ❌ Mistake 1: Using variable without context prefix
+
 ```yaml
-name: Build
-
-on: push
-
+# WRONG:
 env:
-  VERSION: "1.0.0"                           # ✅ Define at workflow level
-  BINARY_ZIP: "release.zip"                  # ✅ Define at workflow level
+  binary_zip: release.zip
+steps:
+  - run: echo "${{ binary_zip }}"    # ❌ undefined variable "binary_zip"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Build
-        id: build_step                       # ✅ Add ID for outputs
-        run: |
-          echo "Building version ${{ env.VERSION }}"           # ✅ Use env.VERSION
-          zip -r ${{ env.BINARY_ZIP }} ./dist                  # ✅ Use env.BINARY_ZIP
-          echo "Workspace: ${{ github.workspace }}"            # ✅ Use github.workspace
-          
-          # Set outputs for next steps
-          echo "artifact_name=${{ env.BINARY_ZIP }}" >> $GITHUB_OUTPUT    # ✅ Define output
-          echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT             # ✅ Define output
-          echo "changelog=Initial release" >> $GITHUB_OUTPUT              # ✅ Define output
-      
-      - name: Upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.build_step.outputs.artifact_name }}  # ✅ Use step output
-          path: ./dist
-      
-      - name: Create release
-        run: |
-          gh release create v${{ steps.build_step.outputs.version }} \\    # ✅ Use step output
-            --notes "${{ steps.build_step.outputs.changelog }}"            # ✅ Use step output
+# CORRECT:
+env:
+  binary_zip: release.zip
+steps:
+  - run: echo "${{ env.binary_zip }}"    # ✅ Use env.binary_zip
 ```
 
 ---
 
-### I. ACTIONLINT ERROR MESSAGES → FIXES
+#### ❌ Mistake 2: Using \`workspace\` instead of \`github.workspace\`
 
-| Error Message | Cause | Fix |
-|---------------|-------|-----|
-| `undefined variable "X"` | Using `${{ X }}` without definition | Add to `env:` or define in previous step output |
-| `property "X" is not defined` | Using `${{ obj.X }}` where X doesn't exist | Use correct property name or define in step output |
-| `available variables are "env", "github"...` | Variable not in any context | Use correct context prefix (env., github., etc.) |
-| `object type {}` | Trying to access property on empty/undefined object | Define the object first with step outputs |
+```yaml
+# WRONG:
+- run: cd ${{ workspace }}    # ❌ property "workspace" is not defined
+
+# CORRECT:
+- run: cd ${{ github.workspace }}    # ✅ github.workspace
+```
 
 ---
 
-**REMEMBER: GitHub Actions expressions are STRICTLY TYPED. Every variable must be explicitly defined!**
+#### ❌ Mistake 3: Matrix value without \`matrix.\` prefix
+
+```yaml
+# WRONG:
+strategy:
+  matrix:
+    os: [ubuntu, windows]
+runs-on: ${{ os }}    # ❌ undefined variable "os"
+
+# CORRECT:
+strategy:
+  matrix:
+    os: [ubuntu-latest, windows-latest]
+runs-on: ${{ matrix.os }}    # ✅ matrix.os
+```
+
+---
+
+#### ❌ Mistake 4: Step output without proper setup
+
+```yaml
+# WRONG:
+steps:
+  - name: Get version
+    run: echo "1.0.0"
+  - run: echo "${{ version }}"    # ❌ undefined variable "version"
+
+# CORRECT:
+steps:
+  - name: Get version
+    id: version_step
+    run: echo "version=1.0.0" >> $GITHUB_OUTPUT    # ✅ Set output
+  - run: echo "${{ steps.version_step.outputs.version }}"    # ✅ Reference with full path
+```
+
+---
+
+#### ❌ Mistake 5: Inputs at wrong location
+
+```yaml
+# WRONG:
+name: Release
+on: [workflow_dispatch]
+inputs:              # ❌ inputs at workflow root level
+  version:
+    required: true
+
+# CORRECT:
+name: Release
+on:
+  workflow_dispatch:
+    inputs:          # ✅ inputs inside workflow_dispatch
+      version:
+        required: true
+        type: string
+jobs:
+  release:
+    steps:
+      - run: echo "Version: ${{ inputs.version }}"
+```
+
+---
+
+### D. Quick Reference Table
+
+| Context | When to Use | Example |
+|---------|-------------|---------|
+| \`github.*\` | Built-in workflow metadata | \`\${{ github.workspace }}\` |
+| \`env.*\` | Custom environment variables | \`\${{ env.VERSION }}\` |
+| \`inputs.*\` | Workflow/reusable workflow inputs | \`\${{ inputs.deploy_target }}\` |
+| \`matrix.*\` | Matrix strategy values | \`\${{ matrix.node }}\` |
+| \`steps.*\` | Previous step outputs | \`\${{ steps.build.outputs.version }}\` |
+| \`needs.*\` | Dependent job outputs | \`\${{ needs.build.outputs.artifact }}\` |
+| \`runner.*\` | Runner environment info | \`\${{ runner.os }}\` |
+| \`secrets.*\` | Repository secrets | \`\${{ secrets.GITHUB_TOKEN }}\` |
+
+---
+
+### E. Troubleshooting Guide
+
+**If you see: \`undefined variable "X"\`**
+→ Check if you need: \`env.X\`, \`matrix.X\`, \`inputs.X\`, or \`github.X\`
+
+**If you see: \`property "X" is not defined\`**
+→ Common fixes:
+  - \`workspace\` → \`github.workspace\`
+  - \`os\` (in matrix) → \`matrix.os\`
+  - Step output → Add step \`id\` and use \`steps.<id>.outputs.X\`
+
+**If you see: \`available variables are "env", "github"...\`**
+→ You're using a variable name directly, need to add context prefix
+
+---
+
 """

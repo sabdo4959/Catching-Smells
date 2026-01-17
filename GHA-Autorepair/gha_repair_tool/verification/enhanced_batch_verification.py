@@ -5,13 +5,14 @@
 기존 키 구조 검증 + 구조적 값(needs, matrix 등) 검증을 모두 수행합니다.
 
 Usage:
-    python enhanced_batch_verification.py <original_dir> <repaired_dir> <method_name>
+    python enhanced_batch_verification.py <original_dir> <repaired_dir> <method_name> [--mapping-csv CSV_PATH]
 """
 
 import os
 import sys
 import json
 import argparse
+import csv
 from pathlib import Path
 
 try:
@@ -22,13 +23,48 @@ except ImportError as e:
     sys.exit(1)
 
 
-def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method_name: str):
+def load_step_mapping(csv_path: str, source_step: str = "step1", target_step: str = "step2"):
+    """
+    all_steps.csv에서 스텝 간 파일명 매핑을 로드합니다.
+    
+    Args:
+        csv_path: all_steps.csv 파일 경로
+        source_step: 수정된 파일의 기준 스텝 (예: step1)
+        target_step: 비교할 원본 파일의 스텝 (예: step2)
+    
+    Returns:
+        dict: {source_hash: target_hash} 매핑
+    """
+    mapping = {}
+    source_col = f"file_hash_{source_step}"
+    target_col = f"file_hash_{target_step}"
+    
+    try:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                source_hash = row.get(source_col, "").strip()
+                target_hash = row.get(target_col, "").strip()
+                if source_hash and target_hash:
+                    mapping[source_hash] = target_hash
+        
+        print(f"✅ 매핑 정보 로드: {len(mapping)}개 ({source_step} → {target_step})")
+        return mapping
+    except Exception as e:
+        print(f"⚠️ 매핑 파일 로드 실패: {e}")
+        return {}
+
+
+def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method_name: str, 
+                                   step_mapping: dict = None):
     """향상된 배치 검증을 실행합니다."""
     
     print("=" * 80)
     print(f"🔍 향상된 배치 키 구조 검증 시작: {method_name}")
     print(f"   원본 디렉토리: {original_dir}")
     print(f"   수정 디렉토리: {repaired_dir}")
+    if step_mapping:
+        print(f"   스텝 매핑 적용: {len(step_mapping)}개")
     print("=" * 80)
     
     # 수정된 파일들 목록 가져오기
@@ -81,10 +117,15 @@ def run_enhanced_batch_verification(original_dir: str, repaired_dir: str, method
             print(f"❌ 알 수 없는 방법: {method_name}")
             return
         
-        original_path = os.path.join(original_dir, original_filename)
+        # 스텝 매핑이 있으면 매핑된 파일명 사용
+        if step_mapping and original_filename in step_mapping:
+            mapped_filename = step_mapping[original_filename]
+            original_path = os.path.join(original_dir, mapped_filename)
+            print(f"\n🔍 [{i}/{len(repaired_files)}] 검증 중: {original_filename} → {mapped_filename}")
+        else:
+            original_path = os.path.join(original_dir, original_filename)
+            print(f"\n🔍 [{i}/{len(repaired_files)}] 검증 중: {original_filename}")
         repaired_path = os.path.join(repaired_dir, repaired_file)
-        
-        print(f"🔍 [{i}/{len(repaired_files)}] 검증 중: {original_filename}")
         
         # 1. 기본 키 구조 검증
         try:
@@ -217,10 +258,24 @@ def main():
     parser.add_argument('repaired_dir', help='수정된 파일 디렉토리')
     parser.add_argument('method_name', choices=['baseline', 'gha_repair', 'two_phase'],
                        help='수정 방법명')
+    parser.add_argument('--mapping-csv', 
+                       help='스텝 매핑 CSV 파일 경로 (예: all_steps.csv)',
+                       default=None)
+    parser.add_argument('--source-step',
+                       help='수정된 파일의 기준 스텝 (기본값: step1)',
+                       default='step1')
+    parser.add_argument('--target-step',
+                       help='비교할 원본 파일의 스텝 (기본값: step2)',
+                       default='step2')
     
     args = parser.parse_args()
     
-    run_enhanced_batch_verification(args.original_dir, args.repaired_dir, args.method_name)
+    # 스텝 매핑 로드
+    step_mapping = None
+    if args.mapping_csv:
+        step_mapping = load_step_mapping(args.mapping_csv, args.source_step, args.target_step)
+    
+    run_enhanced_batch_verification(args.original_dir, args.repaired_dir, args.method_name, step_mapping)
 
 
 if __name__ == "__main__":
