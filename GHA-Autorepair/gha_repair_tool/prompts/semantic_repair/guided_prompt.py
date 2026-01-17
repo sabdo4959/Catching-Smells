@@ -49,11 +49,11 @@ GOAL: Fix ONLY the 'Detected Semantic Smell List' listed below according to GitH
 #### Smell 3: Over-privileged Permissions (⚠️ PLACEMENT RULES - ENHANCED v3)
 - **Problem:** Overly permissive token.
 - **Solution:** Add `permissions` with specific rights.
-- **🚨 VALID LOCATIONS (ONLY 2 OPTIONS):**
+- **⚠️ Valid Locations (2 options):**
   1. **Workflow-level**: At root, alongside `name:`, `on:`, `jobs:`
   2. **Job-level**: Inside a job, alongside `runs-on:`, `steps:`
-- **🚨 FORBIDDEN LOCATION:**
-  - ❌ NEVER at step-level (causes "unexpected key \\"permissions\\" for \\"step\\" section" error)
+- **⚠️ Forbidden Location:**
+  - ❌ Not at step-level (causes "unexpected key \\"permissions\\" for \\"step\\" section" error)
 
 **❌ WRONG - permissions at step level:**
 ```yaml
@@ -97,12 +97,12 @@ jobs:
 **DECISION LOGIC:**
 - **For one specific job** needing permissions: Add at **job-level**
 - **For entire workflow** needing permissions: Add at **workflow-level** (root)
-- **NEVER** at step-level (steps don't support `permissions` key)
+- **Avoid** at step-level (steps don't support `permissions` key)
 
 #### Smell 5: Missing Job Timeout (⚠️ EXCEPTION FOR REUSABLE WORKFLOWS)
 - **Problem:** Jobs running indefinitely.
 - **Solution:** Add `timeout-minutes: 60` to jobs.
-- **🚨 CRITICAL EXCEPTION:** DO NOT add timeout if the job uses a Reusable Workflow (e.g., `uses: ./.github/...`). It causes syntax errors per Defense Rule 2.
+- **⚠️ Important Exception:** Do not add timeout if the job uses a Reusable Workflow (e.g., `uses: ./.github/...`). It causes syntax errors per Defense Rule 2.
 ```yaml
 # ❌ WRONG:
 jobs:
@@ -120,18 +120,37 @@ jobs:
     timeout-minutes: 60  # OK
 ```
 
-#### Smell 6 & 7: Concurrency
+#### Smell 6 & 7: Concurrency (⚠️ PLACEMENT RULES)
 - **Smell 6 (PR):** Add `concurrency` group with `cancel-in-progress: true`.
 - **Smell 7 (Branch):** Add `concurrency` group for branches.
+- **📖 See:** Rule 6 (Concurrency Placement) from YAML Generation Rules for placement details.
+
+**Key Requirements:**
+1. **Location:** `concurrency` at workflow root (same level as `on:`, `jobs:`) OR inside specific job (same level as `runs-on:`, `steps:`)
+2. **NOT a job:** Avoid creating a job named "concurrency" under `jobs:` (it's a configuration block, not a job name)
+
+**✅ CORRECT Example (Workflow-level):**
+```yaml
+name: CI
+on: [push, pull_request]
+
+concurrency:                    # ✅ At workflow root
+  group: ${{{{ github.workflow }}}}-${{{{ github.ref }}}}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+```
 
 #### Smell 8: Missing Path Filter
 - **Problem:** Wasteful CI runs triggered by documentation or non-code changes.
 - **Solution:** Add `paths-ignore` filter to skip unnecessary builds.
-- **🚨 CRITICAL:** Follow **Rule 8E (Filter Nesting)** and **Rule 8B (Structure Types)** from YAML Generation Rules.
+- **� See:** Rule 8E (Filter Nesting) and Rule 8B (Structure Types) from YAML Generation Rules.
 
 **Key Requirements:**
-1. **Location:** `paths-ignore` MUST be nested INSIDE `on.push` or `on.pull_request` (NOT at job level, NOT as sibling to `on`)
-2. **Format:** MUST use list syntax with wildcards quoted: `['**.md', 'docs/**']`
+1. **Location:** `paths-ignore` should be nested INSIDE `on.push` or `on.pull_request` (not at job level, not as sibling to `on`)
+2. **Format:** Use list syntax with wildcards quoted: `['**.md', 'docs/**']`
 3. **Common patterns:** `'**.md'` (markdown files), `'docs/**'` (docs folder), `'*.txt'` (text files)
 
 **✅ CORRECT Example:**
@@ -168,7 +187,7 @@ paths-ignore: ['**.md']      # ❌ Not a top-level key
 #### Smell 9: Run on Fork (Schedule) (⚠️ LOCATION CONSTRAINT)
 - **Problem:** Scheduled runs waste resources on forks.
 - **Solution:** Add repo owner check.
-- **🚨 CRITICAL LOCATION:** `on: schedule` DOES NOT support `if` per Defense Rule 1. You MUST add `if: github.repository_owner == ...` at the **JOB level**.
+- **� See:** Defense Rule 1 - `on: schedule` does not support `if`. Add `if: github.repository_owner == ...` at the **JOB level**.
 ```yaml
 # ✅ CORRECT:
 on:
@@ -184,7 +203,7 @@ jobs:
 #### Smell 10: Run on Fork (Artifact) (⚠️ LOCATION CONSTRAINT)
 - **Problem:** Artifact uploads waste resources on forks.
 - **Solution:** Add check before upload.
-- **🚨 CRITICAL LOCATION:** Add `if: github.repository_owner == ...` to the **STEP** using `upload-artifact`. NEVER in `on` per Defense Rule 1.
+- **� See:** Defense Rule 1 - Add `if: github.repository_owner == ...` to the **STEP** using `upload-artifact`, not in `on` section.
 ```yaml
 # ✅ CORRECT:
 steps:
