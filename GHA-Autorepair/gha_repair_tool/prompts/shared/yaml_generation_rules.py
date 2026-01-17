@@ -275,9 +275,19 @@ YAML_RULE_8_STRUCTURE_TYPES = """
    - ✅ CORRECT: `on:\\n  push:\\n    branches: [main]`
    - ❌ WRONG: `on:\\n  - push:` (don't use dash)
 
-3. **`on.push:`, `on.pull_request:`** - Trigger filters are keys
+3. **`on.push:`, `on.pull_request:`, `on.workflow_dispatch:`** - Trigger configurations are MAPPINGS
+   - **🚨 CRITICAL:** These MUST be mappings (with or without content), NEVER sequences (lists)
+   - ✅ CORRECT (empty mapping): `workflow_dispatch: {{}}`
+   - ✅ CORRECT (mapping with content): `workflow_dispatch:\\n  inputs:\\n    version:\\n      type: string`
+   - ✅ CORRECT (empty, no colon content): `workflow_dispatch:` (followed by next key at same level)
+   - ❌ WRONG (sequence): `workflow_dispatch: []` 
+   - ❌ WRONG (sequence syntax): `workflow_dispatch:\\n  - input1` (don't use dash)
+   
    - ✅ CORRECT: `push:\\n  branches: [main]\\n  tags: [v*]`
+   - ✅ CORRECT: `pull_request:\\n  types: [opened, synchronize]`
    - ❌ WRONG: `push:\\n  - branches: [main]` (don't use dash before branches)
+   - ❌ WRONG: `push: []` (empty sequence not allowed)
+   - ❌ WRONG: `pull_request:\\n  - types: [opened]` (don't use dash)
 
 4. **`env:`** - Environment variables are key-value pairs
    - ✅ CORRECT: `env:\\n  NODE_VERSION: '14'`
@@ -324,15 +334,56 @@ YAML_RULE_8_STRUCTURE_TYPES = """
 
 **D. Structure Conversion Patterns (CRITICAL FIXES):**
 
-1. **Shorthand to Full Syntax (Triggers):**
-   - ❌ WRONG: `on: [push]` → `push: []` (Empty list is wrong)
-   - ❌ WRONG: `on: [push]` → `push: {}` (Empty mapping at root is wrong)
-   - ✅ CORRECT: `on: [push]` → `on:\\n  push:` (Mapping inside 'on')
+1. **Trigger Type Rules - ALWAYS Use Mappings:**
    
-   - ❌ WRONG: `on: [push, pull_request]` → `push: []\\n  pull_request: []`
-   - ✅ CORRECT: `on: [push, pull_request]` → `on:\\n  push:\\n  pull_request:`
+   **Rule D1: workflow_dispatch**
+   - ❌ WRONG: `workflow_dispatch: []` (sequence not allowed)
+   - ❌ WRONG: `on: [workflow_dispatch]` → `workflow_dispatch: []`
+   - ✅ CORRECT: `workflow_dispatch: {{}}` (empty mapping)
+   - ✅ CORRECT: `workflow_dispatch:` (empty, followed by next sibling key)
+   - ✅ CORRECT: 
+     ```yaml
+     workflow_dispatch:
+       inputs:
+         version:
+           type: string
+     ```
 
-2. **Filter Placement (Nesting Rule):**
+   **Rule D2: push / pull_request**
+   - ❌ WRONG: `push: []` (sequence not allowed)
+   - ❌ WRONG: `pull_request: []` (sequence not allowed)
+   - ✅ CORRECT: `push:` (empty mapping, if no filters)
+   - ✅ CORRECT: `push:\\n  branches: [main]` (mapping with content)
+   - ✅ CORRECT: `pull_request:\\n  types: [opened, synchronize]`
+
+   **Rule D3: Converting Shorthand to Full Syntax**
+   - When you see: `on: [push]` or `on: [push, pull_request]`
+   - ❌ WRONG conversion: 
+     ```yaml
+     on:
+       - push:         # Don't use sequence (dash)
+     ```
+   - ❌ WRONG conversion:
+     ```yaml
+     on:
+       push: []        # Don't use empty sequence
+     ```
+   - ✅ CORRECT conversion:
+     ```yaml
+     on:
+       push:           # Mapping (no dash, no brackets)
+       pull_request:   # Another mapping at same level
+     ```
+   - ✅ ALSO CORRECT (with filters):
+     ```yaml
+     on:
+       push:
+         branches: [main]
+       pull_request:
+         types: [opened]
+     ```
+
+2. **Filter Placement (Nesting Rule) - See Rule 8E:**
    - **Rule:** `tags`, `branches`, `paths`, `paths-ignore` MUST be INSIDE a specific trigger (push/pull_request), NOT directly under `on`.
    - ❌ WRONG (tags as sibling to push):
      ```yaml
@@ -365,6 +416,18 @@ YAML_RULE_8_STRUCTURE_TYPES = """
 
 **EXAMPLES:**
 
+**❌ WRONG - workflow_dispatch as sequence:**
+```yaml
+on:
+  workflow_dispatch: []  # ❌ FATAL: sequence node but mapping node is expected
+```
+
+**✅ CORRECT - workflow_dispatch as empty mapping:**
+```yaml
+on:
+  workflow_dispatch: {{}}  # ✅ Empty mapping (valid)
+```
+
 **❌ WRONG - push as sequence:**
 ```yaml
 on:
@@ -377,6 +440,19 @@ on:
 on:
   push:                  # ✅ push is a key (no dash)
     branches: [main]
+```
+
+**❌ WRONG - pull_request as sequence:**
+```yaml
+on:
+  pull_request: []       # ❌ FATAL: sequence node but mapping node is expected
+```
+
+**✅ CORRECT - pull_request as mapping:**
+```yaml
+on:
+  pull_request:          # ✅ Empty mapping (valid)
+    types: [opened, synchronize]
 ```
 
 **❌ WRONG - tags empty:**
@@ -401,12 +477,29 @@ on:
     branches: [main]     # ✅ Removed empty tags section entirely
 ```
 
+**❌ WRONG - Empty trigger mapping:**
+```yaml
+on:
+  push: []               # ❌ FATAL: sequence not allowed
+  pull_request: []       # ❌ FATAL: sequence not allowed
+  workflow_dispatch: []  # ❌ FATAL: sequence not allowed
+```
+
+**✅ CORRECT - Proper trigger mappings:**
+```yaml
+on:
+  push:                  # ✅ Empty mapping (valid)
+  pull_request:          # ✅ Empty mapping (valid)  
+  workflow_dispatch: {{}}  # ✅ Explicit empty mapping (also valid)
+```
+
 **FIX STRATEGY:**
 1. **IDENTIFY:** Check GitHub Actions syntax reference for expected type (mapping vs. sequence)
 2. **CONVERT:** 
    - If mapping needed → Remove dashes, use `key: value` format
    - If sequence needed → Add dashes, use `- item` format or `[item1, item2]`
-3. **REMOVE:** Delete any empty sections (no values)
+   - **For triggers (push/pull_request/workflow_dispatch):** ALWAYS use mapping, NEVER sequence
+3. **REMOVE:** Delete any empty sections (no values) - EXCEPT triggers can be empty mappings
 4. **VERIFY:** Check indentation matches the structure type
 """
 

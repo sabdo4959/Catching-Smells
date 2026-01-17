@@ -124,68 +124,46 @@ jobs:
 - **Smell 6 (PR):** Add `concurrency` group with `cancel-in-progress: true`.
 - **Smell 7 (Branch):** Add `concurrency` group for branches.
 
-#### Smell 8: Missing Path Filter (⚠️ LIST SYNTAX & LOCATION REQUIRED - ENHANCED v3)
-- **Problem:** Wasteful runs on doc changes.
-- **Solution:** Add `paths-ignore` to `push` or `pull_request`.
-- **🚨 SYNTAX:** MUST use list format with hyphens (`-`) per Defense Rule 3.
-- **🚨 LOCATION:** MUST be INSIDE `on.push` or `on.pull_request`, NOT at job level or as sibling to `on`.
-- **🚨 FORBIDDEN LOCATIONS (CAUSES ERRORS):**
-  - ❌ NEVER at job level (inside `jobs.*.`)
-  - ❌ NEVER inside steps
-  - ❌ NEVER as sibling to `on:` (outside triggers)
-  - ❌ NEVER at workflow root
+#### Smell 8: Missing Path Filter
+- **Problem:** Wasteful CI runs triggered by documentation or non-code changes.
+- **Solution:** Add `paths-ignore` filter to skip unnecessary builds.
+- **🚨 CRITICAL:** Follow **Rule 8E (Filter Nesting)** and **Rule 8B (Structure Types)** from YAML Generation Rules.
 
-**❌ WRONG - paths-ignore at job level:**
+**Key Requirements:**
+1. **Location:** `paths-ignore` MUST be nested INSIDE `on.push` or `on.pull_request` (NOT at job level, NOT as sibling to `on`)
+2. **Format:** MUST use list syntax with wildcards quoted: `['**.md', 'docs/**']`
+3. **Common patterns:** `'**.md'` (markdown files), `'docs/**'` (docs folder), `'*.txt'` (text files)
+
+**✅ CORRECT Example:**
 ```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm build
-    
-    paths-ignore:  # ❌ ERROR: "unexpected key \\"paths-ignore\\" for \\"job\\" section"
+on:
+  push:
+    branches: [main]
+    paths-ignore:       # ✅ Inside push trigger
       - '**.md'
-```
-
-**❌ WRONG - paths-ignore as sibling to on:**
-```yaml
-on:
-  push:
-    branches: [main]
-paths-ignore:  # ❌ ERROR: Wrong location (outside push)
-  - '**.md'
-```
-
-**❌ WRONG - paths-ignore at workflow root:**
-```yaml
-name: CI
-
-paths-ignore:  # ❌ ERROR: Not a top-level key
-  - '**.md'
-
-on:
-  push:
-```
-
-**✅ CORRECT - paths-ignore inside on.push:**
-```yaml
-on:
-  push:
-    branches: [main]
-    paths-ignore:  # ✅ Correct: nested inside push
-      - '**.md'    # List format with hyphen
       - 'docs/**'
   pull_request:
-    branches: [main]
-    paths-ignore:  # ✅ Also correct: nested inside pull_request
+    paths-ignore:       # ✅ Inside pull_request trigger  
       - '**.md'
 ```
 
-**VERIFICATION CHECKLIST:**
-1. ✅ Is `paths-ignore` directly under `on.push:` or `on.pull_request:`?
-2. ✅ Is it indented 2 spaces more than its parent trigger?
-3. ✅ Are values in list format (`- item` or `[item1, item2]`)?
-4. ❌ Is it NOT at job level, step level, or workflow root?
+**❌ COMMON ERRORS:**
+```yaml
+# Error 1: At job level
+jobs:
+  build:
+    paths-ignore: ['**.md']  # ❌ "unexpected key paths-ignore for job section"
+
+# Error 2: As sibling to on
+on:
+  push:
+paths-ignore: ['**.md']      # ❌ Wrong nesting level
+
+# Error 3: At workflow root
+paths-ignore: ['**.md']      # ❌ Not a top-level key
+```
+
+**📖 See:** YAML Generation Rules - Rule 8E for detailed filter nesting rules.
 
 #### Smell 9: Run on Fork (Schedule) (⚠️ LOCATION CONSTRAINT)
 - **Problem:** Scheduled runs waste resources on forks.
